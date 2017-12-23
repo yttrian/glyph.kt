@@ -3,7 +3,8 @@ package me.ianmooreis.glyph
 import ai.api.AIConfiguration
 import ai.api.AIDataService
 import ai.api.model.AIRequest
-import me.ianmooreis.glyph.skills.Skills
+import me.ianmooreis.glyph.skills.helpSkill
+import me.ianmooreis.glyph.skills.statusSkill
 import net.dv8tion.jda.core.entities.Emote
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -17,9 +18,13 @@ object MessageOrchestrator : ListenerAdapter() {
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
     private var ledger = mutableMapOf<String, String>()
 
-    fun ammendLedger(invoker: String?, response: String?) {
+    fun amendLedger(invoker: String?, response: String?) {
         if (invoker != null && response != null)
             ledger.put(invoker, response)
+    }
+
+    fun getLedgerSize() : Int {
+        return ledger.size
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -31,10 +36,10 @@ object MessageOrchestrator : ListenerAdapter() {
         }
         val result = ai.result
         val action = result.action
-        println(event.message.getConfig())
         when (action) {
-            "skill.help" -> Skills.help(event)
-            "fallback.primary" -> event.message.addReaction("❓")
+            "skill.help" -> helpSkill(event)
+            "skill.status" -> statusSkill(event)
+            "fallback.primary" -> event.message.addReaction("❓").queue()
             else -> event.message.channel.sendMessage(result.fulfillment.speech).queue()
         }
         log.info("Recieved \"${event.message.content}\" on shard ${event.jda.shardInfo.shardId}, acted with $action")

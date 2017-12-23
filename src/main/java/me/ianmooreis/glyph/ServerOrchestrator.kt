@@ -23,8 +23,7 @@ object ServerOrchestrator : ListenerAdapter() {
     private fun updateServerCount(id: String, count: Int) {
         val url = "https://discordbots.org/api/bots/$id/stats"
         val client = OkHttpClient()
-        val data = JSONObject()
-        data.put("server_count", count)
+        val data = JSONObject().put("server_count", count)
         val body : RequestBody = RequestBody.create(MediaType.parse("application/json"), data.toString())
 
         val request : Request = Request.Builder()

@@ -1,17 +1,17 @@
 package me.ianmooreis.glyph
 
 import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.Message
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.postgresql.jdbc.PgArray
 import java.net.URI
 
 object ServerConfigs : Table() {
     class StringArrayColumnType : ColumnType() { override fun sqlType(): String = "TEXT[]" }
-    private fun list(name: String): Column<PgArray> = registerColumn(name, StringArrayColumnType())
+    private fun list(name: String): Column<Any> = registerColumn(name, StringArrayColumnType())
+    class BigIntType : ColumnType() { override fun sqlType(): String = "BIGINT" }
+    private fun bigint(name: String): Column<Long> = registerColumn(name, BigIntType())
 
-    val id = long("guild_id").primaryKey()
+    val guild_id = bigint("guild_id").primaryKey()
     val wiki = text("wiki")
     val selectable_roles = list("selectable_roles")
     val spoilers_channel = text("spoilers_channel")
@@ -48,7 +48,7 @@ object DatabaseOrchestrator {
         transaction {
             for (config in ServerConfigs.selectAll()) {
                 this@DatabaseOrchestrator.configs.put(
-                        config[ServerConfigs.id].toString(),
+                        config[ServerConfigs.guild_id].toString(),
                         ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles],
                                 config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords],
                                 config[ServerConfigs.fa_quickview_enabled],config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
@@ -61,9 +61,38 @@ object DatabaseOrchestrator {
         return configs.getOrDefault(guild.id, defaultConfig)
     }
     fun updateServerConfig(guild: Guild, config: ServerConfig) {
+        // TODO: Use or make an UPSERT instead of this mess
         transaction {
-            ServerConfigs.update({ServerConfigs.id eq guild.id}) {
-
+            val result = ServerConfigs.update({ServerConfigs.guild_id eq guild.idLong}) {
+                it[wiki] = config.wiki
+                it[selectable_roles] = config.selectable_roles
+                it[spoilers_channel] = config.spoilers_channel ?: ""
+                it[spoilers_keywords] = config.spoilers_keywords
+                it[fa_quickview_enabled] = config.fa_quickview_enabled
+                it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
+                it[picarto_quickview_enabled] = config.picarto_quickview_enabled
+                it[auditing_joins] = config.auditing_joins
+                it[auditing_leaves] = config.auditing_leaves
+                it[auditing_reactions] = config.auditing_reactions
+                it[auditing_channel] = config.auditing_channel ?: ""
+                it[lang] = config.lang
+            }
+            if (result == 0) { //0 means it failed, kinda seems to be a dumb return value
+                ServerConfigs.insert {
+                    it[guild_id] = guild.idLong
+                    it[wiki] = config.wiki
+                    it[selectable_roles] = config.selectable_roles
+                    it[spoilers_channel] = config.spoilers_channel ?: ""
+                    it[spoilers_keywords] = config.spoilers_keywords
+                    it[fa_quickview_enabled] = config.fa_quickview_enabled
+                    it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
+                    it[picarto_quickview_enabled] = config.picarto_quickview_enabled
+                    it[auditing_joins] = config.auditing_joins
+                    it[auditing_leaves] = config.auditing_leaves
+                    it[auditing_reactions] = config.auditing_reactions
+                    it[auditing_channel] = config.auditing_channel ?: ""
+                    it[lang] = config.lang
+                }
             }
         }
     }
@@ -72,9 +101,4 @@ object DatabaseOrchestrator {
     }
 }
 
-fun Message.getConfig() : ServerConfig {
-    return when (this.guild != null) {
-        true -> DatabaseOrchestrator.defaultConfig
-        false -> DatabaseOrchestrator.getServerConfig(this.guild)
-    }
-}
+fun Guild.getConfig() : ServerConfig = DatabaseOrchestrator.getServerConfig(this)

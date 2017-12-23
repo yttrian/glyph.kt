@@ -53,5 +53,10 @@
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-reflect:1.1.60" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.9" level="project" />
     <orderEntry type="library" name="Maven: postgresql:postgresql:9.4.1208-jdbc42-atlassian-hosted" level="project" />
+    <orderEntry type="library" name="Maven: com.buest:klaxon:0.32" level="project" />
+    <orderEntry type="library" name="Maven: com.github.mfornos:humanize-slim:1.2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="library" name="Maven: org.ocpsoft.prettytime:prettytime:3.2.5.Final" level="project" />
+    <orderEntry type="library" name="Maven: me.xuender:unidecode:0.0.7" level="project" />
   </component>
 </module>

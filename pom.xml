@@ -54,6 +54,16 @@
             <artifactId>postgresql</artifactId>
             <version>9.4.1208-jdbc42-atlassian-hosted</version>
         </dependency>
+        <dependency>
+            <groupId>com.buest</groupId>
+            <artifactId>klaxon</artifactId>
+            <version>0.32</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mfornos</groupId>
+            <artifactId>humanize-slim</artifactId>
+            <version>1.2.2</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -70,6 +80,11 @@
             <id>exposed</id>
             <name>exposed</name>
             <url>https://dl.bintray.com/kotlin/exposed</url>
+        </repository>
+        <repository>
+            <id>bintray-cbeust-maven</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/cbeust/maven</url>
         </repository>
     </repositories>
 

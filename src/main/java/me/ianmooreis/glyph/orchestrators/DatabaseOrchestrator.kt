@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph
+package me.ianmooreis.glyph.orchestrators
 
 import net.dv8tion.jda.core.entities.Guild
 import org.jetbrains.exposed.sql.*
@@ -35,10 +35,10 @@ data class ServerConfig(val wiki: String, val selectable_roles: Any,
 object DatabaseOrchestrator {
     private var configs = mutableMapOf<String, ServerConfig>()
     val defaultConfig = ServerConfig("wikipedia", emptyList<String>(),
-        null, emptyList<String>(),
-        true, false, true,
-        false, false, false, null,
-        "en")
+            null, emptyList<String>(),
+            true, false, true,
+            false, false, false, null,
+            "en")
     init {
         val dbUri = URI(System.getenv("DATABASE_URL"))
         val username = dbUri.userInfo.split(":")[0]
@@ -47,11 +47,11 @@ object DatabaseOrchestrator {
         Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
         transaction {
             for (config in ServerConfigs.selectAll()) {
-                this@DatabaseOrchestrator.configs.put(
+                configs.put(
                         config[ServerConfigs.guild_id].toString(),
                         ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles],
                                 config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords],
-                                config[ServerConfigs.fa_quickview_enabled],config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
+                                config[ServerConfigs.fa_quickview_enabled], config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
                                 config[ServerConfigs.auditing_joins], config[ServerConfigs.auditing_leaves], config[ServerConfigs.auditing_reactions], config[ServerConfigs.auditing_channel],
                                 config[ServerConfigs.lang]))
             }
@@ -63,7 +63,7 @@ object DatabaseOrchestrator {
     fun updateServerConfig(guild: Guild, config: ServerConfig) {
         // TODO: Use or make an UPSERT instead of this mess
         transaction {
-            val result = ServerConfigs.update({ServerConfigs.guild_id eq guild.idLong}) {
+            val result = ServerConfigs.update({ ServerConfigs.guild_id eq guild.idLong}) {
                 it[wiki] = config.wiki
                 it[selectable_roles] = config.selectable_roles
                 it[spoilers_channel] = config.spoilers_channel ?: ""
@@ -101,4 +101,5 @@ object DatabaseOrchestrator {
     }
 }
 
-fun Guild.getConfig() : ServerConfig = DatabaseOrchestrator.getServerConfig(this)
+val Guild.config : ServerConfig
+    get() = DatabaseOrchestrator.getServerConfig(this)

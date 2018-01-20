@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph
+package me.ianmooreis.glyph.orchestrators
 
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -11,12 +11,12 @@ import org.json.JSONObject
 
 object ServerOrchestrator : ListenerAdapter() {
     override fun onGuildJoin(event: GuildJoinEvent) {
-        this.updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
+        updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
         println("Join ${event.guild.name} as ${event.jda.selfUser.name}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
-        this.updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
+        updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
         println("Left ${event.guild.name} as ${event.jda.selfUser.id}")
     }
 

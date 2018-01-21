@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.2.0</kotlin.version>
+        <kotlin.version>1.2.20</kotlin.version>
     </properties>
 
     <dependencies>
@@ -24,9 +24,19 @@
             <version>v0.BETA.1</version>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
             <groupId>ai.api</groupId>
             <artifactId>libai</artifactId>
             <version>1.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -38,6 +48,11 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -60,9 +75,9 @@
             <version>0.32</version>
         </dependency>
         <dependency>
-            <groupId>com.github.mfornos</groupId>
-            <artifactId>humanize</artifactId>
-            <version>1.2.2</version>
+            <groupId>net.dean.jraw</groupId>
+            <artifactId>JRAW</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -85,6 +100,11 @@
             <id>bintray-cbeust-maven</id>
             <name>bintray</name>
             <url>https://dl.bintray.com/cbeust/maven</url>
+        </repository>
+        <repository>
+            <id>bintray-thatjavanerd-maven</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/thatjavanerd/maven</url>
         </repository>
     </repositories>
 

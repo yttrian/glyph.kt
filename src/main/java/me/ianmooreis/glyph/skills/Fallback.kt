@@ -4,7 +4,7 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.orchestrators.Skill
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object FallbackSkill: Skill("skill.fallback") {
+object FallbackSkill : Skill("fallback.primary") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         event.message.addReaction("❓").queue()
     }

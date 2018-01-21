@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.awt.Color
 
-object HelpSkill: Skill("skill.help") {
+object HelpSkill : Skill("skill.help") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val creator: User = event.jda.getUserById(System.getenv("CREATOR_ID"))
         val name = event.jda.selfUser.name

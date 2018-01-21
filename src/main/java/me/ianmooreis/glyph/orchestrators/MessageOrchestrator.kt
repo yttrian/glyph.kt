@@ -54,15 +54,15 @@ object MessageOrchestrator : ListenerAdapter() {
     }
 }
 
-fun Message.reply(content: String? = null, embed: MessageEmbed? = null) {
-    if (content != null) {
-        this.channel.sendMessage(content).promise().then {
-            MessageOrchestrator.amendLedger(this.id, it.id)
-        }
-    } else {
-        this.channel.sendMessage(embed).promise().then {
-            MessageOrchestrator.amendLedger(this.id, it.id)
-        }
+fun Message.reply(content: String) {
+    this.channel.sendMessage(content).promise().then {
+        MessageOrchestrator.amendLedger(this.id, it.id)
+    }
+}
+
+fun Message.reply(embed: MessageEmbed) {
+    this.channel.sendMessage(embed).promise().then {
+        MessageOrchestrator.amendLedger(this.id, it.id)
     }
 }
 

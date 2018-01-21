@@ -3,11 +3,14 @@ package me.ianmooreis.glyph.orchestrators
 import net.dv8tion.jda.core.entities.Guild
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.postgresql.jdbc.PgArray
+import org.slf4j.Logger
+import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
 
 object ServerConfigs : Table() {
     class StringArrayColumnType : ColumnType() { override fun sqlType(): String = "TEXT[]" }
-    private fun list(name: String): Column<Any> = registerColumn(name, StringArrayColumnType())
+    private fun list(name: String): Column<PgArray> = registerColumn(name, StringArrayColumnType())
     class BigIntType : ColumnType() { override fun sqlType(): String = "BIGINT" }
     private fun bigint(name: String): Column<Long> = registerColumn(name, BigIntType())
 
@@ -26,15 +29,16 @@ object ServerConfigs : Table() {
     val lang = text("lang")
 }
 
-data class ServerConfig(val wiki: String, val selectable_roles: Any,
-                        val spoilers_channel: String?, val spoilers_keywords: Any,
+data class ServerConfig(val wiki: String, val selectable_roles: List<String>,
+                        val spoilers_channel: String?, val spoilers_keywords: List<String>,
                         val fa_quickview_enabled: Boolean, val fa_quickview_thumbnail: Boolean, val picarto_quickview_enabled: Boolean,
                         val auditing_joins: Boolean, val auditing_leaves: Boolean, val auditing_reactions: Boolean, val auditing_channel: String?,
                         val lang: String)
 
 object DatabaseOrchestrator {
+    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private var configs = mutableMapOf<String, ServerConfig>()
-    val defaultConfig = ServerConfig("wikipedia", emptyList<String>(),
+    val defaultConfig = ServerConfig("wikipedia", emptyList(),
             null, emptyList<String>(),
             true, false, true,
             false, false, false, null,
@@ -49,8 +53,8 @@ object DatabaseOrchestrator {
             for (config in ServerConfigs.selectAll()) {
                 configs.put(
                         config[ServerConfigs.guild_id].toString(),
-                        ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles],
-                                config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords],
+                        ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles].toList(),
+                                config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords].toList(),
                                 config[ServerConfigs.fa_quickview_enabled], config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
                                 config[ServerConfigs.auditing_joins], config[ServerConfigs.auditing_leaves], config[ServerConfigs.auditing_reactions], config[ServerConfigs.auditing_channel],
                                 config[ServerConfigs.lang]))
@@ -65,9 +69,9 @@ object DatabaseOrchestrator {
         transaction {
             val result = ServerConfigs.update({ ServerConfigs.guild_id eq guild.idLong}) {
                 it[wiki] = config.wiki
-                it[selectable_roles] = config.selectable_roles
+                //it[selectable_roles] = config.selectable_roles
                 it[spoilers_channel] = config.spoilers_channel ?: ""
-                it[spoilers_keywords] = config.spoilers_keywords
+                //it[spoilers_keywords] = config.spoilers_keywords
                 it[fa_quickview_enabled] = config.fa_quickview_enabled
                 it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
                 it[picarto_quickview_enabled] = config.picarto_quickview_enabled
@@ -81,9 +85,9 @@ object DatabaseOrchestrator {
                 ServerConfigs.insert {
                     it[guild_id] = guild.idLong
                     it[wiki] = config.wiki
-                    it[selectable_roles] = config.selectable_roles
+                    //it[selectable_roles] = config.selectable_roles
                     it[spoilers_channel] = config.spoilers_channel ?: ""
-                    it[spoilers_keywords] = config.spoilers_keywords
+                    //it[spoilers_keywords] = config.spoilers_keywords
                     it[fa_quickview_enabled] = config.fa_quickview_enabled
                     it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
                     it[picarto_quickview_enabled] = config.picarto_quickview_enabled
@@ -97,9 +101,15 @@ object DatabaseOrchestrator {
         }
     }
     fun test(){
-        println(configs)
+        log.info(this.configs.toString())
     }
 }
 
 val Guild.config : ServerConfig
     get() = DatabaseOrchestrator.getServerConfig(this)
+
+//TODO: Something better than this
+fun PgArray.toList() : List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.
+    return this.toString().removeSurrounding("{","}")
+            .split(",").map { it.removeSurrounding("\"") }
+}

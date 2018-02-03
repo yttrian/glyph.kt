@@ -38,8 +38,8 @@ data class ServerConfig(val wiki: String, val selectable_roles: List<String>,
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private var configs = mutableMapOf<String, ServerConfig>()
-    val defaultConfig = ServerConfig("wikipedia", emptyList(),
-            null, emptyList<String>(),
+    private val defaultConfig = ServerConfig("wikipedia", emptyList(),
+            null, emptyList(),
             true, false, true,
             false, false, false, null,
             "en")
@@ -51,13 +51,11 @@ object DatabaseOrchestrator {
         Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
         transaction {
             for (config in ServerConfigs.selectAll()) {
-                configs.put(
-                        config[ServerConfigs.guild_id].toString(),
-                        ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles].toList(),
-                                config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords].toList(),
-                                config[ServerConfigs.fa_quickview_enabled], config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
-                                config[ServerConfigs.auditing_joins], config[ServerConfigs.auditing_leaves], config[ServerConfigs.auditing_reactions], config[ServerConfigs.auditing_channel],
-                                config[ServerConfigs.lang]))
+                configs[config[ServerConfigs.guild_id].toString()] = ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles].toList(),
+                        config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords].toList(),
+                        config[ServerConfigs.fa_quickview_enabled], config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
+                        config[ServerConfigs.auditing_joins], config[ServerConfigs.auditing_leaves], config[ServerConfigs.auditing_reactions], config[ServerConfigs.auditing_channel],
+                        config[ServerConfigs.lang])
             }
         }
     }

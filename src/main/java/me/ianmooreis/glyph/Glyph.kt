@@ -28,6 +28,8 @@ fun main(args: Array<String>) {
             .addSkill(InfoSkill)
             .addSkill(RoleSetSkill)
             .addSkill(RoleListSkill)
+            .addSkill(PurgeSkill)
+            .addSkill(UserInfoSkill)
             .addSkill(RedditSkill)
             .addSkill(FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()

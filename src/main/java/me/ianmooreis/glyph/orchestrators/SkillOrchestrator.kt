@@ -11,8 +11,8 @@ object SkillOrchestrator {
     private var skills: MutableMap<String, Skill> = mutableMapOf()
 
     fun addSkill(skill: Skill): SkillOrchestrator {
-        log.info("Registered: ${skill.trigger}")
-        this.skills.put(skill.trigger, skill)
+        log.info("Registered: $skill")
+        this.skills[skill.trigger] = skill
         return this
     }
 
@@ -45,4 +45,6 @@ abstract class Skill(val trigger: String, private val serverOnly: Boolean = fals
             this.onTrigger(event, ai)
         }
     }
+
+    override fun toString(): String = trigger
 }

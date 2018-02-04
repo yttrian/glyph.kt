@@ -1,103 +1,94 @@
 package me.ianmooreis.glyph.orchestrators
 
 import net.dv8tion.jda.core.entities.Guild
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.postgresql.jdbc.PgArray
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
+import java.sql.DriverManager
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 
-object ServerConfigs : Table() {
-    class StringArrayColumnType : ColumnType() { override fun sqlType(): String = "TEXT[]" }
-    private fun list(name: String): Column<PgArray> = registerColumn(name, StringArrayColumnType())
-    class BigIntType : ColumnType() { override fun sqlType(): String = "BIGINT" }
-    private fun bigint(name: String): Column<Long> = registerColumn(name, BigIntType())
-
-    val guild_id = bigint("guild_id").primaryKey()
-    val wiki = text("wiki")
-    val selectable_roles = list("selectable_roles")
-    val spoilers_channel = text("spoilers_channel")
-    val spoilers_keywords = list("spoilers_keywords")
-    val fa_quickview_enabled = bool("fa_quickview_enabled")
-    val fa_quickview_thumbnail = bool("fa_quickview_thumbnail")
-    val picarto_quickview_enabled = bool("picarto_quickview_enabled")
-    val auditing_joins = bool("auditing_joins")
-    val auditing_leaves = bool("auditing_leaves")
-    val auditing_reactions = bool("auditing_reactions")
-    val auditing_channel = text("auditing_channel")
-    val lang = text("lang")
-}
-
-data class ServerConfig(val wiki: String, val selectable_roles: List<String>,
-                        val spoilers_channel: String?, val spoilers_keywords: List<String>,
-                        val fa_quickview_enabled: Boolean, val fa_quickview_thumbnail: Boolean, val picarto_quickview_enabled: Boolean,
-                        val auditing_joins: Boolean, val auditing_leaves: Boolean, val auditing_reactions: Boolean, val auditing_channel: String?,
-                        val lang: String)
+data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String> = emptyList(),
+                        val spoilersChannel: String? = null, val spoilersKeywords: List<String> = emptyList(),
+                        val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
+                        val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingChannel: String? = null,
+                        val lang: String = "en")
 
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private var configs = mutableMapOf<String, ServerConfig>()
-    private val defaultConfig = ServerConfig("wikipedia", emptyList(),
-            null, emptyList(),
-            true, false, true,
-            false, false, false, null,
-            "en")
+    private var configs = mutableMapOf<Long, ServerConfig>()
+    private val dbUri = URI(System.getenv("DATABASE_URL"))
+    private val username = dbUri.userInfo.split(":")[0]
+    private val password = dbUri.userInfo.split(":")[1]
+    private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
+    private val defaultConfig = ServerConfig()
+
     init {
-        val dbUri = URI(System.getenv("DATABASE_URL"))
-        val username = dbUri.userInfo.split(":")[0]
-        val password = dbUri.userInfo.split(":")[1]
-        val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-        Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
-        transaction {
-            for (config in ServerConfigs.selectAll()) {
-                configs[config[ServerConfigs.guild_id].toString()] = ServerConfig(config[ServerConfigs.wiki], config[ServerConfigs.selectable_roles].toList(),
-                        config[ServerConfigs.spoilers_channel], config[ServerConfigs.spoilers_keywords].toList(),
-                        config[ServerConfigs.fa_quickview_enabled], config[ServerConfigs.fa_quickview_thumbnail], config[ServerConfigs.picarto_quickview_enabled],
-                        config[ServerConfigs.auditing_joins], config[ServerConfigs.auditing_leaves], config[ServerConfigs.auditing_reactions], config[ServerConfigs.auditing_channel],
-                        config[ServerConfigs.lang])
-            }
+        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+        val ps = con.prepareStatement("SELECT * FROM serverconfigs") //TODO: Not select *
+        val rs = ps.executeQuery()
+        while (rs.next()) {
+            this.configs[rs.getLong("guild_id")] = ServerConfig(
+                    rs.getString("wiki"),
+                    rs.getList("selectable_roles"),
+                    rs.getString("spoilers_channel"),
+                    rs.getList("spoilers_keywords"),
+                    rs.getBoolean("fa_quickview_enabled"),
+                    rs.getBoolean("fa_quickview_thumbnail"),
+                    rs.getBoolean("picarto_quickview_enabled"),
+                    rs.getBoolean("auditing_joins"),
+                    rs.getBoolean("auditing_leaves"),
+                    rs.getString("auditing_channel"),
+                    rs.getString("lang"))
         }
+        con.close()
     }
+
+    fun deleteServerConfig(guild: Guild) {
+        this.configs.remove(guild.idLong)
+        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+        val ps = con.prepareStatement("DELETE FROM serverconfigs WHERE guild_id = ?")
+        ps.setLong(1, guild.idLong)
+        ps.executeQuery()
+        con.commit()
+        con.close()
+    }
+
     fun getServerConfig(guild: Guild) : ServerConfig {
-        return configs.getOrDefault(guild.id, defaultConfig)
+        return configs.getOrDefault(guild.idLong,  defaultConfig)
     }
-    fun updateServerConfig(guild: Guild, config: ServerConfig) {
-        // TODO: Use or make an UPSERT instead of this mess
-        transaction {
-            val result = ServerConfigs.update({ ServerConfigs.guild_id eq guild.idLong}) {
-                it[wiki] = config.wiki
-                //it[selectable_roles] = config.selectable_roles
-                it[spoilers_channel] = config.spoilers_channel ?: ""
-                //it[spoilers_keywords] = config.spoilers_keywords
-                it[fa_quickview_enabled] = config.fa_quickview_enabled
-                it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
-                it[picarto_quickview_enabled] = config.picarto_quickview_enabled
-                it[auditing_joins] = config.auditing_joins
-                it[auditing_leaves] = config.auditing_leaves
-                it[auditing_reactions] = config.auditing_reactions
-                it[auditing_channel] = config.auditing_channel ?: ""
-                it[lang] = config.lang
-            }
-            if (result == 0) { //0 means it failed, kinda seems to be a dumb return value
-                ServerConfigs.insert {
-                    it[guild_id] = guild.idLong
-                    it[wiki] = config.wiki
-                    //it[selectable_roles] = config.selectable_roles
-                    it[spoilers_channel] = config.spoilers_channel ?: ""
-                    //it[spoilers_keywords] = config.spoilers_keywords
-                    it[fa_quickview_enabled] = config.fa_quickview_enabled
-                    it[fa_quickview_thumbnail] = config.fa_quickview_thumbnail
-                    it[picarto_quickview_enabled] = config.picarto_quickview_enabled
-                    it[auditing_joins] = config.auditing_joins
-                    it[auditing_leaves] = config.auditing_leaves
-                    it[auditing_reactions] = config.auditing_reactions
-                    it[auditing_channel] = config.auditing_channel ?: ""
-                    it[lang] = config.lang
-                }
-            }
-        }
+
+    fun setServerConfig(guild: Guild, config: ServerConfig) {
+        this.configs.replace(guild.idLong, config)
+        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+        val ps = con.prepareStatement("INSERT INTO serverconfigs" +
+                " (guild_id, wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
+                " auditing_channel, auditing_joins, auditing_leaves)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                " ON CONFLICT (guild_id) DO UPDATE SET" +
+                " (wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
+                " auditing_channel, auditing_joins, auditing_leaves)" +
+                " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.spoilers_channel, " +
+                " EXCLUDED.spoilers_keywords, EXCLUDED.fa_quickview_enabled, " +
+                " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
+                " EXCLUDED.auditing_channel, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
+        ps.setLong(1, guild.idLong)
+        ps.setString(2, config.wiki)
+        ps.setList(3, config.selectableRoles)
+        ps.setString(4, config.spoilersChannel)
+        ps.setList(5, config.spoilersKeywords)
+        ps.setBoolean(6, config.faQuickviewEnabled)
+        ps.setBoolean(7, config.faQuickviewThumbnail)
+        ps.setBoolean(8, config.picartoQuickviewEnabled)
+        ps.setString(9, config.auditingChannel)
+        ps.setBoolean(10, config.auditingJoins)
+        ps.setBoolean(11, config.auditingLeaves)
+        ps.executeUpdate()
+        con.close()
     }
+
     fun test(){
         log.info(this.configs.toString())
     }
@@ -107,7 +98,11 @@ val Guild.config : ServerConfig
     get() = DatabaseOrchestrator.getServerConfig(this)
 
 //TODO: Something better than this
-fun PgArray.toList() : List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.
-    return this.toString().removeSurrounding("{","}")
+fun ResultSet.getList(columnLabel: String): List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.
+    return this.getArray(columnLabel).toString().removeSurrounding("{","}")
             .split(",").map { it.removeSurrounding("\"") }
+}
+
+fun PreparedStatement.setList(parameterIndex: Int, list: List<String>) {
+    this.setArray(parameterIndex, this.connection.createArrayOf("text", list.toTypedArray()))
 }

@@ -58,5 +58,7 @@
     <orderEntry type="library" name="Maven: net.dean.jraw:JRAW:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: net.dean.jraw:moshi-deeply-nested:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.ocpsoft.prettytime:prettytime:3.2.7.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.github.kittinunf.fuel:fuel:1.12.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.kittinunf.result:result:1.2.0" level="project" />
   </component>
 </module>

@@ -18,7 +18,7 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true) {
         val target = event.member //TODO: Allow choosing other people
         val desiredRoleName: String = ai.result.getStringParameter("role").removeSurrounding("\"")
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
-        val selectableRoles = event.guild.config.selectable_roles.map { event.guild.getRolesByName(it, true).firstOrNull() } //TODO: Check for no selectable roles
+        val selectableRoles = event.guild.config.selectableRoles.map { event.guild.getRolesByName(it, true).firstOrNull() } //TODO: Check for no selectable roles
         if (desiredRole != null && selectableRoles.contains(desiredRole)) {
             try {
                 event.guild.controller.removeRolesFromMember(target, selectableRoles).reason("Asked to be a $desiredRoleName").queue()
@@ -48,7 +48,7 @@ object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         event.message.reply(EmbedBuilder()
                 .setTitle("Available Roles")
-                .setDescription(event.guild.config.selectable_roles.map {
+                .setDescription(event.guild.config.selectableRoles.map {
                     event.guild.getRolesByName(it, true).firstOrNull()
                 }.joinToString("\n") { "**${it?.name ?: "Deleted role"}** (${it?.guild?.getMembersWithRoles(it)?.size ?: "No"} members) " })
                 .setFooter("Roles", null)

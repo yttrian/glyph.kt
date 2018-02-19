@@ -1,6 +1,9 @@
 package me.ianmooreis.glyph
 
-import me.ianmooreis.glyph.orchestrators.*
+import me.ianmooreis.glyph.orchestrators.AuditingOrchestrator
+import me.ianmooreis.glyph.orchestrators.MessageOrchestrator
+import me.ianmooreis.glyph.orchestrators.ServerOrchestrator
+import me.ianmooreis.glyph.orchestrators.SkillOrchestrator
 import me.ianmooreis.glyph.skills.*
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
@@ -19,7 +22,6 @@ object Glyph : JDABuilder(AccountType.BOT) {
 }
 
 fun main(args: Array<String>) {
-    DatabaseOrchestrator.test()
     SkillOrchestrator
             .addSkill(HelpSkill)
             .addSkill(InfoSkill)

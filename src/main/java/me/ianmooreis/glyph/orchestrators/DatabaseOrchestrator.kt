@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.orchestrators
 
 import net.dv8tion.jda.core.entities.Guild
+import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
@@ -13,6 +14,16 @@ data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: Lis
                         val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
                         val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingChannel: String? = null,
                         val lang: String = "en")
+fun ServerConfig.toJSON(): JSONObject {
+    /*val prettyPrint = mapOf(
+        "auditing" to mapOf("channel" to this.auditingChannel, "joins" to this.auditingJoins, "leaves" to this.auditingLeaves),
+        "quickview" to mapOf("fa" to mapOf("enabled" to this.faQuickviewEnabled, "thumbnail" to this.faQuickviewThumbnail), "picarto" to mapOf("enabled" to this.picartoQuickviewEnabled)),
+        "roles" to mapOf("selectable" to this.selectableRoles),
+        "spoilers" to mapOf("keywords" to this.spoilersKeywords, "safeChannel" to this.spoilersChannel),
+        "wiki" to this.wiki
+    )*/ //TODO: Reinvestigation pretty printing later
+    return JSONObject(this)
+}
 
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
@@ -58,39 +69,40 @@ object DatabaseOrchestrator {
         return configs.getOrDefault(guild.idLong,  defaultConfig)
     }
 
-    fun setServerConfig(guild: Guild, config: ServerConfig) {
-        this.configs.replace(guild.idLong, config)
-        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
-        val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                " (guild_id, wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
-                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                " auditing_channel, auditing_joins, auditing_leaves)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
-                " ON CONFLICT (guild_id) DO UPDATE SET" +
-                " (wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
-                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                " auditing_channel, auditing_joins, auditing_leaves)" +
-                " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.spoilers_channel, " +
-                " EXCLUDED.spoilers_keywords, EXCLUDED.fa_quickview_enabled, " +
-                " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
-                " EXCLUDED.auditing_channel, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
-        ps.setLong(1, guild.idLong)
-        ps.setString(2, config.wiki)
-        ps.setList(3, config.selectableRoles)
-        ps.setString(4, config.spoilersChannel)
-        ps.setList(5, config.spoilersKeywords)
-        ps.setBoolean(6, config.faQuickviewEnabled)
-        ps.setBoolean(7, config.faQuickviewThumbnail)
-        ps.setBoolean(8, config.picartoQuickviewEnabled)
-        ps.setString(9, config.auditingChannel)
-        ps.setBoolean(10, config.auditingJoins)
-        ps.setBoolean(11, config.auditingLeaves)
-        ps.executeUpdate()
-        con.close()
-    }
-
-    fun test(){
-        log.info(this.configs.toString())
+    fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        try {
+            val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+            val ps = con.prepareStatement("INSERT INTO serverconfigs" +
+                    " (guild_id, wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                    " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
+                    " auditing_channel, auditing_joins, auditing_leaves)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " ON CONFLICT (guild_id) DO UPDATE SET" +
+                    " (wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                    " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
+                    " auditing_channel, auditing_joins, auditing_leaves)" +
+                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.spoilers_channel, " +
+                    " EXCLUDED.spoilers_keywords, EXCLUDED.fa_quickview_enabled, " +
+                    " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
+                    " EXCLUDED.auditing_channel, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
+            ps.setLong(1, guild.idLong)
+            ps.setString(2, config.wiki)
+            ps.setList(3, config.selectableRoles)
+            ps.setString(4, config.spoilersChannel)
+            ps.setList(5, config.spoilersKeywords)
+            ps.setBoolean(6, config.faQuickviewEnabled)
+            ps.setBoolean(7, config.faQuickviewThumbnail)
+            ps.setBoolean(8, config.picartoQuickviewEnabled)
+            ps.setString(9, config.auditingChannel)
+            ps.setBoolean(10, config.auditingJoins)
+            ps.setBoolean(11, config.auditingLeaves)
+            ps.executeUpdate()
+            con.close()
+            this.configs.replace(guild.idLong, config)
+            onSuccess()
+        } catch (e: Exception) {
+            onFailure(e)
+        }
     }
 }
 

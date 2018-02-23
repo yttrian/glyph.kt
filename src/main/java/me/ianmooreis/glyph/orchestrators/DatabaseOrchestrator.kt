@@ -69,6 +69,10 @@ object DatabaseOrchestrator {
         return configs.getOrDefault(guild.idLong,  defaultConfig)
     }
 
+    fun getDeafultServerConfig() : ServerConfig {
+        return defaultConfig
+    }
+
     fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         try {
             val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)

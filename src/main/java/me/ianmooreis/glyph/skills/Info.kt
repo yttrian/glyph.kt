@@ -20,6 +20,7 @@ object InfoSkill : Skill("skill.status") {
                         "\n**Shard** ${jda.shardInfo.shardId + 1}/${jda.shardInfo.shardTotal}\n**Members** ${jda.users.size}" +
                         "\n**Messages** ${MessageOrchestrator.getLedgerSize()}", true)
                 .addField("Operating Parameters", "Must not misrepresent reality.\nMust remain compatible with objective truth.\nMust be obedient.", true)
+                //.addField("Developer Rambling", ai.result.fulfillment.speech, false)
                 //.setThumbnail(jda.selfUser.avatarUrl)
                 .setFooter("$name-Kotlin-${System.getenv("HEROKU_RELEASE_VERSION")}", null)
                 .setTimestamp(Instant.now())

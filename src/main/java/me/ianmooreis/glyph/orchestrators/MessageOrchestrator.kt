@@ -10,8 +10,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
-import java.sql.Date
 import java.time.OffsetDateTime
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 object MessageOrchestrator : ListenerAdapter() {
@@ -116,13 +116,19 @@ fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUn
     }
 }
 
-val Message.contentClean : String
+val Message.contentClean: String
     get() = if (this.channelType.isGuild) {
-        this.contentStripped.removePrefix("@${this.guild.getMember(this.jda.selfUser).effectiveName}").trim()
+        this.contentStripped.removePrefix("@${this.guild.selfMember.effectiveName}").trim()
     } else {
         this.contentStripped.removePrefix("@${this.jda.selfUser.name}").trim()
     }
 
+val Message.cleanMentionedMembers: List<Member>
+    get() = this.mentionedMembers.filter { it.user != this.jda.selfUser }
+
+val Message.cleanMentionedUsers: List<User>
+    get() = this.mentionedUsers.filter { it != this.jda.selfUser }
+
 fun TextChannel.getMessagesSince(time: OffsetDateTime) = this.iterableHistory.filter { it.creationTime.isAfter(time) }
 
-fun OffsetDateTime.toDate() = Date.from(this.toInstant())
+fun OffsetDateTime.toDate(): Date = Date.from(this.toInstant())

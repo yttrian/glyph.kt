@@ -14,7 +14,7 @@ import java.net.URL
 import java.time.Instant
 
 
-object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = true, requiredPermissions = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         Fuel.post("https://hastebin.com/documents").body(event.guild.config.toJSON().toString(4)).responseString { _, response, result ->
             if (response.statusCode == 200) {
@@ -38,7 +38,7 @@ object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = tru
     }
 }
 
-object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = true, requiredPermissions = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val key = ai.result.getStringParameter("url").split("/").last()
         val url = URL("https://hastebin.com/raw/$key")

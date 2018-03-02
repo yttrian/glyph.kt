@@ -28,7 +28,9 @@ object SkillOrchestrator {
     }
 }
 
-abstract class Skill(val trigger: String, private val serverOnly: Boolean = false, private val requiredPermissions: Collection<Permission> = emptyList()) {
+abstract class Skill(val trigger: String, private val serverOnly: Boolean = false,
+                     private val requiredPermissionsUser: Collection<Permission> = emptyList(),
+                     private val requiredPermissionsSelf: Collection<Permission> = emptyList()) {
     val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     open fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
@@ -36,11 +38,14 @@ abstract class Skill(val trigger: String, private val serverOnly: Boolean = fals
     }
 
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val permitted: Boolean = event.member?.hasPermission(requiredPermissions) ?: true
-        if ((serverOnly || requiredPermissions.isNotEmpty()) && !event.channel.type.isGuild ) {
+        val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
+        val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
+        if ((serverOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild ) {
             event.message.reply("You can only do this in a server!")
-        } else if (!permitted) {
-            event.message.reply("You don't have the required permissions to do that! (${requiredPermissions.joinToString { it.name }})")
+        } else if (!permittedSelf) {
+            event.message.reply("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { it.name }})")
+        } else if (!permittedUser) {
+            event.message.reply("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { it.name }})")
         } else {
             this.onTrigger(event, ai)
         }

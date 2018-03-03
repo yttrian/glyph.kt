@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
+import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
 import me.ianmooreis.glyph.orchestrators.reply
@@ -23,7 +24,7 @@ import java.util.*
 
 object RedditSkill : Skill("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
-            OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, "v0.1", "IanM_56")),
+            OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
             Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
     private var paginatorCache = mutableMapOf<String, DefaultPaginator<Submission>>()
     private var submissionCache = mutableMapOf<String, Iterator<Submission>>()

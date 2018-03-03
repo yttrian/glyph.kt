@@ -43,7 +43,7 @@ object MessageOrchestrator : ListenerAdapter() {
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
         this.loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
-        if (event.author.isBot or (event.author == event.jda.selfUser)) return
+        if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
         //TODO: Add QuickView
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return

@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.orchestrators.MessageOrchestrator
 import me.ianmooreis.glyph.orchestrators.Skill
 import me.ianmooreis.glyph.orchestrators.reply
@@ -22,7 +23,7 @@ object InfoSkill : Skill("skill.status") {
                 .addField("Operating Parameters", "Must not misrepresent reality.\nMust remain compatible with objective truth.\nMust be obedient.", true)
                 //.addField("Developer Rambling", ai.result.fulfillment.speech, false)
                 //.setThumbnail(jda.selfUser.avatarUrl)
-                .setFooter("$name-Kotlin-${System.getenv("HEROKU_RELEASE_VERSION")}", null)
+                .setFooter("$name-Kotlin-${Glyph.version}", null)
                 .setTimestamp(Instant.now())
                 .build()
         event.message.reply(embed = embed)

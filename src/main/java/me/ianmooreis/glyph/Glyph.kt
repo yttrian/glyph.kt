@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Game
 
 object Glyph : JDABuilder(AccountType.BOT) {
+    val version: String = System.getenv("HEROKU_RELEASE_VERSION")
     init {
         this.setToken(System.getenv("DISCORD_TOKEN"))
                 .setStatus(OnlineStatus.ONLINE).setGame(Game.playing("Armax Arsenal Arena"))

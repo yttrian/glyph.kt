@@ -15,7 +15,7 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
             event.message.reply("You must be in a server to set your role!")
             return
         }
-        if (event.message.mentionedMembers.size > 0 && !event.member.hasPermission(listOf(Permission.MANAGE_ROLES))) {
+        if ((event.message.mentionedMembers.size > 0 || event.message.mentionsEveryone()) && !event.member.hasPermission(listOf(Permission.MANAGE_ROLES))) {
             event.message.reply("You must have Manage Roles permission to set other peoples' roles!")
         }
         val targets: List<Member> = when {

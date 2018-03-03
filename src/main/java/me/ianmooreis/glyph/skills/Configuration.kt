@@ -1,7 +1,9 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
-import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import me.ianmooreis.glyph.extensions.reply
@@ -17,23 +19,28 @@ import java.time.Instant
 
 object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        Fuel.post("https://hastebin.com/documents").body(event.guild.config.toJSON().toString(4)).responseString { _, response, result ->
-            if (response.statusCode == 200) {
-                val key = JSONObject(result.get()).getString("key")
-                val url = URL("https://hastebin.com/$key")
-                this.log.info("Posted ${event.guild} config to $url")
-                event.message.reply(EmbedBuilder()
-                        .setTitle("Configuration Viewer")
-                        .setDescription(
-                                "Here's the current server config:\n" +
-                                "$url\n" +
-                                "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
-                                "[Official Glyph Server](https://discord.me/glyph-discord)")
-                        .setFooter("Configuration", null)
-                        .setTimestamp(Instant.now())
-                        .build())
-            } else {
-                this.log.error("Hastebin has thrown an error when trying to post config for ${event.guild}!")
+        print(event.guild.config.toJSON())
+        "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON().toString(4)).responseString { _, response, result ->
+            when (result) {
+                is Result.Success -> {
+                    val key = JSONObject(result.get()).getString("key")
+                    val url = URL("https://hastebin.com/$key")
+                    this.log.info("Posted ${event.guild} config to $url")
+                    event.message.reply(EmbedBuilder()
+                            .setTitle("Configuration Viewer")
+                            .setDescription(
+                                    "Here's the current server config:\n" +
+                                            "$url\n" +
+                                            "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
+                                            "[Official Glyph Server](https://discord.me/glyph-discord)")
+                            .setFooter("Configuration", null)
+                            .setTimestamp(Instant.now())
+                            .build())
+                }
+                is Result.Failure -> {
+                    event.message.reply("${CustomEmote.XMARK} There was an error trying to post this server's config to Hastebin, please try again later!")
+                    this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to post config for ${event.guild}!")
+                }
             }
         }
     }
@@ -42,18 +49,21 @@ object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = tru
 object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val key = ai.result.getStringParameter("url").split("/").last()
-        val url = URL("https://hastebin.com/raw/$key")
-        Fuel.get(url.toString()).responseString { _, response, result ->
-            val data = result.get()
-            if (response.statusCode == 200) {
-                val config = this.parseJSON(data) { this.updateError(event, it) }
-                if (config != null) {
-                    DatabaseOrchestrator.setServerConfig(event.guild, config, { updateSuccess(event) }, { this.updateError(event, it) })
-                    this.log.info("Got ${event.guild} config from $url")
+        val url = "https://hastebin.com/raw/$key"
+        url.httpGet().responseString { _, response, result ->
+            when (result) {
+                is Result.Success -> {
+                    val data = result.get()
+                    val config = this.parseJSON(data) { this.updateError(event, it) }
+                    if (config != null) {
+                        DatabaseOrchestrator.setServerConfig(event.guild, config, { updateSuccess(event) }, { this.updateError(event, it) })
+                        this.log.info("Got ${event.guild} config from $url")
+                    }
                 }
-            } else {
-                event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL ($url)!")
-                this.log.error("Hastebin has thrown an error when trying to get config for ${event.guild}!")
+                is Result.Failure -> {
+                    event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL ($url)! Check your url or try waiting a bit before retrying.")
+                    this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to get config for ${event.guild}!")
+                }
             }
         }
     }

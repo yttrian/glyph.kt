@@ -12,12 +12,13 @@ import org.json.JSONObject
 object Server : ListenerAdapter() {
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
-        println("Join ${event.guild.name} as ${event.jda.selfUser.name}")
+        println("Joined ${event.guild}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
-        println("Left ${event.guild.name} as ${event.jda.selfUser.id}")
+        DatabaseOrchestrator.deleteServerConfig(event.guild)
+        println("Left ${event.guild}")
     }
 
     private fun updateServerCount(id: String, count: Int) {

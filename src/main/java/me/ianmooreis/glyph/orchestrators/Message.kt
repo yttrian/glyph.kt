@@ -6,6 +6,7 @@ import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.utils.quickview.FurAffinity
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
@@ -53,7 +54,10 @@ object MessageOrchestrator : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         this.loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
-        //TODO: Add QuickView
+        val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
+        if (config.faQuickviewEnabled) {
+            FurAffinity.makeQuickviews(event)
+        }
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))

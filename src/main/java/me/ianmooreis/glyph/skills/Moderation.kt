@@ -2,7 +2,12 @@ package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
 import com.google.gson.JsonObject
-import me.ianmooreis.glyph.orchestrators.*
+import me.ianmooreis.glyph.extensions.getMessagesSince
+import me.ianmooreis.glyph.extensions.getinfoEmbed
+import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.orchestrators.CustomEmote
+import me.ianmooreis.glyph.orchestrators.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.User
@@ -72,19 +77,6 @@ object UserInfoSkill : Skill("skill.moderation.user_info") { //TODO: Change to c
             event.message.reply("Unable to find the specified user!")
             return
         }
-
-        val botTag: String = if (user.isBot) CustomEmote.BOT.toString() else ""
-        val createdAgo = PrettyTime().format(user.creationTime.toDate())
-        event.message.reply(EmbedBuilder()
-                .setTitle("User Info")
-                .setDescription(
-                        "**User** ${user.name}#${user.discriminator} $botTag\n" +
-                        "**ID** ${user.id}\n" +
-                        "**Mention** ${user.asMention}\n" +
-                        "**Created** $createdAgo")
-                .setThumbnail(user.avatarUrl)
-                .setFooter("Moderation", null)
-                .setTimestamp(Instant.now())
-                .build())
+        event.message.reply(user.getinfoEmbed("User Info", "Moderation", null))
     }
 }

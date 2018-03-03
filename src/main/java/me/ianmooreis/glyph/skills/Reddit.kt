@@ -3,9 +3,9 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.orchestrators.reply
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException

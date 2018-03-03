@@ -1,8 +1,8 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.orchestrators.reply
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.text.SimpleDateFormat

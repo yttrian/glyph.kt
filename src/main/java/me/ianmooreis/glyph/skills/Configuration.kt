@@ -4,6 +4,7 @@ import ai.api.model.AIResponse
 import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.*
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission

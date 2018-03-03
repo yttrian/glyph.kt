@@ -2,9 +2,9 @@ package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.MessageOrchestrator
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.orchestrators.reply
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent

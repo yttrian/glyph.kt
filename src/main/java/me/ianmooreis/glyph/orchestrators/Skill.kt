@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.orchestrators
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.slf4j.Logger

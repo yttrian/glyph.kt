@@ -4,14 +4,15 @@ import ai.api.AIConfiguration
 import ai.api.AIDataService
 import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
+import me.ianmooreis.glyph.extensions.contentClean
+import me.ianmooreis.glyph.extensions.reply
+import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
-import java.time.OffsetDateTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 object MessageOrchestrator : ListenerAdapter() {
@@ -41,6 +42,14 @@ object MessageOrchestrator : ListenerAdapter() {
         return ledger.size
     }
 
+    fun logSendFailure(channel: TextChannel) {
+        if (channel.type.isGuild) {
+            this.log.warn("Failed to send message in $channel of ${channel.guild}!")
+        } else {
+            this.log.warn("Failed to send message in $channel!.")
+        }
+    }
+
     override fun onMessageReceived(event: MessageReceivedEvent) {
         this.loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
@@ -50,6 +59,7 @@ object MessageOrchestrator : ListenerAdapter() {
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
+            StatusOrchestrator.setStatus(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
             return
         }
         val result = ai.result
@@ -95,40 +105,3 @@ enum class CustomEmote(val emote: Emote?) {
 
     override fun toString() = emote?.asMention ?: ""
 }
-
-fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS) {
-    this.channel.sendMessage(content.trim()).queue {
-        if (deleteAfterDelay > 0){
-            it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-        } else {
-            MessageOrchestrator.amendLedger(this.id, it.id)
-        }
-    }
-}
-
-fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS) {
-    this.channel.sendMessage(embed).queue {
-        if (deleteAfterDelay > 0){
-            it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-        } else {
-            MessageOrchestrator.amendLedger(this.id, it.id)
-        }
-    }
-}
-
-val Message.contentClean: String
-    get() = if (this.channelType.isGuild) {
-        this.contentStripped.removePrefix("@${this.guild.selfMember.effectiveName}").trim()
-    } else {
-        this.contentStripped.removePrefix("@${this.jda.selfUser.name}").trim()
-    }
-
-val Message.cleanMentionedMembers: List<Member>
-    get() = this.mentionedMembers.filter { it.user != this.jda.selfUser }
-
-val Message.cleanMentionedUsers: List<User>
-    get() = this.mentionedUsers.filter { it != this.jda.selfUser }
-
-fun TextChannel.getMessagesSince(time: OffsetDateTime) = this.iterableHistory.filter { it.creationTime.isAfter(time) }
-
-fun OffsetDateTime.toDate(): Date = Date.from(this.toInstant())

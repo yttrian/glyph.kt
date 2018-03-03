@@ -1,10 +1,10 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.Skill
 import me.ianmooreis.glyph.orchestrators.config
-import me.ianmooreis.glyph.orchestrators.reply
 import me.ianmooreis.glyph.utils.libraries.FandomExtractor
 import me.ianmooreis.glyph.utils.libraries.WikipediaExtractor
 import net.dv8tion.jda.core.EmbedBuilder
@@ -14,7 +14,7 @@ import java.time.Instant
 object WikiSkill : Skill("skill.wiki") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query = ai.result.getStringParameter("search_query")
-        val wiki = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDeafultServerConfig().wiki
+        val wiki = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
         if (wiki.toLowerCase() == "wikipedia") {
             val page: WikipediaExtractor.WikipediaPage? = WikipediaExtractor.getPage(query)
             if (page != null) {

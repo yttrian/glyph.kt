@@ -9,7 +9,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.json.JSONObject
 
-object ServerOrchestrator : ListenerAdapter() {
+object Server : ListenerAdapter() {
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda.selfUser.id, event.jda.guilds.count())
         println("Join ${event.guild.name} as ${event.jda.selfUser.name}")

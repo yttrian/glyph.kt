@@ -1,9 +1,6 @@
 package me.ianmooreis.glyph
 
-import me.ianmooreis.glyph.orchestrators.AuditingOrchestrator
-import me.ianmooreis.glyph.orchestrators.MessageOrchestrator
-import me.ianmooreis.glyph.orchestrators.ServerOrchestrator
-import me.ianmooreis.glyph.orchestrators.SkillOrchestrator
+import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
@@ -15,10 +12,11 @@ object Glyph : JDABuilder(AccountType.BOT) {
     val version: String = System.getenv("HEROKU_RELEASE_VERSION")
     init {
         this.setToken(System.getenv("DISCORD_TOKEN"))
-                .setStatus(OnlineStatus.ONLINE).setGame(Game.playing("Armax Arsenal Arena"))
+                .setStatus(OnlineStatus.ONLINE).setGame(Game.watching("Armax Arsenal Arena"))
                 .addEventListener(MessageOrchestrator)
-                .addEventListener(AuditingOrchestrator)
-                .addEventListener(ServerOrchestrator)
+                .addEventListener(Auditing)
+                .addEventListener(Server)
+                .addEventListener(StatusOrchestrator)
     }
 }
 

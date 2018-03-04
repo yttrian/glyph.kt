@@ -63,7 +63,7 @@ object MessageOrchestrator : ListenerAdapter() {
             Picarto.makeQuickviews(event)
         }
         if (config.spoilersKeywords.filter{ event.message.contentClean.contains(it, true) && it != "" }.any() && event.message.textChannel.name != config.spoilersChannel) {
-            log.info("Marked \"${event.message.contentClean}\" in ${event.guild} as spoiler.")
+            log.info("Marked \"${event.message}\" in ${event.guild} as spoiler.")
             event.message.addReaction("⚠").queue()
         }
         val message: Message = event.message
@@ -79,7 +79,7 @@ object MessageOrchestrator : ListenerAdapter() {
         launch {
             SkillOrchestrator.trigger(event, ai)
         }
-        log.info("Received \"${event.message.contentClean}\", acted with $action")
+        log.info("Received \"${event.message}\" ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, acted with $action")
     }
 
     override fun onMessageDelete(event: MessageDeleteEvent) {

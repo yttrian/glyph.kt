@@ -72,4 +72,6 @@ val Message.cleanMentionedMembers: List<Member>
 val Message.cleanMentionedUsers: List<User>
     get() = this.mentionedUsers.filter { it != this.jda.selfUser }
 
-fun TextChannel.getMessagesSince(time: OffsetDateTime) = this.iterableHistory.filter { it.creationTime.isAfter(time) }
+fun TextChannel.getMessagesSince(time: OffsetDateTime, success: (List<Message>) -> Unit) {
+    success(this.iterableHistory.filter { it.creationTime.isAfter(time) })
+}

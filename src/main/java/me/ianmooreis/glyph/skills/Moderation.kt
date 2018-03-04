@@ -56,9 +56,10 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
                 .setFooter("Moderation", null)
                 .setTimestamp(Instant.now())
                 .build())
-        val messages = event.textChannel.getMessagesSince(duration)
-        try {
-            event.textChannel.deleteMessages(messages).queue {
+        event.textChannel.getMessagesSince(duration){ messages ->
+            messages.chunked(100).forEach { chunk ->
+                event.textChannel.deleteMessages(chunk).queue()
+            }.also {
                 event.message.reply(EmbedBuilder()
                         .setTitle("Purge Completed")
                         .setDescription("${CustomEmote.CHECKMARK} Purged ${messages.size} messages since $prettyDuration!")
@@ -66,8 +67,6 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
                         .setTimestamp(Instant.now())
                         .build(), deleteAfterDelay = 10)
             }
-        } catch (e: IllegalArgumentException) {
-            event.message.reply("${CustomEmote.XMARK} An error occurred trying to find those message to purge.")
         }
     }
 }

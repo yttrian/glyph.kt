@@ -62,7 +62,8 @@ object MessageOrchestrator : ListenerAdapter() {
         if (config.picartoQuickviewEnabled) {
             Picarto.makeQuickviews(event)
         }
-        if (config.spoilersKeywords.filter{ event.message.contentClean.contains(it, true) }.any() && event.message.textChannel.name != config.spoilersChannel) {
+        if (config.spoilersKeywords.filter{ event.message.contentClean.contains(it, true) && it != "" }.any() && event.message.textChannel.name != config.spoilersChannel) {
+            log.info("Marked \"${event.message.contentClean}\" in ${event.guild} as spoiler.")
             event.message.addReaction("⚠").queue()
         }
         val message: Message = event.message

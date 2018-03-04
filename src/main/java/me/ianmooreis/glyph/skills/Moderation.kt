@@ -20,8 +20,11 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
         val time = event.message.creationTime
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
 
-        if (!event.guild.selfMember.hasPermission(Permission.MESSAGE_MANAGE)) {
+        if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
             event.message.reply("I need permission to Manage Messages in order to purge messages!")
+            return
+        } else if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_HISTORY)) {
+            event.message.reply("I need permission to Read Message History in order to purge messages!")
             return
         }
         if (durationEntity == null) {

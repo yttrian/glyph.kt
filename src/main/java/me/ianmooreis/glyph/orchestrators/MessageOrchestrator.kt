@@ -62,10 +62,12 @@ object MessageOrchestrator : ListenerAdapter() {
         if (config.picartoQuickviewEnabled) {
             Picarto.makeQuickviews(event)
         }
+        /*TODO: Figure out how to make this work and be memory efficient
         if (config.spoilersKeywords.intersect(event.message.contentClean.split(" ")).isNotEmpty() && event.message.textChannel.name != config.spoilersChannel) {
             log.info("Marked \"${event.message}\" in ${event.guild} as spoiler.")
             event.message.addReaction("⚠").queue()
         }
+        */
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))

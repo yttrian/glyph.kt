@@ -11,7 +11,6 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String> = emptyList(),
-                        val spoilersChannel: String? = null, val spoilersKeywords: List<String> = emptyList(),
                         val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
                         val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingWebhook: String? = null)
 fun ServerConfig.toJSON(): JSONObject {
@@ -42,8 +41,6 @@ object DatabaseOrchestrator {
             this.configs[rs.getLong("guild_id")] = ServerConfig(
                     rs.getString("wiki"),
                     rs.getList("selectable_roles"),
-                    rs.getString("spoilers_channel"),
-                    rs.getList("spoilers_keywords"),
                     rs.getBoolean("fa_quickview_enabled"),
                     rs.getBoolean("fa_quickview_thumbnail"),
                     rs.getBoolean("picarto_quickview_enabled"),
@@ -80,29 +77,27 @@ object DatabaseOrchestrator {
         try {
             val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                    " (guild_id, wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                    " (guild_id, wiki, selectable_roles," +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
-                    " (wiki, selectable_roles, spoilers_channel, spoilers_keywords," +
+                    " (wiki, selectable_roles," +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves)" +
-                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.spoilers_channel, " +
-                    " EXCLUDED.spoilers_keywords, EXCLUDED.fa_quickview_enabled, " +
+                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, " +
+                    " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
             ps.setList(3, config.selectableRoles)
-            ps.setString(4, config.spoilersChannel)
-            ps.setList(5, config.spoilersKeywords)
-            ps.setBoolean(6, config.faQuickviewEnabled)
-            ps.setBoolean(7, config.faQuickviewThumbnail)
-            ps.setBoolean(8, config.picartoQuickviewEnabled)
-            ps.setString(9, config.auditingWebhook)
-            ps.setBoolean(10, config.auditingJoins)
-            ps.setBoolean(11, config.auditingLeaves)
+            ps.setBoolean(4, config.faQuickviewEnabled)
+            ps.setBoolean(5, config.faQuickviewThumbnail)
+            ps.setBoolean(6, config.picartoQuickviewEnabled)
+            ps.setString(7, config.auditingWebhook)
+            ps.setBoolean(8, config.auditingJoins)
+            ps.setBoolean(9, config.auditingLeaves)
             ps.executeUpdate()
             con.close()
             this.configs.replace(guild.idLong, config)

@@ -1,1 +1,1 @@
-worker: java -jar -Xmx500m target/glyph-1.0-jar-with-dependencies.jar
+worker: java -jar -Xmx450m target/glyph-1.0-jar-with-dependencies.jar

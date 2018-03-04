@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.*
+import me.ianmooreis.glyph.utils.webhooks.LoggingWebhook
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -39,6 +40,7 @@ object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = tru
                 is Result.Failure -> {
                     event.message.reply("${CustomEmote.XMARK} There was an error trying to post this server's config to Hastebin, please try again later!")
                     this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to post config for ${event.guild}!")
+                    LoggingWebhook.log("Hastebin", "${response.statusCode} error when trying to post config for ${event.guild}!", event.jda.selfUser)
                 }
             }
         }
@@ -62,6 +64,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = tru
                 is Result.Failure -> {
                     event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL ($url)! Check your url or try waiting a bit before retrying.")
                     this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to get config for ${event.guild}!")
+                    LoggingWebhook.log("Hastebin", "${response.statusCode} error when trying to get config for ${event.guild} with $url!", event.jda.selfUser)
                 }
             }
         }

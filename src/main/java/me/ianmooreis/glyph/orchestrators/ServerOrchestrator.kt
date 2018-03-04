@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.orchestrators
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.utils.webhooks.LoggingWebhook
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -15,11 +16,13 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda)
+        LoggingWebhook.log(event)
         log.info("Joined ${event.guild}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda)
+        LoggingWebhook.log(event)
         DatabaseOrchestrator.deleteServerConfig(event.guild)
         log.info("Left ${event.guild}")
     }

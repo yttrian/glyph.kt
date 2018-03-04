@@ -55,7 +55,7 @@ object FurAffinity {
                 .map { getSubmission(it.groups[6]!!.value.toInt()) }
                 .forEach {
                     if (it != null) {
-                        val allowThumbnail = (event.guild.config.faQuickviewThumbnail && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw))
+                        val allowThumbnail = (event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw))
                         event.message.reply(it.getEmbed(allowThumbnail))
                     }
                 }

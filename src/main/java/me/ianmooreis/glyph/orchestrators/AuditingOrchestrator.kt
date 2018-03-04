@@ -16,7 +16,7 @@ object AuditingOrchestrator : ListenerAdapter() {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-        if (event.guild.config.auditingJoins) {
+        if (event.guild.config.auditing.joins) {
             this.getWebhookClient(event.guild) { client, base ->
                 client.send(base.addEmbeds(event.user.getinfoEmbed("Member Joined", "Auditing", Color.GREEN)).build())
             }
@@ -24,7 +24,7 @@ object AuditingOrchestrator : ListenerAdapter() {
     }
 
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
-        if (event.guild.config.auditingLeaves) {
+        if (event.guild.config.auditing.leaves) {
             this.getWebhookClient(event.guild) { client, base ->
                 client.send(base.addEmbeds(event.user.getinfoEmbed("Member Left", "Auditing", Color.RED)).build())
             }
@@ -33,7 +33,7 @@ object AuditingOrchestrator : ListenerAdapter() {
 
 
     private fun getWebhookClient(guild: Guild, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
-        val webhookUrl = guild.config.auditingWebhook
+        val webhookUrl = guild.config.auditing.webhook
         if (webhookUrl != null) {
             val selfUser = guild.jda.selfUser
             val client = WebhookClientBuilder(webhookUrl).build()

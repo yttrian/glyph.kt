@@ -20,7 +20,7 @@ import java.time.Instant
 
 object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON().toString(4)).responseString { _, response, result ->
+        "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON()).responseString { _, response, result ->
             when (result) {
                 is Result.Success -> {
                     val key = JSONObject(result.get()).getString("key")
@@ -93,7 +93,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = tru
     }
     private fun parseJSON(json: String, onFailure: (e: JsonSyntaxException) -> Unit): ServerConfig? {
         try {
-            return Gson().fromJson(json, ServerConfig().javaClass)
+            return Gson().fromJson(json, ServerConfig::class.java)
         } catch (e: JsonSyntaxException) {
             onFailure(e)
         }

@@ -1,7 +1,7 @@
 package me.ianmooreis.glyph.orchestrators
 
+import com.google.gson.GsonBuilder
 import net.dv8tion.jda.core.entities.Guild
-import org.json.JSONObject
 import org.postgresql.util.PSQLException
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
@@ -11,18 +11,10 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String?> = emptyList(),
-                        val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
-                        val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingWebhook: String? = null)
-fun ServerConfig.toJSON(): JSONObject {
-    /*val prettyPrint = mapOf(
-        "auditing" to mapOf("channel" to this.auditingChannel, "joins" to this.auditingJoins, "leaves" to this.auditingLeaves),
-        "quickview" to mapOf("fa" to mapOf("enabled" to this.faQuickviewEnabled, "thumbnail" to this.faQuickviewThumbnail), "picarto" to mapOf("enabled" to this.picartoQuickviewEnabled)),
-        "roles" to mapOf("selectable" to this.selectableRoles),
-        "spoilers" to mapOf("keywords" to this.spoilersKeywords, "safeChannel" to this.spoilersChannel),
-        "wiki" to this.wiki
-    )*/ //TODO: Reinvestigation pretty printing later
-    return JSONObject(this)
-}
+                        val quickview: QuickviewConfig, val auditing: AuditingConfig)
+data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val webhook: String? = null)
+data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
+fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
@@ -31,7 +23,7 @@ object DatabaseOrchestrator {
     private val username = dbUri.userInfo.split(":")[0]
     private val password = dbUri.userInfo.split(":")[1]
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-    private val defaultConfig = ServerConfig()
+    private val defaultConfig = ServerConfig(quickview = QuickviewConfig(), auditing = AuditingConfig())
 
     init {
         val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
@@ -41,12 +33,15 @@ object DatabaseOrchestrator {
             this.configs[rs.getLong("guild_id")] = ServerConfig(
                     rs.getString("wiki"),
                     rs.getList("selectable_roles"),
-                    rs.getBoolean("fa_quickview_enabled"),
-                    rs.getBoolean("fa_quickview_thumbnail"),
-                    rs.getBoolean("picarto_quickview_enabled"),
-                    rs.getBoolean("auditing_joins"),
-                    rs.getBoolean("auditing_leaves"),
-                    rs.getString("auditing_webhook"))
+                    QuickviewConfig(
+                            rs.getBoolean("fa_quickview_enabled"),
+                            rs.getBoolean("fa_quickview_thumbnail"),
+                            rs.getBoolean("picarto_quickview_enabled")),
+                    AuditingConfig(
+                            rs.getBoolean("auditing_joins"),
+                            rs.getBoolean("auditing_leaves"),
+                            rs.getString("auditing_webhook"))
+            )
         }
         con.close()
     }
@@ -92,12 +87,12 @@ object DatabaseOrchestrator {
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
             ps.setList(3, config.selectableRoles.filterNotNull())
-            ps.setBoolean(4, config.faQuickviewEnabled)
-            ps.setBoolean(5, config.faQuickviewThumbnail)
-            ps.setBoolean(6, config.picartoQuickviewEnabled)
-            ps.setString(7, config.auditingWebhook)
-            ps.setBoolean(8, config.auditingJoins)
-            ps.setBoolean(9, config.auditingLeaves)
+            ps.setBoolean(4, config.quickview.furaffinityEnabled)
+            ps.setBoolean(5, config.quickview.furaffinityThumbnails)
+            ps.setBoolean(6, config.quickview.picartoEnabled)
+            ps.setString(7, config.auditing.webhook)
+            ps.setBoolean(8, config.auditing.joins)
+            ps.setBoolean(9, config.auditing.leaves)
             ps.executeUpdate()
             con.close()
             this.configs.replace(guild.idLong, config)

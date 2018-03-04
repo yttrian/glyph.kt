@@ -18,7 +18,7 @@ object AuditingOrchestrator : ListenerAdapter() {
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.config.auditingJoins) {
             this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Join", "AuditingOrchestrator", Color.GREEN)).build())
+                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Join", "Auditing", Color.GREEN)).build())
             }
         }
     }
@@ -26,7 +26,7 @@ object AuditingOrchestrator : ListenerAdapter() {
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
         if (event.guild.config.auditingLeaves) {
             this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Leave", "AuditingOrchestrator", Color.RED)).build())
+                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Leave", "Auditing", Color.RED)).build())
             }
         }
     }

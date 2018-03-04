@@ -10,7 +10,7 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String> = emptyList(),
+data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String?> = emptyList(),
                         val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
                         val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingWebhook: String? = null)
 fun ServerConfig.toJSON(): JSONObject {
@@ -91,7 +91,7 @@ object DatabaseOrchestrator {
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
-            ps.setList(3, config.selectableRoles)
+            ps.setList(3, config.selectableRoles.filterNotNull())
             ps.setBoolean(4, config.faQuickviewEnabled)
             ps.setBoolean(5, config.faQuickviewThumbnail)
             ps.setBoolean(6, config.picartoQuickviewEnabled)

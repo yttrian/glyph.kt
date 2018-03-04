@@ -74,16 +74,20 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
 
 object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val roles = event.guild.config.selectableRoles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
-        event.message.reply(EmbedBuilder()
-                .setTitle("Available Roles")
-                .setDescription(roles.joinToString("\n") {
-                    val size = it.guild.getMembersWithRoles(it).size
-                    "**${it.name}** ($size ${if (size == 1) "member" else "members"})"
-                })
-                .setFooter("Roles | Try asking \"Set me as ${getRandomRole(roles).name}\"", null)
-                .setTimestamp(Instant.now())
-                .build())
+        if (event.guild.config.selectableRoles.isNotEmpty()) {
+            val roles = event.guild.config.selectableRoles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
+            event.message.reply(EmbedBuilder()
+                    .setTitle("Available Roles")
+                    .setDescription(roles.joinToString("\n") {
+                        val size = it.guild.getMembersWithRoles(it).size
+                        "**${it.name}** ($size ${if (size == 1) "member" else "members"})"
+                    })
+                    .setFooter("Roles | Try asking \"Set me as ${getRandomRole(roles).name}\"", null)
+                    .setTimestamp(Instant.now())
+                    .build())
+        } else {
+            event.message.reply("There are no selectable roles configured!")
+        }
     }
 
     private fun getRandomRole(roles: List<Role>): Role {

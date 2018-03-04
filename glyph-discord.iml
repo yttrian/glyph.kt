@@ -54,7 +54,6 @@
     <orderEntry type="library" name="Maven: org.jetbrains.exposed:exposed:0.9.1" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.9" level="project" />
     <orderEntry type="library" name="Maven: postgresql:postgresql:9.4.1208-jdbc42-atlassian-hosted" level="project" />
-    <orderEntry type="library" name="Maven: com.buest:klaxon:0.32" level="project" />
     <orderEntry type="library" name="Maven: net.dean.jraw:JRAW:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: net.dean.jraw:moshi-deeply-nested:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.ocpsoft.prettytime:prettytime:3.2.7.Final" level="project" />

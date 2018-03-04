@@ -6,7 +6,7 @@
 
     <groupId>me.ianmmoreis</groupId>
     <artifactId>glyph</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <properties>
         <kotlin.version>1.2.30</kotlin.version>
@@ -68,11 +68,6 @@
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.4.1208-jdbc42-atlassian-hosted</version>
-        </dependency>
-        <dependency>
-            <groupId>com.buest</groupId>
-            <artifactId>klaxon</artifactId>
-            <version>0.32</version>
         </dependency>
         <dependency>
             <groupId>net.dean.jraw</groupId>

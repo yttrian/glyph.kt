@@ -1,0 +1,1 @@
+worker: java -jar -Xmx500m target/glyph-1.0.jar

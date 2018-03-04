@@ -13,7 +13,7 @@ object WikipediaExtractor {
 
     fun getPage(query: String) : WikipediaPage? {
         try {
-            val queryUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cinfo&titles=$query&redirects=1&exintro=1&explaintext=1&inprop=url&exchars=500"
+            val queryUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cinfo&titles=${query.replace(" ", "%20")}&redirects=1&exintro=1&explaintext=1&inprop=url&exchars=500"
             val (_, response, result) = queryUrl.httpGet().responseString()
             if (response.statusCode == 200) {
                 val pages = JSONObject(result.get()).getJSONObject("query").getJSONObject("pages")

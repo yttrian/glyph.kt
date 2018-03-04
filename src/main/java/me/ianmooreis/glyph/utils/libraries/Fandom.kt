@@ -13,7 +13,7 @@ object FandomExtractor {
 
     fun getPage(wiki: String, query: String) : FandomPage? {
         try {
-            val searchUrl = "http://$wiki.wikia.com/api/v1/Search/List?query=$query&limit=1&minArticleQuality=50&batch=1&namespaces=0%2C14"
+            val searchUrl = "http://$wiki.wikia.com/api/v1/Search/List?query=${query.replace(" ", "%20")}&limit=1&minArticleQuality=50&batch=1&namespaces=0%2C14"
             val (_, searchResponse, searchResult) = searchUrl.httpGet().responseString()
             if (searchResponse.statusCode == 200) {
                 val page = JSONObject(searchResult.get()).getJSONArray("items").getJSONObject(0)

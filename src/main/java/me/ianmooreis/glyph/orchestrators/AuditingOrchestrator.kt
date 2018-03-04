@@ -12,13 +12,13 @@ import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
 
-object Auditing : ListenerAdapter() {
+object AuditingOrchestrator : ListenerAdapter() {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.config.auditingJoins) {
             this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Join", "Auditing", Color.GREEN)).build())
+                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Join", "AuditingOrchestrator", Color.GREEN)).build())
             }
         }
     }
@@ -26,7 +26,7 @@ object Auditing : ListenerAdapter() {
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
         if (event.guild.config.auditingLeaves) {
             this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Leave", "Auditing", Color.RED)).build())
+                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Leave", "AuditingOrchestrator", Color.RED)).build())
             }
         }
     }

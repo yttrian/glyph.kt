@@ -9,9 +9,11 @@ import me.ianmooreis.glyph.orchestrators.config
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
+import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException
 import java.time.Instant
+import java.util.*
 
 object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
@@ -69,13 +71,18 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
 
 object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+        val roles = event.guild.config.selectableRoles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
         event.message.reply(EmbedBuilder()
                 .setTitle("Available Roles")
-                .setDescription(event.guild.config.selectableRoles.map {
-                    event.guild.getRolesByName(it, true).firstOrNull()
-                }.joinToString("\n") { "**${it?.name ?: "Deleted role"}** (${it?.guild?.getMembersWithRoles(it)?.size ?: "No"} members) " })
-                .setFooter("Roles", null)
+                .setDescription(roles.joinToString("\n") {
+                    "**${it.name}** (${it.guild.getMembersWithRoles(it).size} members) "
+                })
+                .setFooter("Roles | Try asking \"Set me as ${getRandomRole(roles).name}\"", null)
                 .setTimestamp(Instant.now())
                 .build())
+    }
+
+    private fun getRandomRole(roles: List<Role>): Role {
+        return roles[Random().nextInt(roles.size)]
     }
 }

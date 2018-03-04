@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.launch
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.utils.quickview.FurAffinity
+import me.ianmooreis.glyph.utils.quickview.Picarto
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
@@ -57,6 +58,9 @@ object MessageOrchestrator : ListenerAdapter() {
         val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
         if (config.faQuickviewEnabled) {
             FurAffinity.makeQuickviews(event)
+        }
+        if (config.picartoQuickviewEnabled) {
+            Picarto.makeQuickviews(event)
         }
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return

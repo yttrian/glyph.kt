@@ -14,8 +14,8 @@ object Glyph : JDABuilder(AccountType.BOT) {
         this.setToken(System.getenv("DISCORD_TOKEN"))
                 .setStatus(OnlineStatus.ONLINE).setGame(Game.watching("Armax Arsenal Arena"))
                 .addEventListener(MessageOrchestrator)
-                .addEventListener(Auditing)
-                .addEventListener(Server)
+                .addEventListener(AuditingOrchestrator)
+                .addEventListener(ServerOrchestrator)
                 .addEventListener(StatusOrchestrator)
     }
 }

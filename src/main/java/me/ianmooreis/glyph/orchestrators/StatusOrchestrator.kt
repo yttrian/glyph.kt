@@ -16,10 +16,11 @@ object StatusOrchestrator : ListenerAdapter() {
             Game.listening("the hum of the ship"),
             Game.playing("Mass Effect"))
 
-    override fun onReady(event: ReadyEvent?) {
+    override fun onReady(event: ReadyEvent) {
         super.onReady(event)
+        ServerOrchestrator.updateServerCount(event.jda)
         Timer().schedule(600000) {
-            event?.jda?.presence?.setPresence(OnlineStatus.ONLINE, getRandomStatus())
+            event.jda?.presence?.setPresence(OnlineStatus.ONLINE, getRandomStatus())
         }
     }
 

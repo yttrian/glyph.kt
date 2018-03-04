@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.orchestrators
 
 import net.dv8tion.jda.core.entities.Guild
 import org.json.JSONObject
+import org.postgresql.util.PSQLException
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
@@ -54,13 +55,17 @@ object DatabaseOrchestrator {
     }
 
     fun deleteServerConfig(guild: Guild) {
-        this.configs.remove(guild.idLong)
-        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
-        val ps = con.prepareStatement("DELETE FROM serverconfigs WHERE guild_id = ?")
-        ps.setLong(1, guild.idLong)
-        ps.executeQuery()
-        con.commit()
-        con.close()
+        try {
+            this.configs.remove(guild.idLong)
+            val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+            val ps = con.prepareStatement("DELETE FROM serverconfigs WHERE guild_id = ?")
+            ps.setLong(1, guild.idLong)
+            ps.executeQuery()
+            con.commit()
+            con.close()
+        } catch (e: PSQLException) {
+            log.debug("Failed to delete config for $guild! (Maybe it never existed?)")
+        }
     }
 
     fun getServerConfig(guild: Guild) : ServerConfig {

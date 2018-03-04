@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
@@ -21,8 +22,9 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
             event.message.reply("You must be in a server to set your role!")
             return
         }
-        if ((event.message.mentionedMembers.size > 0 || event.message.mentionsEveryone()) && !event.member.hasPermission(listOf(Permission.MANAGE_ROLES))) {
+        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(listOf(Permission.MANAGE_ROLES))) {
             event.message.reply("You must have Manage Roles permission to set other peoples' roles!")
+            return
         }
         val targets: List<Member> = when {
             event.message.mentionsEveryone() -> event.guild.members
@@ -32,7 +34,7 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
         }
         val desiredRoleName: String = ai.result.getStringParameter("role").removeSurrounding("\"")
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
-        val selectableRoles = event.guild.config.selectableRoles.map { event.guild.getRolesByName(it, true).firstOrNull() }
+        val selectableRoles = event.guild.config.selectableRoles.mapNotNull{ event.guild.getRolesByName(it, true).firstOrNull() }
         if (selectableRoles.isEmpty()) {
             event.message.reply("${CustomEmote.XMARK} There are no selectable roles configured for this server!")
         }
@@ -48,12 +50,13 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
             }
             try {
                 targets.forEach { target ->
-                    event.guild.controller.addSingleRoleToMember(target, desiredRole).reason("Asked to be $desiredRoleName").queue()
+                    event.guild.controller.addSingleRoleToMember(target, desiredRole).reason("Asked to be $desiredRoleName").queueAfter(500, TimeUnit.MILLISECONDS)
                 }
+                val targetNames = targets.joinToString { it.effectiveName }
                 event.message.reply(EmbedBuilder()
                         .setTitle("Poof!")
                         .setDescription(
-                                "${targets.filter { it.roles.contains(desiredRole) }.joinToString { it.effectiveName }} " +
+                                "${if (targetNames.length < 200) targetNames else "${targets.size} people"} " +
                                 "${if (targets.size == 1) "is" else "are"} now `${desiredRole.name}`!")
                         .setThumbnail(if (targets.size == 1) targets.first().user.avatarUrl else null)
                         .setFooter("Roles", null)
@@ -75,7 +78,8 @@ object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
         event.message.reply(EmbedBuilder()
                 .setTitle("Available Roles")
                 .setDescription(roles.joinToString("\n") {
-                    "**${it.name}** (${it.guild.getMembersWithRoles(it).size} members) "
+                    val size = it.guild.getMembersWithRoles(it).size
+                    "**${it.name}** ($size ${if (size == 1) "member" else "members"})"
                 })
                 .setFooter("Roles | Try asking \"Set me as ${getRandomRole(roles).name}\"", null)
                 .setTimestamp(Instant.now())

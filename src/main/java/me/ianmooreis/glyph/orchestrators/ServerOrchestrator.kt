@@ -15,13 +15,13 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda)
-        println("Joined ${event.guild}")
+        log.info("Joined ${event.guild}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda)
         DatabaseOrchestrator.deleteServerConfig(event.guild)
-        println("Left ${event.guild}")
+        log.info("Left ${event.guild}")
     }
 
     fun updateServerCount(jda: JDA) {

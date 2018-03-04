@@ -5,14 +5,11 @@ import me.ianmooreis.glyph.skills.*
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
-import net.dv8tion.jda.core.OnlineStatus
-import net.dv8tion.jda.core.entities.Game
 
 object Glyph : JDABuilder(AccountType.BOT) {
     val version: String = System.getenv("HEROKU_RELEASE_VERSION")
     init {
         this.setToken(System.getenv("DISCORD_TOKEN"))
-                .setStatus(OnlineStatus.ONLINE).setGame(Game.watching("Armax Arsenal Arena"))
                 .addEventListener(MessageOrchestrator)
                 .addEventListener(AuditingOrchestrator)
                 .addEventListener(ServerOrchestrator)

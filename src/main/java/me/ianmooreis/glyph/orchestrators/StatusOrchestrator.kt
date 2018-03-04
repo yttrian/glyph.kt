@@ -13,14 +13,26 @@ object StatusOrchestrator : ListenerAdapter() {
     private val statuses = listOf(
             Game.playing("Armax Arsenal Arena"),
             Game.watching("Armax Arsenal Arena"),
+            Game.watching("ships take off"),
+            Game.watching("ships dock"),
+            Game.watching("Fleet and Flotilla"),
+            Game.watching("Blasto 6: Partners in Crime"),
+            Game.watching("Blasto: Eternity is Forever"),
+            Game.watching("Elcor Hamlet"),
+            Game.listening("skycars zoom by"),
+            Game.listening("Expel 10"),
             Game.listening("the hum of the ship"),
-            Game.playing("Mass Effect"))
+            Game.playing("Mass Effect"),
+            Game.playing("Quasar"),
+            Game.playing("Armax Arsenal Arena"),
+            Game.playing("Alliance Corsair"))
 
     override fun onReady(event: ReadyEvent) {
         super.onReady(event)
         ServerOrchestrator.updateServerCount(event.jda)
-        Timer().schedule(600000) {
-            event.jda?.presence?.setPresence(OnlineStatus.ONLINE, getRandomStatus())
+        event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())
+        Timer().schedule(1800000, 0) {
+            event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())
         }
     }
 

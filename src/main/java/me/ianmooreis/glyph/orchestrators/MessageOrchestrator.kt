@@ -79,7 +79,7 @@ object MessageOrchestrator : ListenerAdapter() {
         launch {
             SkillOrchestrator.trigger(event, ai)
         }
-        log.info("Received \"${event.message}\" ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, acted with $action")
+        log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, acted with $action")
     }
 
     override fun onMessageDelete(event: MessageDeleteEvent) {

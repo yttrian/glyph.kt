@@ -62,6 +62,9 @@ object MessageOrchestrator : ListenerAdapter() {
         if (config.picartoQuickviewEnabled) {
             Picarto.makeQuickviews(event)
         }
+        if (config.spoilersKeywords.filter{ event.message.contentClean.contains(it, true) }.any() && event.message.textChannel.name != config.spoilersChannel) {
+            event.message.addReaction("⚠").queue()
+        }
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))

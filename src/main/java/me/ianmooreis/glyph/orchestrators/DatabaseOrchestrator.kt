@@ -12,8 +12,7 @@ import java.sql.ResultSet
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String> = emptyList(),
                         val spoilersChannel: String? = null, val spoilersKeywords: List<String> = emptyList(),
                         val faQuickviewEnabled: Boolean = true, val faQuickviewThumbnail: Boolean = false, val picartoQuickviewEnabled: Boolean = true,
-                        val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingWebhook: String? = null,
-                        val lang: String = "en")
+                        val auditingJoins: Boolean = false, val auditingLeaves: Boolean = false, val auditingWebhook: String? = null)
 fun ServerConfig.toJSON(): JSONObject {
     /*val prettyPrint = mapOf(
         "auditing" to mapOf("channel" to this.auditingChannel, "joins" to this.auditingJoins, "leaves" to this.auditingLeaves),
@@ -49,8 +48,7 @@ object DatabaseOrchestrator {
                     rs.getBoolean("picarto_quickview_enabled"),
                     rs.getBoolean("auditing_joins"),
                     rs.getBoolean("auditing_leaves"),
-                    rs.getString("auditing_webhook"),
-                    rs.getString("lang"))
+                    rs.getString("auditing_webhook"))
         }
         con.close()
     }

@@ -19,7 +19,6 @@ import java.time.Instant
 
 object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        print(event.guild.config.toJSON())
         "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON().toString(4)).responseString { _, response, result ->
             when (result) {
                 is Result.Success -> {
@@ -81,7 +80,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = tru
             .setDescription(
                     "This servers configuration failed to update for the following reason(s)! " +
                     "Please check that you have a properly formatted JSON and the data is as expected!\n" +
-                    "```${exception.cause}```\n" +
+                    "```${exception.message?.split("\n")?.first()?.trim()}```\n" +
                     "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
                     "[Official Glyph Server](https://discord.me/glyph-discord)")
             .setColor(Color.RED)

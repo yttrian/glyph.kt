@@ -50,19 +50,24 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
 
         val prettyDuration = PrettyTime().format(duration.toDate())
         event.message.addReaction(CustomEmote.LOADING.emote).queue()
-        event.message.reply(EmbedBuilder()
-                .setTitle("Purge Started")
-                .setDescription("${CustomEmote.NOMARK} Purging all messages since $prettyDuration!")
-                .setFooter("Moderation", null)
-                .setTimestamp(Instant.now())
-                .build())
         event.textChannel.getMessagesSince(duration){ messages ->
-            messages.chunked(100).forEach { chunk ->
-                event.textChannel.deleteMessages(chunk).queue()
-            }.also {
+            if (messages.size > 2) {
+                messages.chunked(100).forEach { chunk ->
+                    event.textChannel.deleteMessages(chunk).queue()
+                }.also {
+                    event.message.reply(EmbedBuilder()
+                            .setTitle(if (messages.size > 100) "Purge Running" else "Purge Completed")
+                            .setDescription("${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
+                                    if (messages.size > 100) "queued for deletion!" else "deleted!")
+                            .setFooter("Moderation", null)
+                            .setTimestamp(Instant.now())
+                            .build(), deleteAfterDelay = 10)
+                }
+            } else {
+                event.message.delete().reason("Failed purge request").queue()
                 event.message.reply(EmbedBuilder()
-                        .setTitle("Purge Completed")
-                        .setDescription("${CustomEmote.CHECKMARK} Purged ${messages.size} messages since $prettyDuration!")
+                        .setTitle("Purge Failed")
+                        .setDescription("${CustomEmote.XMARK} There must be at least two messages to purge!")
                         .setFooter("Moderation", null)
                         .setTimestamp(Instant.now())
                         .build(), deleteAfterDelay = 10)

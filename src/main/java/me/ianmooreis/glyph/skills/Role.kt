@@ -74,8 +74,9 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
 
 object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        if (event.guild.config.selectableRoles.isNotEmpty()) {
-            val roles = event.guild.config.selectableRoles.filterNotNull().mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
+        val selectableRoles = event.guild.config.selectableRoles.filterNotNull().filter { it != "" }
+        if (selectableRoles.isNotEmpty()) {
+            val roles = selectableRoles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
             event.message.reply(EmbedBuilder()
                     .setTitle("Available Roles")
                     .setDescription(roles.joinToString("\n") {

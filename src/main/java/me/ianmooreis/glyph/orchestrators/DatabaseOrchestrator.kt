@@ -86,7 +86,7 @@ object DatabaseOrchestrator {
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
-            ps.setList(3, config.selectableRoles.filterNotNull())
+            ps.setList(3, config.selectableRoles.filterNotNull().filter { it != "" })
             ps.setBoolean(4, config.quickview.furaffinityEnabled)
             ps.setBoolean(5, config.quickview.furaffinityThumbnails)
             ps.setBoolean(6, config.quickview.picartoEnabled)

@@ -31,7 +31,6 @@ object AuditingOrchestrator : ListenerAdapter() {
         }
     }
 
-
     private fun getWebhookClient(guild: Guild, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
         val webhookUrl = guild.config.auditing.webhook
         if (webhookUrl != null) {

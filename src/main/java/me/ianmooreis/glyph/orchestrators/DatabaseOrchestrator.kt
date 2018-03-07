@@ -10,8 +10,9 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: List<String?> = emptyList(),
+data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: SelectableRolesConfig,
                         val quickview: QuickviewConfig, val auditing: AuditingConfig)
+data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
 data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
 fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
@@ -23,7 +24,7 @@ object DatabaseOrchestrator {
     private val username = dbUri.userInfo.split(":")[0]
     private val password = dbUri.userInfo.split(":")[1]
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-    private val defaultConfig = ServerConfig(quickview = QuickviewConfig(), auditing = AuditingConfig())
+    private val defaultConfig = ServerConfig(selectableRoles = SelectableRolesConfig(), quickview = QuickviewConfig(), auditing = AuditingConfig())
 
     init {
         val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
@@ -32,7 +33,9 @@ object DatabaseOrchestrator {
         while (rs.next()) {
             this.configs[rs.getLong("guild_id")] = ServerConfig(
                     rs.getString("wiki"),
-                    rs.getList("selectable_roles"),
+                    SelectableRolesConfig(
+                            rs.getList("selectable_roles"),
+                            rs.getInt("selectable_roles_limit")),
                     QuickviewConfig(
                             rs.getBoolean("fa_quickview_enabled"),
                             rs.getBoolean("fa_quickview_thumbnail"),
@@ -72,27 +75,28 @@ object DatabaseOrchestrator {
         try {
             val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                    " (guild_id, wiki, selectable_roles," +
+                    " (guild_id, wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
-                    " (wiki, selectable_roles," +
+                    " (wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves)" +
-                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, " +
+                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
-            ps.setList(3, config.selectableRoles.filterNotNull().filter { it != "" })
-            ps.setBoolean(4, config.quickview.furaffinityEnabled)
-            ps.setBoolean(5, config.quickview.furaffinityThumbnails)
-            ps.setBoolean(6, config.quickview.picartoEnabled)
-            ps.setString(7, config.auditing.webhook)
-            ps.setBoolean(8, config.auditing.joins)
-            ps.setBoolean(9, config.auditing.leaves)
+            ps.setList(3, config.selectableRoles.roles.filterNotNull().filter { it != "" })
+            ps.setInt(4, config.selectableRoles.limit)
+            ps.setBoolean(5, config.quickview.furaffinityEnabled)
+            ps.setBoolean(6, config.quickview.furaffinityThumbnails)
+            ps.setBoolean(7, config.quickview.picartoEnabled)
+            ps.setString(8, config.auditing.webhook)
+            ps.setBoolean(9, config.auditing.joins)
+            ps.setBoolean(10, config.auditing.leaves)
             ps.executeUpdate()
             con.close()
             this.configs.replace(guild.idLong, config)

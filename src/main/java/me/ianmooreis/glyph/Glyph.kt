@@ -21,10 +21,8 @@ fun main(args: Array<String>) {
     SkillOrchestrator
             .addSkill(HelpSkill)
             .addSkill(InfoSkill)
-            .addSkill(RoleSetSkill)
-            .addSkill(RoleListSkill)
-            .addSkill(ServerConfigGetSkill)
-            .addSkill(ServerConfigSetSkill)
+            .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
+            .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
             .addSkill(PurgeSkill)
             .addSkill(UserInfoSkill)
             .addSkill(RedditSkill)

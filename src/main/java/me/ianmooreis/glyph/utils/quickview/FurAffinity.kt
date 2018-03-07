@@ -71,10 +71,12 @@ object FurAffinity {
         for (page in 1..maxPages) {
             val (_, _, result) = "https://faexport.boothale.net/user/$user/gallery.json?full=1&page=1".httpGet().responseString()
             val submissions = JSONArray(result.get())
-            for (i in 0.until(submissions.length() - 1)) {
-                val submission = submissions.getJSONObject(i)
-                if (submission.getString("thumbnail").contains(cdnId.toString())) {
-                    return submission.getInt("id")
+            if (result is Result.Success) {
+                for (i in 0.until(submissions.length() - 1)) {
+                    val submission = submissions.getJSONObject(i)
+                    if (submission.getString("thumbnail").contains(cdnId.toString())) {
+                        return submission.getInt("id")
+                    }
                 }
             }
         }

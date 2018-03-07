@@ -14,7 +14,7 @@ import java.awt.Color
 import java.net.URL
 import java.time.Instant
 
-class Channel(private val name: String, private val avatar: URL,
+class Channel(val name: String, private val avatar: URL,
               private val viewers: Int, private val followers: Int, private val category: String, private val title: String,
               private val online: Boolean, private val adult: Boolean,
               private val tags: List<String>) {
@@ -46,6 +46,7 @@ object Picarto {
                 .forEach {
                     if (it != null) {
                         event.message.reply(it.getEmbed())
+                        log.info("Created Picarto QuickView in ${event.guild} for ${it.name}")
                     }
                 }
     }

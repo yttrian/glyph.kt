@@ -56,18 +56,14 @@ object MessageOrchestrator : ListenerAdapter() {
         this.loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
         val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
-        if (config.quickview.furaffinityEnabled) {
-            FurAffinity.makeQuickviews(event)
+        launch {
+            if (config.quickview.furaffinityEnabled) {
+                FurAffinity.makeQuickviews(event)
+            }
+            if (config.quickview.picartoEnabled) {
+                Picarto.makeQuickviews(event)
+            }
         }
-        if (config.quickview.picartoEnabled) {
-            Picarto.makeQuickviews(event)
-        }
-        /*TODO: Figure out how to make this work and be memory efficient
-        if (config.spoilersKeywords.intersect(event.message.contentClean.split(" ")).isNotEmpty() && event.message.textChannel.name != config.spoilersChannel) {
-            log.info("Marked \"${event.message}\" in ${event.guild} as spoiler.")
-            event.message.addReaction("⚠").queue()
-        }
-        */
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))

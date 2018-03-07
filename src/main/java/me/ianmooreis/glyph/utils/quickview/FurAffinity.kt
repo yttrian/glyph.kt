@@ -9,13 +9,14 @@ import me.ianmooreis.glyph.orchestrators.config
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
 import java.net.URL
 import java.util.*
 
-class Submission(private val title: String, private val description: String, private val name: String, private val profile: URL, private val link: URL,
+class Submission(private val title: String, private val description: String, private val name: String, private val profile: URL, val link: URL,
                  val posted: String, private val posted_at: Date, private val download: URL, private val full: URL, private val thumbnail: URL,
                  private val category: String, private val theme: String, private val species: String, private val gender: String,
                  private val favorites: Int, private val comments: Int, private val views: Int, private val resolution: String, val rating: SubmissionRating,
@@ -26,11 +27,12 @@ class Submission(private val title: String, private val description: String, pri
         return EmbedBuilder()
                 .setTitle(title, link.toString())
                 .setThumbnail(if (thumbnail) full.toString() else null)
-                .appendDescription(
+                .setDescription(
                         "**Category** $category > $theme\n" +
                         "**Species** $species\n" +
                         "**Gender** $gender\n" +
-                        "**Favorites** $favorites | **Comments** $comments | **Views** $views\n")
+                        "**Favorites** $favorites | **Comments** $comments | **Views** $views" +
+                        if ((thumbnail && rating.nsfw) || !rating.nsfw) "\n**Download** [$resolution]($download)" else "")
                 .addField("Keywords", fancyKeywords, false)
                 .setFooter("FurAffinity", null)
                 .setColor(rating.color)
@@ -50,15 +52,34 @@ object FurAffinity {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     fun makeQuickviews(event: MessageReceivedEvent) {
-        val urlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
-        urlFormat.findAll(event.message.contentClean)
-                .map { getSubmission(it.groups[6]!!.value.toInt()) }
+        val standardUrlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
+        val cdnUrlFormat = Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
+        standardUrlFormat.findAll(event.message.contentClean).map { it.groups[6]!!.value.toInt() }
+                .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull { findSubmissionId(it.groups[4]!!.value.toInt(), it.groups[3]!!.value) })
+                .map { getSubmission(it) }
                 .forEach {
                     if (it != null) {
-                        val allowThumbnail = (event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw))
+                        val allowThumbnail = if (!event.channelType.isGuild && !it.rating.nsfw) true else
+                            event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw)
                         event.message.reply(it.getEmbed(allowThumbnail))
+                        log.info("Created FurAffinity QuickView in ${event.guild} for submission ${it.link}")
                     }
                 }
+    }
+
+    private fun findSubmissionId(cdnId: Int, user: String, maxPages: Int = 1): Int? {
+        for (page in 1..maxPages) {
+            val (_, _, result) = "https://faexport.boothale.net/user/$user/gallery.json?full=1&page=1".httpGet().responseString()
+            val submissions = JSONArray(result.get())
+            for (i in 0.until(submissions.length() - 1)) {
+                val submission = submissions.getJSONObject(i)
+                if (submission.getString("thumbnail").contains(cdnId.toString())) {
+                    return submission.getInt("id")
+                }
+            }
+        }
+        log.error("Failed to find FurAffinity image source with CDN ID $cdnId by $user in $maxPages page!")
+        return null
     }
 
     private fun getSubmission(id: Int): Submission? { //TODO: Figure out how not to do it blocking, because async had errors

@@ -28,8 +28,6 @@ object StatusOrchestrator : ListenerAdapter() {
             Game.playing("Alliance Corsair"))
 
     override fun onReady(event: ReadyEvent) {
-        super.onReady(event)
-        ServerOrchestrator.updateServerCount(event.jda)
         event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())
         Timer().schedule(1800000) {
             event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())

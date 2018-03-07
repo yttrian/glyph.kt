@@ -30,6 +30,7 @@ fun main(args: Array<String>) {
             .addSkill(RedditSkill)
             .addSkill(WikiSkill)
             .addSkill(TimeSkill)
+            .addSkill(FeedbackSkill)
             .addSkill(FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
     for (i in 0..(shardTotal - 1)) {

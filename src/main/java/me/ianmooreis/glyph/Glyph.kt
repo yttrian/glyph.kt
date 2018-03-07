@@ -2,6 +2,11 @@ package me.ianmooreis.glyph
 
 import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
+import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
+import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
+import me.ianmooreis.glyph.skills.roles.RoleListSkill
+import me.ianmooreis.glyph.skills.roles.RoleSetSkill
+import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder

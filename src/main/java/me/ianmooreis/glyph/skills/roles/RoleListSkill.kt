@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.skills
+package me.ianmooreis.glyph.skills.roles
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.getRandom

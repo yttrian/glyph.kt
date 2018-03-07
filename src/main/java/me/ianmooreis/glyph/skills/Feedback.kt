@@ -10,7 +10,7 @@ object FeedbackSkill : Skill("skill.feedback") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         LoggingWebhook.log(
                 "Feedback",
-                "${event.author} says: ```${ai.result.getStringParameter("feedback")}```",
+                "```${ai.result.getStringParameter("feedback")}```",
                 event.jda.selfUser)
         event.message.reply(ai.result.fulfillment.speech)
     }

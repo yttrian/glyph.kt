@@ -66,6 +66,10 @@ object MessageOrchestrator : ListenerAdapter() {
         }
         val message: Message = event.message
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
+        if (event.message.contentClean.isEmpty()) {
+            event.message.reply("You have to say something!")
+            return
+        }
         val ai = DialogFlow.request(AIRequest(event.message.contentClean))
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")

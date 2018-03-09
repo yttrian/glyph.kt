@@ -8,37 +8,33 @@ import me.ianmooreis.glyph.orchestrators.config
 import me.ianmooreis.glyph.utils.libraries.FandomExtractor
 import me.ianmooreis.glyph.utils.libraries.WikipediaExtractor
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import java.net.URL
 import java.time.Instant
 
 object WikiSkill : Skill("skill.wiki") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query = ai.result.getStringParameter("search_query")
-        val wiki = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
+        val defaultWiki = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
+        val wiki = ai.result.getStringParameter("fandom_wiki", defaultWiki).trim()
         if (wiki.toLowerCase() == "wikipedia") {
-            val page: WikipediaExtractor.WikipediaPage? = WikipediaExtractor.getPage(query)
-            if (page != null) {
-                event.message.reply(EmbedBuilder()
-                        .setTitle(page.title, page.url.toString())
-                        .setDescription(page.intro)
-                        .setFooter("Wikipedia", null)
-                        .setTimestamp(Instant.now())
-                        .build())
-            } else {
-                event.message.reply("No results found for `$query`!")
+            WikipediaExtractor.getPage(query, {event.message.reply("No results found for `$query` on Wikipedia!")}) {
+                event.message.reply(getResultEmbed(it.title, it.url, it.intro, "Wikipedia"))
             }
         } else {
-            val page: FandomExtractor.FandomPage? = FandomExtractor.getPage(wiki, query)
-            if (page != null) {
-                event.message.reply(EmbedBuilder()
-                        .setTitle(page.title, page.url.toString())
-                        .setDescription(page.intro)
-                        .setFooter(wiki, null)
-                        .setTimestamp(Instant.now())
-                        .build())
-            } else {
-                event.message.reply("No results found for `$query`!")
+            FandomExtractor.getPage(wiki, query, {event.message.reply("No results found for `$query` on $wiki!")}) {
+                event.message.reply(getResultEmbed(it.title, it.url, it.intro, wiki))
             }
         }
+    }
+
+    private fun getResultEmbed(title: String, url: URL, description: String, wiki: String): MessageEmbed {
+        return EmbedBuilder()
+                .setTitle(title, url.toString())
+                .setDescription(description)
+                .setFooter(wiki, null)
+                .setTimestamp(Instant.now())
+                .build()
     }
 }

@@ -24,7 +24,7 @@ object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermiss
         RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
-            if (targets.size == 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
+            if (targets.size > 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
                     && event.member.roles.count { selectableRoles.contains(it) } >= config.limit) {
                 event.message.reply("" +
                         "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +

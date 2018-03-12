@@ -2,8 +2,8 @@ package me.ianmooreis.glyph.orchestrators
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.deleteConfig
+import me.ianmooreis.glyph.extensions.log
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Guild
@@ -26,13 +26,13 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda)
-        event.guild.audit(getGuildEmbed(event.guild).setTitle("Guild Joined").setColor(Color.GREEN).build())
+        event.jda.selfUser.log(getGuildEmbed(event.guild).setTitle("Guild Joined").setColor(Color.GREEN).build())
         log.info("Joined ${event.guild}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda)
-        event.guild.audit(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
+        event.jda.selfUser.log(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
         event.guild.deleteConfig()
         log.info("Left ${event.guild}")
     }

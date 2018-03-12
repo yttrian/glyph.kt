@@ -33,3 +33,7 @@ fun SelfUser.log(title: String, description: String, color: Color? = null) {
                     .setTimestamp(Instant.now())
                     .build())
 }
+
+fun SelfUser.log(embed: MessageEmbed) {
+    WebhookOrchestrator.send(this, System.getenv("LOGGING_WEBHOOK"), embed)
+}

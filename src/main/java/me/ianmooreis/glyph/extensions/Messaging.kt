@@ -1,6 +1,6 @@
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.MessageOrchestrator
+import me.ianmooreis.glyph.orchestrators.MessagingOrchestrator
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import java.time.OffsetDateTime
@@ -13,11 +13,11 @@ fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: 
             if (deleteAfterDelay > 0) {
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
             } else {
-                MessageOrchestrator.amendLedger(this.id, it.id)
+                MessagingOrchestrator.amendLedger(this.id, it.id)
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessageOrchestrator.logSendFailure(this.textChannel)
+        MessagingOrchestrator.logSendFailure(this.textChannel)
     }
 }
 
@@ -27,11 +27,11 @@ fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUn
             if (deleteAfterDelay > 0){
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
             } else {
-                MessageOrchestrator.amendLedger(this.id, it.id)
+                MessagingOrchestrator.amendLedger(this.id, it.id)
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessageOrchestrator.logSendFailure(this.textChannel)
+        MessagingOrchestrator.logSendFailure(this.textChannel)
     }
 }
 
@@ -43,7 +43,7 @@ fun TextChannel.safeSendMessage(content: String, deleteAfterDelay: Long = 0, del
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessageOrchestrator.logSendFailure(this)
+        MessagingOrchestrator.logSendFailure(this)
     }
 }
 
@@ -55,7 +55,7 @@ fun TextChannel.safeSendMessage(embed: MessageEmbed, deleteAfterDelay: Long = 0,
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessageOrchestrator.logSendFailure(this)
+        MessagingOrchestrator.logSendFailure(this)
     }
 }
 

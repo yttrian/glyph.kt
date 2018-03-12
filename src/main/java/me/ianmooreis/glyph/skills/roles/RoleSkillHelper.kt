@@ -2,9 +2,9 @@ package me.ianmooreis.glyph.skills.roles
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
+import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.config
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -27,7 +27,7 @@ object RoleSkillHelper {
         }
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
         if (desiredRole == null) {
-            event.message.reply("That role name is allowed but none exists!")
+            event.message.reply("That role does not exist!")
             return
         }
         val selectableRoles = config.roles.mapNotNull{ event.guild.getRolesByName(it, true).firstOrNull() }

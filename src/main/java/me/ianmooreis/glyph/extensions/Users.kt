@@ -8,7 +8,7 @@ import org.ocpsoft.prettytime.PrettyTime
 import java.awt.Color
 import java.time.Instant
 
-fun User.getinfoEmbed(title: String?, footer: String?, color: Color?): MessageEmbed {
+fun User.getInfoEmbed(title: String?, footer: String?, color: Color?): MessageEmbed {
     val botTag = if (this.isBot) CustomEmote.BOT.toString() else ""
     val createdAgo = PrettyTime().format(this.creationTime.toDate())
     return EmbedBuilder().setTitle(title)

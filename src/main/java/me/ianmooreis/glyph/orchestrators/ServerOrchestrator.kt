@@ -2,8 +2,11 @@ package me.ianmooreis.glyph.orchestrators
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import me.ianmooreis.glyph.utils.webhooks.LoggingWebhook
+import me.ianmooreis.glyph.extensions.audit
+import me.ianmooreis.glyph.extensions.deleteConfig
+import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -11,6 +14,8 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
+import java.awt.Color
+import java.time.Instant
 
 object ServerOrchestrator : ListenerAdapter() {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
@@ -21,14 +26,14 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onGuildJoin(event: GuildJoinEvent) {
         updateServerCount(event.jda)
-        LoggingWebhook.log(event)
+        event.guild.audit(getGuildEmbed(event.guild).setTitle("Guild Joined").setColor(Color.GREEN).build())
         log.info("Joined ${event.guild}")
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda)
-        LoggingWebhook.log(event)
-        DatabaseOrchestrator.deleteServerConfig(event.guild)
+        event.guild.audit(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
+        event.guild.deleteConfig()
         log.info("Left ${event.guild}")
     }
 
@@ -58,5 +63,15 @@ object ServerOrchestrator : ListenerAdapter() {
                     }
                 }
              }
+    }
+
+    private fun getGuildEmbed(guild: Guild): EmbedBuilder {
+        return EmbedBuilder().setDescription(
+                "**Name** ${guild.name}\n" +
+                        "**ID** ${guild.id}\n" +
+                        "**Members** ${guild.members.size} (Bots: ${guild.members.count { it.user.isBot }})")
+                .setThumbnail(guild.iconUrl)
+                .setFooter("Logging", null)
+                .setTimestamp(Instant.now())
     }
 }

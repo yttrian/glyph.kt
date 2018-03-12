@@ -1,13 +1,12 @@
 package me.ianmooreis.glyph.orchestrators
 
-import me.ianmooreis.glyph.extensions.getinfoEmbed
-import net.dv8tion.jda.core.entities.Guild
+import me.ianmooreis.glyph.extensions.audit
+import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.extensions.getInfoEmbed
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
+import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import net.dv8tion.jda.webhook.WebhookClient
-import net.dv8tion.jda.webhook.WebhookClientBuilder
-import net.dv8tion.jda.webhook.WebhookMessageBuilder
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
@@ -17,28 +16,21 @@ object AuditingOrchestrator : ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.config.auditing.joins) {
-            this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Joined", "Auditing", Color.GREEN)).build())
-            }
+            val embed = event.user.getInfoEmbed("Member Joined", "Auditing", Color.GREEN)
+            event.guild.audit(embed.title, embed.description, embed.color)
         }
     }
 
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
         if (event.guild.config.auditing.leaves) {
-            this.getWebhookClient(event.guild) { client, base ->
-                client.send(base.addEmbeds(event.user.getinfoEmbed("Member Left", "Auditing", Color.RED)).build())
-            }
+            val embed = event.user.getInfoEmbed("Member Left", "Auditing", Color.RED)
+            event.guild.audit(embed.title, embed.description, embed.color)
         }
     }
 
-    private fun getWebhookClient(guild: Guild, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
-        val webhookUrl = guild.config.auditing.webhook
-        if (webhookUrl != null) {
-            val selfUser = guild.jda.selfUser
-            val client = WebhookClientBuilder(webhookUrl).build()
-            val baseMessage = WebhookMessageBuilder().setUsername(selfUser.name).setAvatarUrl(selfUser.avatarUrl)
-            success(client, baseMessage)
-            client.close()
+    override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
+        if(event.guild.config.auditing.purge) {
+            event.guild.audit("Purge", "${event.messageIds.size} messages deleted in ${event.channel.asMention}", Color.YELLOW)
         }
     }
 }

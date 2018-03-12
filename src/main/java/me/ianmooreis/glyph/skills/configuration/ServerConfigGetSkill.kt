@@ -3,12 +3,12 @@ package me.ianmooreis.glyph.skills.configuration
 import ai.api.model.AIResponse
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.orchestrators.config
 import me.ianmooreis.glyph.orchestrators.toJSON
-import me.ianmooreis.glyph.utils.webhooks.LoggingWebhook
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -38,7 +38,7 @@ object ServerConfigGetSkill : Skill("skill.configuration.view", serverOnly = tru
                 is Result.Failure -> {
                     event.message.reply("${CustomEmote.XMARK} There was an error trying to post this server's config to Hastebin, please try again later!")
                     this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to post config for ${event.guild}!")
-                    LoggingWebhook.log("Hastebin", "${response.statusCode} error when trying to post config for ${event.guild}!", event.jda.selfUser)
+                    event.jda.selfUser.log("Hastebin", "${response.statusCode} error when trying to post config for ${event.guild}!")
                 }
             }
         }

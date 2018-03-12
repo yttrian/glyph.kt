@@ -13,7 +13,7 @@ import java.sql.ResultSet
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: SelectableRolesConfig,
                         val quickview: QuickviewConfig, val auditing: AuditingConfig)
 data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
-data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val webhook: String? = null)
+data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
 fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
@@ -27,11 +27,11 @@ object DatabaseOrchestrator {
     private val defaultConfig = ServerConfig(selectableRoles = SelectableRolesConfig(), quickview = QuickviewConfig(), auditing = AuditingConfig())
 
     init {
-        val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+        val con = DriverManager.getConnection(dbUrl, username, password)
         val ps = con.prepareStatement("SELECT * FROM serverconfigs") //TODO: Not select *
         val rs = ps.executeQuery()
         while (rs.next()) {
-            this.configs[rs.getLong("guild_id")] = ServerConfig(
+            configs[rs.getLong("guild_id")] = ServerConfig(
                     rs.getString("wiki"),
                     SelectableRolesConfig(
                             rs.getList("selectable_roles"),
@@ -43,6 +43,7 @@ object DatabaseOrchestrator {
                     AuditingConfig(
                             rs.getBoolean("auditing_joins"),
                             rs.getBoolean("auditing_leaves"),
+                            rs.getBoolean("auditing_purge"),
                             rs.getString("auditing_webhook"))
             )
         }
@@ -51,8 +52,8 @@ object DatabaseOrchestrator {
 
     fun deleteServerConfig(guild: Guild) {
         try {
-            this.configs.remove(guild.idLong)
-            val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+            configs.remove(guild.idLong)
+            val con = DriverManager.getConnection(dbUrl, username, password)
             val ps = con.prepareStatement("DELETE FROM serverconfigs WHERE guild_id = ?")
             ps.setLong(1, guild.idLong)
             ps.executeQuery()
@@ -64,7 +65,7 @@ object DatabaseOrchestrator {
     }
 
     fun getServerConfig(guild: Guild) : ServerConfig {
-        return configs.getOrDefault(guild.idLong,  defaultConfig)
+        return configs.getOrDefault(guild.idLong, defaultConfig)
     }
 
     fun getDefaultServerConfig() : ServerConfig {
@@ -73,20 +74,20 @@ object DatabaseOrchestrator {
 
     fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         try {
-            val con = DriverManager.getConnection(this.dbUrl, this.username, this.password)
+            val con = DriverManager.getConnection(dbUrl, username, password)
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
                     " (guild_id, wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
                     " (wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge)" +
                     " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
-                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves)")
+                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
             ps.setList(3, config.selectableRoles.roles.filterNotNull().filter { it != "" })
@@ -97,19 +98,17 @@ object DatabaseOrchestrator {
             ps.setString(8, config.auditing.webhook)
             ps.setBoolean(9, config.auditing.joins)
             ps.setBoolean(10, config.auditing.leaves)
+            ps.setBoolean(11, config.auditing.purge)
             ps.executeUpdate()
             con.close()
-            this.configs.replace(guild.idLong, config)
+            configs.replace(guild.idLong, config)
             onSuccess()
         } catch (e: Exception) {
-            this.log.warn(e.message)
+            log.warn(e.message)
             onFailure(e)
         }
     }
 }
-
-val Guild.config : ServerConfig
-    get() = DatabaseOrchestrator.getServerConfig(this)
 
 //TODO: Something better than this
 fun ResultSet.getList(columnLabel: String): List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.

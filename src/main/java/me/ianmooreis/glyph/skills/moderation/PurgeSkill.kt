@@ -1,16 +1,12 @@
-package me.ianmooreis.glyph.skills
+package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
 import com.google.gson.JsonObject
-import me.ianmooreis.glyph.extensions.getMessagesSince
-import me.ianmooreis.glyph.extensions.getinfoEmbed
-import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.extensions.*
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
@@ -62,6 +58,12 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
                             .setFooter("Moderation", null)
                             .setTimestamp(Instant.now())
                             .build(), deleteAfterDelay = 10)
+                    if (event.guild.config.auditing.purge) {
+                        event.guild.audit("Messages Purged",
+                                "**Total** ${messages.size} messages\n" +
+                                        "**Channel** ${event.textChannel.asMention}\n" +
+                                        "**Blame** ${event.author.asMention}")
+                    }
                 }
             } else {
                 event.message.delete().reason("Failed purge request").queue()
@@ -73,21 +75,5 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
                         .build(), deleteAfterDelay = 10)
             }
         }
-    }
-}
-
-object UserInfoSkill : Skill("skill.moderation.user_info") { //TODO: Change to camelcase before release
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val userName: String? = ai.result.getStringParameter("user", null)
-        val user: User? = if (event.channelType.isGuild && userName != null) {
-            event.guild.getMembersByEffectiveName(userName, true).getOrNull(0)?.user
-        } else {
-            event.author
-        }
-        if (user == null) {
-            event.message.reply("Unable to find the specified user!")
-            return
-        }
-        event.message.reply(user.getinfoEmbed("User Info", "Moderation", null))
     }
 }

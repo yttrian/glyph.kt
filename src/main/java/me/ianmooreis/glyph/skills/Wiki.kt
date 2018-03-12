@@ -1,10 +1,10 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.orchestrators.config
 import me.ianmooreis.glyph.utils.libraries.FandomExtractor
 import me.ianmooreis.glyph.utils.libraries.WikipediaExtractor
 import net.dv8tion.jda.core.EmbedBuilder

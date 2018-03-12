@@ -4,6 +4,7 @@ import ai.api.AIConfiguration
 import ai.api.AIDataService
 import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
+import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.utils.quickview.FurAffinity
@@ -17,7 +18,7 @@ import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.util.concurrent.TimeUnit
 
-object MessageOrchestrator : ListenerAdapter() {
+object MessagingOrchestrator : ListenerAdapter() {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
     private var ledger = mutableMapOf<String, String>()
@@ -46,14 +47,14 @@ object MessageOrchestrator : ListenerAdapter() {
 
     fun logSendFailure(channel: TextChannel) {
         if (channel.type.isGuild) {
-            this.log.warn("Failed to send message in $channel of ${channel.guild}!")
+            log.warn("Failed to send message in $channel of ${channel.guild}!")
         } else {
-            this.log.warn("Failed to send message in $channel!.")
+            log.warn("Failed to send message in $channel!.")
         }
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        this.loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
+        loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
         val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
         launch {
@@ -96,26 +97,26 @@ object MessageOrchestrator : ListenerAdapter() {
 }
 
 enum class CustomEmote(val emote: Emote?) {
-    XMARK(MessageOrchestrator.getCustomEmote("xmark")),
-    NOMARK(MessageOrchestrator.getCustomEmote("empty")),
-    CHECKMARK(MessageOrchestrator.getCustomEmote("checkmark")),
-    BOT(MessageOrchestrator.getCustomEmote("bot")),
-    DOWNLOAD(MessageOrchestrator.getCustomEmote("download")),
-    DOWNLOADING(MessageOrchestrator.getCustomEmote("downloading")),
-    LOADING(MessageOrchestrator.getCustomEmote("loading")),
-    TYPING(MessageOrchestrator.getCustomEmote("typing")),
-    ONLINE(MessageOrchestrator.getCustomEmote("online")),
-    STREAMING(MessageOrchestrator.getCustomEmote("streaming")),
-    AWAY(MessageOrchestrator.getCustomEmote("away")),
-    DND(MessageOrchestrator.getCustomEmote("dnd")),
-    OFFLINE(MessageOrchestrator.getCustomEmote("offline")),
-    INVISIBLE(MessageOrchestrator.getCustomEmote("invisible")),
-    THINKING(MessageOrchestrator.getCustomEmote("thinking")),
-    COOL(MessageOrchestrator.getCustomEmote("cool")),
-    EXPLICIT(MessageOrchestrator.getCustomEmote("explicit")),
-    CONFIDENTIAL(MessageOrchestrator.getCustomEmote("confidential")),
-    GRIMACE(MessageOrchestrator.getCustomEmote("grimace")),
-    MINDBLOWN(MessageOrchestrator.getCustomEmote("mindblown"));
+    XMARK(MessagingOrchestrator.getCustomEmote("xmark")),
+    NOMARK(MessagingOrchestrator.getCustomEmote("empty")),
+    CHECKMARK(MessagingOrchestrator.getCustomEmote("checkmark")),
+    BOT(MessagingOrchestrator.getCustomEmote("bot")),
+    DOWNLOAD(MessagingOrchestrator.getCustomEmote("download")),
+    DOWNLOADING(MessagingOrchestrator.getCustomEmote("downloading")),
+    LOADING(MessagingOrchestrator.getCustomEmote("loading")),
+    TYPING(MessagingOrchestrator.getCustomEmote("typing")),
+    ONLINE(MessagingOrchestrator.getCustomEmote("online")),
+    STREAMING(MessagingOrchestrator.getCustomEmote("streaming")),
+    AWAY(MessagingOrchestrator.getCustomEmote("away")),
+    DND(MessagingOrchestrator.getCustomEmote("dnd")),
+    OFFLINE(MessagingOrchestrator.getCustomEmote("offline")),
+    INVISIBLE(MessagingOrchestrator.getCustomEmote("invisible")),
+    THINKING(MessagingOrchestrator.getCustomEmote("thinking")),
+    COOL(MessagingOrchestrator.getCustomEmote("cool")),
+    EXPLICIT(MessagingOrchestrator.getCustomEmote("explicit")),
+    CONFIDENTIAL(MessagingOrchestrator.getCustomEmote("confidential")),
+    GRIMACE(MessagingOrchestrator.getCustomEmote("grimace")),
+    MINDBLOWN(MessagingOrchestrator.getCustomEmote("mindblown"));
 
     override fun toString() = emote?.asMention ?: ""
 }

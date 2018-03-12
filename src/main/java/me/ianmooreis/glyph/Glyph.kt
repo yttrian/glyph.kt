@@ -4,6 +4,8 @@ import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
+import me.ianmooreis.glyph.skills.moderation.PurgeSkill
+import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -15,7 +17,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
     val version: String = System.getenv("HEROKU_RELEASE_VERSION")
     init {
         this.setToken(System.getenv("DISCORD_TOKEN"))
-                .addEventListener(MessageOrchestrator)
+                .addEventListener(MessagingOrchestrator)
                 .addEventListener(AuditingOrchestrator)
                 .addEventListener(ServerOrchestrator)
                 .addEventListener(StatusOrchestrator)

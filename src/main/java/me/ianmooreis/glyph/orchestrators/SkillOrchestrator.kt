@@ -13,14 +13,14 @@ object SkillOrchestrator {
 
     fun addSkill(skill: Skill): SkillOrchestrator {
         log.info("Registered: $skill")
-        this.skills[skill.trigger] = skill
+        skills[skill.trigger] = skill
         return this
     }
 
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val result = ai.result
         val action = result.action
-        val skill: Skill? = this.skills[action]
+        val skill: Skill? = skills[action]
         if (skill != null) {
             skill.trigger(event, ai)
         } else {

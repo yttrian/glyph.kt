@@ -5,12 +5,12 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.ServerConfig
 import me.ianmooreis.glyph.orchestrators.Skill
-import me.ianmooreis.glyph.utils.webhooks.LoggingWebhook
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -35,7 +35,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", serverOnly = tru
                 is Result.Failure -> {
                     event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL ($url)! Check your url or try waiting a bit before retrying.")
                     this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to get config for ${event.guild}!")
-                    LoggingWebhook.log("Hastebin", "${response.statusCode} error when trying to get config for ${event.guild} with $url!", event.jda.selfUser)
+                    event.jda.selfUser.log("Hastebin", "${response.statusCode} error when trying to get config for ${event.guild} with $url!")
                 }
             }
         }

@@ -38,9 +38,9 @@ class Channel(val name: String, private val avatar: URL,
 
 object Picarto {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
 
     fun makeQuickviews(event: MessageReceivedEvent) {
-        val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
         urlFormat.findAll(event.message.contentClean)
                 .map { getChannel(it.groups[5]!!.value) }
                 .forEach {

@@ -50,10 +50,10 @@ enum class SubmissionRating(val color: Color, val nsfw: Boolean) {
 
 object FurAffinity {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val standardUrlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
+    private val cdnUrlFormat = Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
 
     fun makeQuickviews(event: MessageReceivedEvent) {
-        val standardUrlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
-        val cdnUrlFormat = Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
         standardUrlFormat.findAll(event.message.contentClean).map { it.groups[6]!!.value.toInt() }
                 .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull { findSubmissionId(it.groups[4]!!.value.toInt(), it.groups[3]!!.value) })
                 .map { getSubmission(it) }

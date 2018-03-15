@@ -31,6 +31,7 @@ fun main(args: Array<String>) {
             .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
             .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
             .addSkill(PurgeSkill)
+            .addSkill(EphemeralSaySkill)
             .addSkill(UserInfoSkill)
             .addSkill(RedditSkill)
             .addSkill(WikiSkill)

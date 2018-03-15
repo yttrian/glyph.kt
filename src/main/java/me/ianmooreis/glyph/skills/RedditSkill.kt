@@ -3,6 +3,7 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
@@ -34,9 +35,9 @@ object RedditSkill : Skill("skill.reddit") {
     }
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val subredditName = ai.result.getStringParameter("multireddit").replace("\\", "")
+        val multiredditName = ai.result.getStringParameter("multireddit").replace("\\", "")
         try {
-            val subreddit = this.client.subreddit(subredditName)
+            val subreddit = this.client.subreddit(multiredditName)
             val paginator = this.paginatorCache.getOrPut(subreddit.subreddit) { client.subreddit(subreddit.subreddit).posts().build() }
             var submissions = this.submissionCache.getOrPut(subreddit.subreddit) { paginator.next().filter {
                 it.preview != null
@@ -58,15 +59,18 @@ object RedditSkill : Skill("skill.reddit") {
                 event.message.reply("${CustomEmote.EXPLICIT} I can only show NSFW submissions in a NSFW channel!")
             }
         } catch (e: NetworkException) {
-            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$subredditName`! (Network error)")
+            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
+            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            event.message.reply("${CustomEmote.CONFIDENTIAL} I was unable to grab an image from `$subredditName`! (Private subreddit?)")
+            event.message.reply("${CustomEmote.CONFIDENTIAL} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: NoSuchElementException) {
-            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$subredditName`! (Ran out of options)")
+            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
         } catch (e: JsonDataException) {
-            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$subredditName`! (No such subreddit)")
+            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
+            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$subredditName`! (No such subreddit)")
+            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
+            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
     }
 }

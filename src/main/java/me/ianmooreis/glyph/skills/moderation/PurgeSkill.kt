@@ -42,6 +42,9 @@ object PurgeSkill : Skill("skill.moderation.purge", serverOnly = true, requiredP
         if (duration.isBefore(time.minusDays(14))) {
             event.message.reply("You can only purge up to 14 days!")
             return
+        } else if (duration.isAfter(time)) {
+            event.message.reply("You can't purge the future!")
+            return
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())

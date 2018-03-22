@@ -19,6 +19,6 @@ object UserInfoSkill : Skill("skill.moderation.user_info") { //TODO: Change to c
             event.message.reply("Unable to find the specified user!")
             return
         }
-        event.message.reply(user.getInfoEmbed("User Info", "Moderation", null))
+        event.message.reply(user.getInfoEmbed("User Info", "Moderation", null, true))
     }
 }

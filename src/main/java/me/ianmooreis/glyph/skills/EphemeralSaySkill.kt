@@ -27,6 +27,9 @@ object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf 
         if (durationUnit == null || durationAmount > 30) {
             event.message.reply("You can only say something ephemerally for less than 30 seconds!", deleteAfterDelay = 5, deleteAfterUnit = TimeUnit.SECONDS)
             return
+        } else if (durationAmount <= 0) {
+            event.message.reply("You can only say something ephemerally for a positive amount of time!", deleteAfterDelay = 5, deleteAfterUnit = TimeUnit.SECONDS)
+            return
         }
 
         event.message.delete().reason("Ephemeral Say").queue()

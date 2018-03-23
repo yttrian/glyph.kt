@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE)) {
+object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
         if (durationEntity == null) {

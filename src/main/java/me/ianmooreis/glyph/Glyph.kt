@@ -4,6 +4,7 @@ import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
+import me.ianmooreis.glyph.skills.moderation.KickSkill
 import me.ianmooreis.glyph.skills.moderation.PurgeSkill
 import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
@@ -30,13 +31,13 @@ fun main(args: Array<String>) {
             .addSkill(InfoSkill)
             .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
             .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
-            .addSkill(PurgeSkill)
+            .addSkill(PurgeSkill).addSkill(UserInfoSkill).addSkill(KickSkill)
             .addSkill(EphemeralSaySkill)
-            .addSkill(UserInfoSkill)
             .addSkill(RedditSkill)
             .addSkill(WikiSkill)
             .addSkill(TimeSkill)
             .addSkill(FeedbackSkill)
+            .addSkill(DoomsdayClockSkill)
             .addSkill(FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
     for (i in 0..(shardTotal - 1)) {

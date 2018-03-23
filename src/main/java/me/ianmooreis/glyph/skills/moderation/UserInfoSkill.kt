@@ -11,7 +11,9 @@ object UserInfoSkill : Skill("skill.moderation.user_info") { //TODO: Change to c
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val userName: String? = ai.result.getStringParameter("user", null)
         val user: User? = if (event.channelType.isGuild && userName != null) {
-            event.guild.getMembersByEffectiveName(userName, true).getOrNull(0)?.user
+            event.guild.getMembersByEffectiveName(userName, true).getOrNull(0)?.user ?:
+            event.guild.getMembersByName(userName, true).getOrNull(0)?.user ?:
+            event.guild.getMembersByNickname(userName, true).getOrNull(0)?.user
         } else {
             event.author
         }
@@ -19,6 +21,6 @@ object UserInfoSkill : Skill("skill.moderation.user_info") { //TODO: Change to c
             event.message.reply("Unable to find the specified user!")
             return
         }
-        event.message.reply(user.getInfoEmbed("User Info", "Moderation", null, true))
+        event.message.reply(user.getInfoEmbed("User Info", "Moderation", null, true, false))
     }
 }

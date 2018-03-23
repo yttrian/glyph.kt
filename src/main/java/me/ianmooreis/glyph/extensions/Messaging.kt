@@ -67,7 +67,7 @@ val Message.contentClean: String
     }
 
 val Message.cleanMentionedMembers: List<Member>
-    get() = this.mentionedMembers.filter { it.user != this.jda.selfUser }
+    get() = this.mentionedMembers.filter { it != this.guild.selfMember }
 
 val Message.cleanMentionedUsers: List<User>
     get() = this.mentionedUsers.filter { it != this.jda.selfUser }

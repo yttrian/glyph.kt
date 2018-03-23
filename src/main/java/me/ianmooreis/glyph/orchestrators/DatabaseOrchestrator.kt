@@ -13,7 +13,7 @@ import java.sql.ResultSet
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: SelectableRolesConfig,
                         val quickview: QuickviewConfig, val auditing: AuditingConfig)
 data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
-data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val webhook: String? = null)
+data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val kicks: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
 fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
@@ -44,6 +44,7 @@ object DatabaseOrchestrator {
                             rs.getBoolean("auditing_joins"),
                             rs.getBoolean("auditing_leaves"),
                             rs.getBoolean("auditing_purge"),
+                            rs.getBoolean("auditing_kicks"),
                             rs.getString("auditing_webhook"))
             )
         }
@@ -78,16 +79,16 @@ object DatabaseOrchestrator {
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
                     " (guild_id, wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
                     " (wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks)" +
                     " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
-                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge)")
+                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
             ps.setList(3, config.selectableRoles.roles.filterNotNull().filter { it != "" })
@@ -99,6 +100,7 @@ object DatabaseOrchestrator {
             ps.setBoolean(9, config.auditing.joins)
             ps.setBoolean(10, config.auditing.leaves)
             ps.setBoolean(11, config.auditing.purge)
+            ps.setBoolean(12, config.auditing.kicks)
             ps.executeUpdate()
             con.close()
             configs.replace(guild.idLong, config)

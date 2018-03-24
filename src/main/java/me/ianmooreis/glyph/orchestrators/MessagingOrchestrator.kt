@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.orchestrators
 
 import ai.api.AIConfiguration
 import ai.api.AIDataService
+import ai.api.AIServiceContextBuilder
 import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
 import me.ianmooreis.glyph.extensions.config
@@ -71,7 +72,8 @@ object MessagingOrchestrator : ListenerAdapter() {
             event.message.reply("You have to say something!")
             return
         }
-        val ai = DialogFlow.request(AIRequest(event.message.contentClean))
+        val ctx = AIServiceContextBuilder().setSessionId("${event.author.id}+${event.channel.id}").build()
+        val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
             StatusOrchestrator.setStatus(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))

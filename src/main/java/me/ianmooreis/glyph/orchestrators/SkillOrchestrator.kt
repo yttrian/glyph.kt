@@ -21,7 +21,7 @@ object SkillOrchestrator {
         val result = ai.result
         val action = result.action
         val skill: Skill? = skills[action]
-        if (skill != null) {
+        if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
             event.message.reply(if (result.fulfillment.speech.isEmpty()) "`$action` is not available yet!" else result.fulfillment.speech)

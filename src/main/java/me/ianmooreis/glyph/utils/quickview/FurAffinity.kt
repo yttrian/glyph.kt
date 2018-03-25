@@ -25,7 +25,6 @@ class Submission(private val title: String, private val description: String, pri
         val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
         val fancyKeywords = if (linkedKeywords.length < 1024) linkedKeywords else keywords.joinToString()
         val fileType = download.toString().substringAfterLast(".")
-        print(species+gender+download+resolution)
         return EmbedBuilder()
                 .setTitle(title, link.toString())
                 .setThumbnail(if (thumbnail) full.toString() else null)

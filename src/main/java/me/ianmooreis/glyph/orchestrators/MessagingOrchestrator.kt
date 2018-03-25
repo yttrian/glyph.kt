@@ -72,7 +72,7 @@ object MessagingOrchestrator : ListenerAdapter() {
             event.message.reply("You have to say something!")
             return
         }
-        val ctx = AIServiceContextBuilder().setSessionId("${event.author.id}+${event.channel.id}").build()
+        val ctx = AIServiceContextBuilder().setSessionId("${event.author.id}${event.channel.id}".substring(0..20)).build()
         val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")

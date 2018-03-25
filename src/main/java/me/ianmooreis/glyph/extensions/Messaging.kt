@@ -7,12 +7,12 @@ import java.time.OffsetDateTime
 import java.util.concurrent.TimeUnit
 
 
-fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS) {
+fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
     try {
         this.channel.sendMessage(content.trim()).queue {
             if (deleteAfterDelay > 0) {
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-            } else {
+            } else if (deleteWithEnabled) {
                 MessagingOrchestrator.amendLedger(this.id, it.id)
             }
         }
@@ -21,12 +21,12 @@ fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: 
     }
 }
 
-fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS) {
+fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
     try {
         this.channel.sendMessage(embed).queue {
             if (deleteAfterDelay > 0){
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-            } else {
+            } else if (deleteWithEnabled) {
                 MessagingOrchestrator.amendLedger(this.id, it.id)
             }
         }

@@ -1,10 +1,7 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.audit
-import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.*
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.Skill
 import net.dv8tion.jda.core.EmbedBuilder
@@ -30,6 +27,7 @@ object KickSkill : Skill("skill.moderation.kick", serverOnly = true, requiredPer
             event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= authorMaxRole }.isEmpty() && !event.member.isOwner -> event.message.reply("You cannot kick members of your role or higher!")
             event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= selfMaxRole }.isEmpty() -> event.message.reply("I cannot kick members of my role or higher!")
             else -> {
+                event.message.delete().reason("Kick request").queue()
                 val reason = ai.result.getStringParameter("reason", "No reason provided")
                 val controller = event.guild.controller
                 targets.forEach {
@@ -41,7 +39,7 @@ object KickSkill : Skill("skill.moderation.kick", serverOnly = true, requiredPer
                     }
                     controller.kick(it, reason).queueAfter(500, TimeUnit.MILLISECONDS)
                 }
-                val targetNames = targets.joinToString { it.effectiveName }
+                val targetNames = targets.joinToString { it.asPlainMention }
                 event.message.reply(EmbedBuilder()
                         .setTitle("Kick")
                         .setDescription(
@@ -51,7 +49,7 @@ object KickSkill : Skill("skill.moderation.kick", serverOnly = true, requiredPer
                         .setThumbnail(if (targets.size == 1) targets.first().user.avatarUrl else null)
                         .setFooter("Moderation", null)
                         .setTimestamp(Instant.now())
-                        .build())
+                        .build(), deleteWithEnabled = false)
                 if (event.guild.config.auditing.kicks) {
                     event.guild.audit("Members Kicked",
                             "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +

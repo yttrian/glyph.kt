@@ -22,6 +22,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
                 .addEventListener(AuditingOrchestrator)
                 .addEventListener(ServerOrchestrator)
                 .addEventListener(StatusOrchestrator)
+                .addEventListener(StarboardOrchestrator)
     }
 }
 

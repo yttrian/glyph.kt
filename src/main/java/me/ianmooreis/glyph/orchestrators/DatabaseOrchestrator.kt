@@ -11,10 +11,11 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: SelectableRolesConfig,
-                        val quickview: QuickviewConfig, val auditing: AuditingConfig)
+                        val quickview: QuickviewConfig, val auditing: AuditingConfig, val starboard: StarboardConfig)
 data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
 data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val kicks: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
+data class StarboardConfig(val enabled: Boolean = false, val webhook: String? = null, val emoji: String = "star")
 fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
 object DatabaseOrchestrator {
@@ -24,7 +25,9 @@ object DatabaseOrchestrator {
     private val username = dbUri.userInfo.split(":")[0]
     private val password = dbUri.userInfo.split(":")[1]
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-    private val defaultConfig = ServerConfig(selectableRoles = SelectableRolesConfig(), quickview = QuickviewConfig(), auditing = AuditingConfig())
+    private val defaultConfig = ServerConfig(
+            selectableRoles = SelectableRolesConfig(), quickview = QuickviewConfig(),
+            auditing = AuditingConfig(), starboard = StarboardConfig())
 
     init {
         val con = DriverManager.getConnection(dbUrl, username, password)
@@ -45,7 +48,11 @@ object DatabaseOrchestrator {
                             rs.getBoolean("auditing_leaves"),
                             rs.getBoolean("auditing_purge"),
                             rs.getBoolean("auditing_kicks"),
-                            rs.getString("auditing_webhook"))
+                            rs.getString("auditing_webhook")),
+                    StarboardConfig(
+                            rs.getBoolean("starboard_enabled"),
+                            rs.getString("starboard_webhook"),
+                            rs.getString("starboard_emoji"))
             )
         }
         con.close()
@@ -79,16 +86,19 @@ object DatabaseOrchestrator {
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
                     " (guild_id, wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, " +
+                    " starboard_enabled, starboard_webhook, starboard_emoji)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
                     " (wiki, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks)" +
+                    " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, " +
+                    " starboard_enabled, starboard_webhook, starboard_emoji)" +
                     " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
-                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks)")
+                    " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks, " +
+                    " EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji)")
             ps.setLong(1, guild.idLong)
             ps.setString(2, config.wiki)
             ps.setList(3, config.selectableRoles.roles.filterNotNull().filter { it != "" })
@@ -101,6 +111,9 @@ object DatabaseOrchestrator {
             ps.setBoolean(10, config.auditing.leaves)
             ps.setBoolean(11, config.auditing.purge)
             ps.setBoolean(12, config.auditing.kicks)
+            ps.setBoolean(13, config.starboard.enabled)
+            ps.setString(14, config.starboard.webhook)
+            ps.setString(15, config.starboard.emoji)
             ps.executeUpdate()
             con.close()
             configs.replace(guild.idLong, config)

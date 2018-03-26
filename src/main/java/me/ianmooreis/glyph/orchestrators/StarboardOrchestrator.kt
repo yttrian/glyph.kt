@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
-import java.time.Instant
 
 object StarboardOrchestrator : ListenerAdapter() {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
@@ -25,19 +24,20 @@ object StarboardOrchestrator : ListenerAdapter() {
                         null -> message.addReaction(event.reactionEmote.name).queue()
                         else -> message.addReaction(event.reactionEmote.emote).queue()
                     }
+                    val firstEmbed = message.embeds.getOrNull(0)
                     val embed = EmbedBuilder().setAuthor(message.author.asPlainMention, null, message.author.avatarUrl)
-                            .setDescription(message.contentDisplay)
-                            .setImage(message.attachments.getOrNull(0)?.url ?: message.embeds.getOrNull(0)?.image?.url)
-                            .setThumbnail(message.embeds.getOrNull(0)?.thumbnail?.url)
+                            .setDescription(message.contentRaw)
+                            .setImage(message.attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null)
+                            .setThumbnail(if (firstEmbed?.title != null) message.embeds.getOrNull(0)?.thumbnail?.url else null)
                             .setFooter("Starboard | ${message.id} in #${message.textChannel.name}", null)
                             .setColor(Color.YELLOW)
-                            .setTimestamp(Instant.now())
+                            .setTimestamp(message.creationTime)
                     message.embeds.forEach {
-                        val value = ((it.description
-                                ?: "") + it.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" })
-                        embed.addField(it.title ?: it.author.name,
-                                if (value.length < 1024) value else "${value.substring(0..1020)}...",
-                                false)
+                        val title = it.title ?: it.author?.name ?: "No title"
+                        val value = ((it.description ?: "No description") + it.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" })
+                        if (title != "No title" && value != "No description") {
+                            embed.addField(title, if (value.length < 1024) value else "${value.substring(0..1020)}...",false)
+                        }
                     }
                     WebhookOrchestrator.send(event.jda.selfUser, starboardConfig.webhook, embed.build())
                 }

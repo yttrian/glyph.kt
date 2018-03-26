@@ -16,14 +16,15 @@ import java.time.Instant
 object WikiSkill : Skill("skill.wiki") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query = ai.result.getStringParameter("search_query")
-        val defaultWiki = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
+        val config = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
+        val defaultWiki = config.source
         val wiki = ai.result.getStringParameter("fandom_wiki", defaultWiki).trim()
         if (wiki.toLowerCase() == "wikipedia") {
             WikipediaExtractor.getPage(query, {event.message.reply("No results found for `$query` on Wikipedia!")}) {
                 event.message.reply(getResultEmbed(it.title, it.url, it.intro, "Wikipedia"))
             }
         } else {
-            FandomExtractor.getPage(wiki, query, {event.message.reply("No results found for `$query` on $wiki!")}) {
+            FandomExtractor.getPage(wiki, query, config.minimumQuality, {event.message.reply("No results found for `$query` on $wiki!")}) {
                 event.message.reply(getResultEmbed(it.title, it.url, it.intro, wiki))
             }
         }

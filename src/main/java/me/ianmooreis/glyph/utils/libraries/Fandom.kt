@@ -12,8 +12,10 @@ object FandomExtractor {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     data class FandomPage(val title: String, val intro: String, val url: URL)
 
-    fun getPage(wiki: String, query: String, failure: () -> Unit, success: (FandomPage) -> Unit) {
-        val searchUrl = "https://${URLEncoder.encode(wiki, "UTF-8")}.wikia.com/api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}&limit=1&minArticleQuality=50&batch=1&namespaces=0%2C14"
+    fun getPage(wiki: String, query: String, minimumQuality: Int, failure: () -> Unit, success: (FandomPage) -> Unit) {
+        val searchUrl = "https://${URLEncoder.encode(wiki, "UTF-8")}.wikia.com/" +
+                "api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}" +
+                "&limit=1&minArticleQuality=${URLEncoder.encode(minimumQuality.toString(), "UTF-8")}&batch=1&namespaces=0%2C14"
         searchUrl.httpGet().responseString {  _, _, searchResult ->
             when (searchResult) {
                 is Result.Success -> {

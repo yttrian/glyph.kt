@@ -10,12 +10,14 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-data class ServerConfig(val wiki: String = "wikipedia", val selectableRoles: SelectableRolesConfig,
-                        val quickview: QuickviewConfig, val auditing: AuditingConfig, val starboard: StarboardConfig)
+data class ServerConfig(val wiki: WikiConfig = WikiConfig(), val selectableRoles: SelectableRolesConfig = SelectableRolesConfig(),
+                        val quickview: QuickviewConfig = QuickviewConfig(), val auditing: AuditingConfig = AuditingConfig(),
+                        val starboard: StarboardConfig = StarboardConfig())
+data class WikiConfig(val source: String = "wikipedia", val minimumQuality: Int = 50)
 data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
 data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val kicks: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
-data class StarboardConfig(val enabled: Boolean = false, val webhook: String? = null, val emoji: String = "star")
+data class StarboardConfig(val enabled: Boolean = false, val webhook: String? = null, val emoji: String = "star", val threshold: Int = 1, val allowSelfStarring: Boolean = false)
 fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
 object DatabaseOrchestrator {
@@ -25,9 +27,7 @@ object DatabaseOrchestrator {
     private val username = dbUri.userInfo.split(":")[0]
     private val password = dbUri.userInfo.split(":")[1]
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-    private val defaultConfig = ServerConfig(
-            selectableRoles = SelectableRolesConfig(), quickview = QuickviewConfig(),
-            auditing = AuditingConfig(), starboard = StarboardConfig())
+    private val defaultConfig = ServerConfig()
 
     init {
         val con = DriverManager.getConnection(dbUrl, username, password)
@@ -35,7 +35,10 @@ object DatabaseOrchestrator {
         val rs = ps.executeQuery()
         while (rs.next()) {
             configs[rs.getLong("guild_id")] = ServerConfig(
-                    rs.getString("wiki"),
+                    WikiConfig(
+                            rs.getString("wiki"),
+                            rs.getInt("wiki_min_quality")
+                    ),
                     SelectableRolesConfig(
                             rs.getList("selectable_roles"),
                             rs.getInt("selectable_roles_limit")),
@@ -52,7 +55,9 @@ object DatabaseOrchestrator {
                     StarboardConfig(
                             rs.getBoolean("starboard_enabled"),
                             rs.getString("starboard_webhook"),
-                            rs.getString("starboard_emoji"))
+                            rs.getString("starboard_emoji"),
+                            rs.getInt("starboard_threshold"),
+                            rs.getBoolean("starboard_allow_self_starring"))
             )
         }
         con.close()
@@ -84,36 +89,39 @@ object DatabaseOrchestrator {
         try {
             val con = DriverManager.getConnection(dbUrl, username, password)
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                    " (guild_id, wiki, selectable_roles, selectable_roles_limit, " +
+                    " (guild_id, wiki, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, " +
-                    " starboard_enabled, starboard_webhook, starboard_emoji)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
-                    " (wiki, selectable_roles, selectable_roles_limit, " +
+                    " (wiki, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, " +
-                    " starboard_enabled, starboard_webhook, starboard_emoji)" +
-                    " = (EXCLUDED.wiki, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
+                    " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
+                    " = (EXCLUDED.wiki, EXCLUDED.wiki_min_quality, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks, " +
-                    " EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji)")
+                    " EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji, EXCLUDED.starboard_threshold, EXCLUDED.starboard_allow_self_starring)")
             ps.setLong(1, guild.idLong)
-            ps.setString(2, config.wiki)
-            ps.setList(3, config.selectableRoles.roles.filterNotNull().filter { it != "" })
-            ps.setInt(4, config.selectableRoles.limit)
-            ps.setBoolean(5, config.quickview.furaffinityEnabled)
-            ps.setBoolean(6, config.quickview.furaffinityThumbnails)
-            ps.setBoolean(7, config.quickview.picartoEnabled)
-            ps.setString(8, config.auditing.webhook)
-            ps.setBoolean(9, config.auditing.joins)
-            ps.setBoolean(10, config.auditing.leaves)
-            ps.setBoolean(11, config.auditing.purge)
-            ps.setBoolean(12, config.auditing.kicks)
-            ps.setBoolean(13, config.starboard.enabled)
-            ps.setString(14, config.starboard.webhook)
-            ps.setString(15, config.starboard.emoji)
+            ps.setString(2, config.wiki.source)
+            ps.setInt(3, config.wiki.minimumQuality)
+            ps.setList(4, config.selectableRoles.roles.filterNotNull().filter { it != "" })
+            ps.setInt(5, config.selectableRoles.limit)
+            ps.setBoolean(6, config.quickview.furaffinityEnabled)
+            ps.setBoolean(7, config.quickview.furaffinityThumbnails)
+            ps.setBoolean(8, config.quickview.picartoEnabled)
+            ps.setString(9, config.auditing.webhook)
+            ps.setBoolean(10, config.auditing.joins)
+            ps.setBoolean(11, config.auditing.leaves)
+            ps.setBoolean(12, config.auditing.purge)
+            ps.setBoolean(13, config.auditing.kicks)
+            ps.setBoolean(14, config.starboard.enabled)
+            ps.setString(15, config.starboard.webhook)
+            ps.setString(16, config.starboard.emoji)
+            ps.setInt(17, config.starboard.threshold)
+            ps.setBoolean(18, config.starboard.allowSelfStarring)
             ps.executeUpdate()
             con.close()
             configs.replace(guild.idLong, config)

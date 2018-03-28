@@ -42,14 +42,18 @@ abstract class Skill(val trigger: String, private val serverOnly: Boolean = fals
         val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
         if ((serverOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild ) {
-            event.message.reply("You can only do this in a server!")
+            event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
         } else if (!permittedSelf) {
-            event.message.reply("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { it.name }})")
+            event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")
         } else if (!permittedUser) {
-            event.message.reply("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { it.name }})")
+            event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { prettyPrintPermissionName(it) }})")
         } else {
             this.onTrigger(event, ai)
         }
+    }
+
+    private fun prettyPrintPermissionName(permission: Permission) : String {
+        return permission.name.split("_").joinToString(" ") { it.toLowerCase().capitalize() }
     }
 
     override fun toString(): String = trigger

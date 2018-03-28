@@ -4,6 +4,7 @@ import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
+import me.ianmooreis.glyph.skills.moderation.BanSkill
 import me.ianmooreis.glyph.skills.moderation.KickSkill
 import me.ianmooreis.glyph.skills.moderation.PurgeSkill
 import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
@@ -32,7 +33,7 @@ fun main(args: Array<String>) {
             .addSkill(InfoSkill)
             .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
             .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
-            .addSkill(PurgeSkill).addSkill(UserInfoSkill).addSkill(KickSkill)
+            .addSkill(PurgeSkill).addSkill(UserInfoSkill).addSkill(KickSkill).addSkill(BanSkill)
             .addSkill(EphemeralSaySkill)
             .addSkill(RedditSkill)
             .addSkill(WikiSkill)

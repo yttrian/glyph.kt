@@ -15,7 +15,7 @@ object BanSkill : Skill("skill.moderation.ban", serverOnly = true, requiredPermi
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
-                fun finally() = controller.ban(member, 7, reason).queue()
+                val finally = { controller.ban(member, 7, reason).queue() }
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
                         pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue({

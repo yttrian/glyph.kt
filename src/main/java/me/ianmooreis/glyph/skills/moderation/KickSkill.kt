@@ -15,7 +15,7 @@ object KickSkill : Skill("skill.moderation.kick", serverOnly = true, requiredPer
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
             event.message.delete().reason("Kick request").queue()
             targets.forEach { member ->
-                fun finally() = controller.kick(member, reason).queue()
+                val finally = { controller.kick(member, reason).queue() }
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
                         pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue({

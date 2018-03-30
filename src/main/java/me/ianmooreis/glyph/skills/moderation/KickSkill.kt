@@ -15,19 +15,20 @@ object KickSkill : Skill("skill.moderation.kick", serverOnly = true, requiredPer
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
             event.message.delete().reason("Kick request").queue()
             targets.forEach { member ->
+                fun finally() = controller.kick(member, reason).queue()
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue {
-                            pm.close().queue {
-                                controller.kick(member, reason).queue()
-                            }
-                        }
+                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue({
+                            pm.close().queue { finally() }
+                        }, { finally() })
                     }
+                } else {
+                    finally()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "has" else "have"} been kicked!***")
+                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***")
             if (event.guild.config.auditing.kicks) {
                 event.guild.audit("Members Kicked",
                         "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +

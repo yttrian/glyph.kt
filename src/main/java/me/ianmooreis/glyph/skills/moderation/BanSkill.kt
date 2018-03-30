@@ -15,20 +15,20 @@ object BanSkill : Skill("skill.moderation.ban", serverOnly = true, requiredPermi
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
+                fun finally() = controller.ban(member, 7, reason).queue()
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue {
-                            pm.close().queue {
-                                controller.ban(member, 7, reason).queue()
-                            }
-                        }
+                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue({
+                            pm.close().queue { finally() }
+                        }, { finally() })
                     }
+                } else {
+                    finally()
                 }
-
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "has" else "have"} been banned!***")
+                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***")
             if (event.guild.config.auditing.bans) {
                 event.guild.audit("Members Banned",
                         "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +

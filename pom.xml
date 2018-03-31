@@ -90,6 +90,11 @@
             <artifactId>emoji-java</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.2.59</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -116,6 +121,11 @@
             <id>bintray-thatjavanerd-maven</id>
             <name>bintray</name>
             <url>https://dl.bintray.com/thatjavanerd/maven</url>
+        </repository>
+        <repository>
+            <id>bintray-sedmelluq-com.sedmelluq</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/sedmelluq/com.sedmelluq</url>
         </repository>
     </repositories>
 

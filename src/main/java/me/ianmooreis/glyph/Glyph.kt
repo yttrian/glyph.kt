@@ -8,6 +8,10 @@ import me.ianmooreis.glyph.skills.moderation.BanSkill
 import me.ianmooreis.glyph.skills.moderation.KickSkill
 import me.ianmooreis.glyph.skills.moderation.PurgeSkill
 import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
+import me.ianmooreis.glyph.skills.music.MusicPlaySkill
+import me.ianmooreis.glyph.skills.music.MusicQueueSkill
+import me.ianmooreis.glyph.skills.music.MusicSkipSkill
+import me.ianmooreis.glyph.skills.music.MusicStopSkill
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -31,6 +35,7 @@ fun main(args: Array<String>) {
     SkillOrchestrator
             .addSkill(HelpSkill)
             .addSkill(InfoSkill)
+            .addSkill(MusicPlaySkill).addSkill(MusicSkipSkill).addSkill(MusicStopSkill).addSkill(MusicQueueSkill)
             .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
             .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
             .addSkill(PurgeSkill).addSkill(UserInfoSkill).addSkill(KickSkill).addSkill(BanSkill)

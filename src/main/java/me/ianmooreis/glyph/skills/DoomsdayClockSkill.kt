@@ -4,12 +4,12 @@ import ai.api.model.AIResponse
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 
-object DoomsdayClockSkill : Skill("skill.doomsday_clock") {
+object DoomsdayClockSkill : SkillAdapter("skill.doomsday_clock") {
     private val timeRegex = Regex("(IT IS (.*?) TO MIDNIGHT)", RegexOption.IGNORE_CASE)
     private val reasonRegex = Regex("<div class=\"body-text\"><span class=\"timeline-year\">(\\d{4})</span>:(.*)(See the|Read the)", RegexOption.IGNORE_CASE)
 

@@ -9,9 +9,9 @@ import org.slf4j.simple.SimpleLoggerFactory
 
 object SkillOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private var skills: MutableMap<String, Skill> = mutableMapOf()
+    private var skills: MutableMap<String, SkillAdapter> = mutableMapOf()
 
-    fun addSkill(skill: Skill): SkillOrchestrator {
+    fun addSkill(skill: SkillAdapter): SkillOrchestrator {
         log.info("Registered: $skill")
         skills[skill.trigger] = skill
         return this
@@ -20,7 +20,7 @@ object SkillOrchestrator {
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val result = ai.result
         val action = result.action
-        val skill: Skill? = skills[action]
+        val skill: SkillAdapter? = skills[action]
         if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
@@ -29,9 +29,9 @@ object SkillOrchestrator {
     }
 }
 
-abstract class Skill(val trigger: String, private val serverOnly: Boolean = false,
-                     private val requiredPermissionsUser: Collection<Permission> = emptyList(),
-                     private val requiredPermissionsSelf: Collection<Permission> = emptyList()) {
+abstract class SkillAdapter(val trigger: String, private val serverOnly: Boolean = false,
+                            private val requiredPermissionsUser: Collection<Permission> = emptyList(),
+                            private val requiredPermissionsSelf: Collection<Permission> = emptyList()) {
     val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     open fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {

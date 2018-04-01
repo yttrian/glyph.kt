@@ -3,14 +3,14 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.google.gson.JsonObject
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), serverOnly = true) {
+object EphemeralSaySkill : SkillAdapter("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
         if (durationEntity == null) {

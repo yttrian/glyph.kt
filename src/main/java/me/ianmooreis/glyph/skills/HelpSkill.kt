@@ -2,12 +2,12 @@ package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.awt.Color
 
-object HelpSkill : Skill("skill.help") {
+object HelpSkill : SkillAdapter("skill.help") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //val creator: User = event.jda.getUserById(System.getenv("CREATOR_ID"))
         val name = event.jda.selfUser.name

@@ -34,38 +34,32 @@ class GuildMusicManager(manager: AudioPlayerManager) {
         return scheduler.getQueue()
     }
 
-    fun queue(message: Message, query: String) {
-        MusicSkillManager.playerManager.loadItemOrdered(this, query, object : AudioLoadResultHandler {
+    fun clearQueue() {
+        scheduler.clearQueue()
+    }
+
+    fun queue(message: Message, identifier: String) {
+        MusicSkillManager.playerManager.loadItemOrdered(this, identifier, object : AudioLoadResultHandler {
             override fun trackLoaded(track: AudioTrack) {
                 if (Duration.ofMillis(track.duration).toMinutes() < 60) {
                     scheduler.queue(track)
+                    val playingIn = Duration.ofMillis(getQueue().map { it.duration }.sum()).toString().removePrefix("PT").toLowerCase()
                     message.reply(
                             "Adding to queue: ${track.info.title}\n" +
-                            "Playing in: ${Duration.ofMillis(getQueue().map { it.duration }.sum()).toString().removePrefix("PT").toLowerCase()}")
+                            if (getQueue().isNotEmpty()) "Playing in: $playingIn" else "Playing now!")
                 } else {
                     message.reply("I will only play songs less than 1 hour long!")
                 }
             }
 
             override fun playlistLoaded(playlist: AudioPlaylist) {
-                var firstTrack: AudioTrack? = playlist.selectedTrack
                 val tracks = playlist.tracks
-
-                if (firstTrack == null) {
-                    firstTrack = playlist.tracks[0]
-                }
-
-                if (false) { //TODO: Check
-                    message.reply("Adding **" + playlist.tracks.size + "** tracks to queue from playlist: " + playlist.name)
-                    tracks.forEach { scheduler.queue(it) }
-                } else {
-                    message.reply("Adding to queue " + firstTrack!!.info.title + " (first track of playlist " + playlist.name + ")")
-                    scheduler.queue(firstTrack)
-                }
+                message.reply("Adding **" + tracks.size + "** tracks to queue from playlist: " + playlist.name)
+                tracks.forEach { scheduler.queue(it) }
             }
 
             override fun noMatches() {
-                message.reply("Nothing found by $query")
+                message.reply("Nothing found by $identifier")
             }
 
             override fun loadFailed(exception: FriendlyException) {

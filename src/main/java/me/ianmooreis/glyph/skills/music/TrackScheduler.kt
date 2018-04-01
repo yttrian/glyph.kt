@@ -20,6 +20,10 @@ class TrackScheduler(private val player: AudioPlayer) : AudioEventAdapter() {
         return queue.toList()
     }
 
+    fun clearQueue() {
+        queue.clear()
+    }
+
     fun nextTrack() {
         player.startTrack(queue.poll(), false)
     }

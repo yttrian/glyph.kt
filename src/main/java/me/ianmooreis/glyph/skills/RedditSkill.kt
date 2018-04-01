@@ -6,7 +6,7 @@ import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -23,7 +23,7 @@ import java.time.Instant
 import java.util.*
 
 
-object RedditSkill : Skill("skill.reddit") {
+object RedditSkill : SkillAdapter("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
             OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
             Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))

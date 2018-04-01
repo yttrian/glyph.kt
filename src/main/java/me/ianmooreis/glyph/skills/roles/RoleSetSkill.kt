@@ -6,7 +6,7 @@ import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getRandom
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.exceptions.HierarchyException
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-object RoleSetSkill : Skill("skill.role.set", serverOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
+object RoleSetSkill : SkillAdapter("skill.role.set", serverOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to set roles for the specified target(s)
         if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(Permission.MANAGE_ROLES)) {

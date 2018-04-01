@@ -4,12 +4,12 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.MessagingOrchestrator
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 
-object InfoSkill : Skill("skill.status") {
+object InfoSkill : SkillAdapter("skill.status") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
         val name = jda.selfUser.name

@@ -4,12 +4,12 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getRandom
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 
-object RoleListSkill : Skill("skill.role.list", serverOnly = true) {
+object RoleListSkill : SkillAdapter("skill.role.list", serverOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val selectableRoles = event.guild.config.selectableRoles.roles.filterNotNull().filter { it != "" }
         val limit = event.guild.config.selectableRoles.limit

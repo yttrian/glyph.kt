@@ -6,11 +6,11 @@ import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object BanSkill : Skill("skill.moderation.ban", serverOnly = true, requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS), requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)) {
+object BanSkill : SkillAdapter("skill.moderation.ban", serverOnly = true, requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS), requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
             event.message.delete().reason("Ban request").queue()

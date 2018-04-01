@@ -4,7 +4,7 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
-import me.ianmooreis.glyph.orchestrators.Skill
+import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import me.ianmooreis.glyph.utils.libraries.FandomExtractor
 import me.ianmooreis.glyph.utils.libraries.WikipediaExtractor
 import net.dv8tion.jda.core.EmbedBuilder
@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.net.URL
 import java.time.Instant
 
-object WikiSkill : Skill("skill.wiki") {
+object WikiSkill : SkillAdapter("skill.wiki") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query = ai.result.getStringParameter("search_query")
         val config = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki

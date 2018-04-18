@@ -95,6 +95,11 @@
             <artifactId>lavaplayer</artifactId>
             <version>1.2.59</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.DiscordBotList</groupId>
+            <artifactId>DBL-Java-Wrapper</artifactId>
+            <version>v1.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>

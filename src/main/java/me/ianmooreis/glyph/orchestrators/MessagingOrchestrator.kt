@@ -20,7 +20,7 @@ import org.slf4j.simple.SimpleLoggerFactory
 import java.util.concurrent.TimeUnit
 
 object MessagingOrchestrator : ListenerAdapter() {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
     private var ledger = mutableMapOf<String, String>()
     private var customEmotes = mapOf<String, Emote>()

@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import org.discordbots.api.client.DiscordBotListAPI
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
@@ -41,22 +42,13 @@ object ServerOrchestrator : ListenerAdapter() {
         val id = jda.selfUser.id
         val count = jda.guilds.count()
         val countJSON = JSONObject().put("server_count", count).toString()
-        "https://discordbots.org/api/bots/$id/stats".httpPost().header("Authorization" to System.getenv("DISCORDBOTLIST_TOKEN"), "Content-Type" to "application/json")
-                .body(countJSON).responseString { _, response, result ->
-            when (result) {
-                is Result.Success -> {
-                    log.info("Updated Discord Bot List server count with $count.")
-                }
-                is Result.Failure -> {
-                    log.warn("Failed to update Discord Bot List server count with ${response.statusCode} error!")
-                }
-            }
-        }
+        val discordBotListAPI = DiscordBotListAPI.Builder().token(System.getenv("DISCORDBOTLIST_TOKEN")).build()
+        discordBotListAPI.setStats(id, count, jda.shardInfo.shardId, jda.shardInfo.shardTotal)
         "https://bots.discord.pw/api/bots/$id/stats".httpPost().header("Authorization" to System.getenv("DISCORDBOTS_TOKEN"), "Content-Type" to "application/json")
                 .body(countJSON).responseString { _, response, result ->
              when (result) {
                     is Result.Success -> {
-                        log.info("Updated Discord Bots server count with $count.")
+                        log.debug("Updated Discord Bots server count with $count.")
                     }
                     is Result.Failure -> {
                         log.warn("Failed to update Discord Bots server count with ${response.statusCode} error!")

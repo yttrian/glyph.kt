@@ -5,11 +5,14 @@ import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import org.slf4j.Logger
+import org.slf4j.simple.SimpleLoggerFactory
 import java.util.*
 import kotlin.concurrent.schedule
 
 
 object StatusOrchestrator : ListenerAdapter() {
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val playing = listOf(
             "Quasar", "Armax Arsenal Arena", "Alliance Corsair", "Towers of Hanoi", "Shattered Eezo",
             "Relay Defense", "Kepesh-Yakshi", "Firebreathing Thresher Maws of Doom", "Galaxy of Fantasy",
@@ -27,6 +30,7 @@ object StatusOrchestrator : ListenerAdapter() {
     private val statuses: List<Game> = playing.map { Game.playing(it) }.plus(watching.map { Game.watching(it) }).plus(listening.map { Game.listening(it) })
 
     override fun onReady(event: ReadyEvent) {
+        log.info("Ready on shard ${event.jda.shardInfo.shardId + 1}/${event.jda.shardInfo.shardTotal} with ${event.jda.guilds.count()} guilds")
         event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())
         Timer().schedule(1800000) {
             event.jda.presence.setPresence(OnlineStatus.ONLINE, getRandomStatus())

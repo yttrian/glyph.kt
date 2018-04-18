@@ -8,12 +8,18 @@ import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 
 object SkillOrchestrator {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private var skills: MutableMap<String, SkillAdapter> = mutableMapOf()
 
-    fun addSkill(skill: SkillAdapter): SkillOrchestrator {
-        log.info("Registered: $skill")
+    private fun addSkill(skill: SkillAdapter): SkillOrchestrator {
+        log.debug("Registered: $skill")
         skills[skill.trigger] = skill
+        return this
+    }
+
+    fun addSkill(vararg skills: SkillAdapter): SkillOrchestrator {
+        skills.distinct().forEach { addSkill(it) }
+        log.info("Registered ${skills.size} skills")
         return this
     }
 

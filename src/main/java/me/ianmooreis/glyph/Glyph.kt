@@ -19,30 +19,20 @@ import net.dv8tion.jda.core.JDABuilder
 object Glyph : JDABuilder(AccountType.BOT) {
     val version: String = System.getenv("HEROKU_RELEASE_VERSION")
     init {
-        this.setToken(System.getenv("DISCORD_TOKEN"))
-                .addEventListener(MessagingOrchestrator)
-                .addEventListener(AuditingOrchestrator)
-                .addEventListener(ServerOrchestrator)
-                .addEventListener(StatusOrchestrator)
-                .addEventListener(StarboardOrchestrator)
+        this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
+                MessagingOrchestrator, AuditingOrchestrator, ServerOrchestrator, StatusOrchestrator, StarboardOrchestrator)
     }
 }
 
 fun main(args: Array<String>) {
-    SkillOrchestrator
-            .addSkill(HelpSkill)
-            .addSkill(InfoSkill)
-            .addSkill(MusicPlaySkill).addSkill(MusicSkipSkill).addSkill(MusicStopSkill).addSkill(MusicQueueShowSkill).addSkill(MusicQueueClearSkill)
-            .addSkill(RoleSetSkill).addSkill(RoleUnsetSkill).addSkill(RoleListSkill)
-            .addSkill(ServerConfigGetSkill).addSkill(ServerConfigSetSkill)
-            .addSkill(PurgeSkill).addSkill(UserInfoSkill).addSkill(KickSkill).addSkill(BanSkill)
-            .addSkill(EphemeralSaySkill)
-            .addSkill(RedditSkill)
-            .addSkill(WikiSkill)
-            .addSkill(TimeSkill)
-            .addSkill(FeedbackSkill)
-            .addSkill(DoomsdayClockSkill)
-            .addSkill(FallbackSkill)
+    SkillOrchestrator.addSkill(
+            HelpSkill, InfoSkill,
+            MusicPlaySkill, MusicSkipSkill, MusicStopSkill, MusicQueueShowSkill, MusicQueueClearSkill,
+            RoleSetSkill, RoleUnsetSkill, RoleListSkill,
+            ServerConfigGetSkill, ServerConfigSetSkill,
+            PurgeSkill, UserInfoSkill, KickSkill, BanSkill,
+            EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
+            FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
     for (i in 0..(shardTotal - 1)) {
         Glyph.useSharding(i, shardTotal).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION)

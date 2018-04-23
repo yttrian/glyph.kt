@@ -11,7 +11,6 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.discordbots.api.client.DiscordBotListAPI
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
@@ -41,20 +40,22 @@ object ServerOrchestrator : ListenerAdapter() {
     private fun updateServerCount(jda: JDA) {
         val id = jda.selfUser.id
         val count = jda.guilds.count()
-        val countJSON = JSONObject().put("server_count", count).toString()
-        val discordBotListAPI = DiscordBotListAPI.Builder().token(System.getenv("DISCORDBOTLIST_TOKEN")).build()
-        discordBotListAPI.setStats(id, count, jda.shardInfo.shardId, jda.shardInfo.shardTotal)
-        "https://bots.discord.pw/api/bots/$id/stats".httpPost().header("Authorization" to System.getenv("DISCORDBOTS_TOKEN"), "Content-Type" to "application/json")
-                .body(countJSON).responseString { _, response, result ->
-             when (result) {
-                    is Result.Success -> {
-                        log.debug("Updated Discord Bots server count with $count.")
-                    }
-                    is Result.Failure -> {
-                        log.warn("Failed to update Discord Bots server count with ${response.statusCode} error!")
-                    }
+        val countJSON = JSONObject().put("server_count", count).put("shard_id", jda.shardInfo.shardId).put("shard_count", jda.shardInfo.shardTotal)
+        sendServerCount("https://discordbots.org/api/bots/$id/stats", countJSON, System.getenv("DISCORDBOTLIST_TOKEN"))
+        sendServerCount("https://bots.discord.pw/api/bots/$id/stats", countJSON, System.getenv("DISCORDBOTS_TOKEN"))
+    }
+
+    private fun sendServerCount(url: String, countJSON: JSONObject, token: String) {
+        url.httpPost().header("Authorization" to token, "Content-Type" to "application/json").body(countJSON.toString()).responseString {_, response, result ->
+            when (result) {
+                is Result.Success -> {
+                    log.debug("Updated server count at $url.")
                 }
-             }
+                is Result.Failure -> {
+                    log.warn("Failed to update server count at $url with ${response.statusCode} error!")
+                }
+            }
+        }
     }
 
     private fun getGuildEmbed(guild: Guild): EmbedBuilder {

@@ -8,7 +8,6 @@ import me.ianmooreis.glyph.skills.moderation.BanSkill
 import me.ianmooreis.glyph.skills.moderation.KickSkill
 import me.ianmooreis.glyph.skills.moderation.PurgeSkill
 import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
-import me.ianmooreis.glyph.skills.music.*
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -27,7 +26,6 @@ object Glyph : JDABuilder(AccountType.BOT) {
 fun main(args: Array<String>) {
     SkillOrchestrator.addSkill(
             HelpSkill, InfoSkill,
-            MusicPlaySkill, MusicSkipSkill, MusicStopSkill, MusicQueueShowSkill, MusicQueueClearSkill,
             RoleSetSkill, RoleUnsetSkill, RoleListSkill,
             ServerConfigGetSkill, ServerConfigSetSkill,
             PurgeSkill, UserInfoSkill, KickSkill, BanSkill,

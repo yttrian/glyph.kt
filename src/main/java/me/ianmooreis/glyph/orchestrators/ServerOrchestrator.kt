@@ -2,7 +2,9 @@ package me.ianmooreis.glyph.orchestrators
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.deleteConfig
+import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.log
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
@@ -22,7 +24,7 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onReady(event: ReadyEvent) {
         updateServerCount(event.jda)
-        antiBotFarm(event.jda)
+        antiBotFarm(event.jda.guilds)
     }
 
     override fun onGuildJoin(event: GuildJoinEvent) {
@@ -38,19 +40,10 @@ object ServerOrchestrator : ListenerAdapter() {
         log.info("Left ${event.guild}")
     }
 
-    private fun antiBotFarm(jda: JDA) {
-        jda.guilds.forEach { guild ->
-            val botRatio = guild.members.count { it.user.isBot }.toFloat() / guild.members.count().toFloat()
-            if (botRatio > .8) {
-                when {
-                    DatabaseOrchestrator.hasCustomConfig(guild) -> log.debug("Did not leave bot farm $guild! Guild has custom config.")
-                    guild.members.count() < 10 -> log.debug("Did not leave bot farm $guild! Guild has less than 10 members.")
-                    else -> {
-                        guild.leave().queue {
-                            log.info("Left bot farm $guild! Guild had bot ratio of $botRatio")
-                        }
-                    }
-                }
+    private fun antiBotFarm(guilds: List<Guild>) {
+        guilds.filter { it.isBotFarm }.forEach { guild ->
+            guild.leave().queue {
+                log.info("Left bot farm $guild! Guild had bot ratio of ${guild.botRatio}")
             }
         }
     }

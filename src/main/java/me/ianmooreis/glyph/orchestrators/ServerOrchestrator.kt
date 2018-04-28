@@ -22,6 +22,7 @@ object ServerOrchestrator : ListenerAdapter() {
 
     override fun onReady(event: ReadyEvent) {
         updateServerCount(event.jda)
+        antiBotFarm(event.jda)
     }
 
     override fun onGuildJoin(event: GuildJoinEvent) {
@@ -35,6 +36,23 @@ object ServerOrchestrator : ListenerAdapter() {
         event.jda.selfUser.log(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
         event.guild.deleteConfig()
         log.info("Left ${event.guild}")
+    }
+
+    private fun antiBotFarm(jda: JDA) {
+        jda.guilds.forEach { guild ->
+            val botRatio = guild.members.count { it.user.isBot }.toFloat() / guild.members.count().toFloat()
+            if (botRatio > .8) {
+                when {
+                    DatabaseOrchestrator.hasCustomConfig(guild) -> log.debug("Did not leave bot farm $guild! Guild has custom config.")
+                    guild.members.count() < 10 -> log.debug("Did not leave bot farm $guild! Guild has less than 10 members.")
+                    else -> {
+                        guild.leave().queue {
+                            log.info("Left bot farm $guild! Guild had bot ratio of $botRatio")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun updateServerCount(jda: JDA) {

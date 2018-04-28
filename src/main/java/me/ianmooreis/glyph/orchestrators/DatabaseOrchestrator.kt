@@ -78,11 +78,15 @@ object DatabaseOrchestrator {
         }
     }
 
-    fun getServerConfig(guild: Guild) : ServerConfig {
+    fun getServerConfig(guild: Guild): ServerConfig {
         return configs.getOrDefault(guild.idLong, defaultConfig)
     }
 
-    fun getDefaultServerConfig() : ServerConfig {
+    fun hasCustomConfig(guild: Guild): Boolean {
+        return configs.containsKey(guild.idLong)
+    }
+
+    fun getDefaultServerConfig(): ServerConfig {
         return defaultConfig
     }
 

@@ -27,6 +27,8 @@ object StatusSkill : SkillAdapter("skill.status") {
                         "\n**Messages** ${MessagingOrchestrator.getLedgerSize()}", true)
                 .addField("Dyno", "**Cores** ${runtime.availableProcessors()}\n" +
                         "**Memory** $usedMemory of $maxMemory MB\n" +
+                        "**JVM** ${Runtime.version()}\n" +
+                        "**Kotlin** ${KotlinVersion.CURRENT}\n" +
                         "**Restarted** $uptime", true)
                 .addField("Operating Parameters", ai.result.fulfillment.speech.replace("\\n", "\n", true), true)
                 //.addField("Developer Rambling", ai.result.fulfillment.speech, false)

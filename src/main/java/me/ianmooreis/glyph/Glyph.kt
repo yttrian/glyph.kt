@@ -4,10 +4,7 @@ import me.ianmooreis.glyph.orchestrators.*
 import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
-import me.ianmooreis.glyph.skills.moderation.BanSkill
-import me.ianmooreis.glyph.skills.moderation.KickSkill
-import me.ianmooreis.glyph.skills.moderation.PurgeSkill
-import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
+import me.ianmooreis.glyph.skills.moderation.*
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -28,7 +25,7 @@ fun main(args: Array<String>) {
             HelpSkill, InfoSkill,
             RoleSetSkill, RoleUnsetSkill, RoleListSkill,
             ServerConfigGetSkill, ServerConfigSetSkill,
-            PurgeSkill, UserInfoSkill, KickSkill, BanSkill,
+            PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill,
             EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
             FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()

@@ -55,7 +55,7 @@ object MessagingOrchestrator : ListenerAdapter() {
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        loadCustomEmotes(event.jda.getGuildById(System.getenv("HOME_GUILD")))
+        loadCustomEmotes(event.jda.getGuildById(System.getenv("EMOJI_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
         val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
         launch {

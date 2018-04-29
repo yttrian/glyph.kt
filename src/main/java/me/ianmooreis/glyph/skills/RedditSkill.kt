@@ -60,7 +60,8 @@ object RedditSkill : SkillAdapter("skill.reddit") {
             }
         } catch (e: NetworkException) {
             event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
-            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
+            //event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
+            event.message.addReaction("❓").queue() //TODO: Stop pretending that a misinterpretation that everything is Reddit is a usual failure
         } catch (e: ApiException) {
             event.message.reply("${CustomEmote.CONFIDENTIAL} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: NoSuchElementException) {

@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.orchestrators
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.isCreator
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -37,7 +38,8 @@ object SkillOrchestrator {
 
 abstract class SkillAdapter(val trigger: String, private val serverOnly: Boolean = false,
                             private val requiredPermissionsUser: Collection<Permission> = emptyList(),
-                            private val requiredPermissionsSelf: Collection<Permission> = emptyList()) {
+                            private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
+                            private val creatorOnly: Boolean = false) {
     val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     open fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
@@ -47,14 +49,12 @@ abstract class SkillAdapter(val trigger: String, private val serverOnly: Boolean
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
-        if ((serverOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild ) {
-            event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
-        } else if (!permittedSelf) {
-            event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")
-        } else if (!permittedUser) {
-            event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { prettyPrintPermissionName(it) }})")
-        } else {
-            this.onTrigger(event, ai)
+        when {
+            ((serverOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild) -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
+            !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")
+            !permittedUser -> event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { prettyPrintPermissionName(it) }})")
+            (creatorOnly && !event.author.isCreator) -> event.message.addReaction("❓").queue() //Pretend the skill does not exist
+            else -> this.onTrigger(event, ai)
         }
     }
 

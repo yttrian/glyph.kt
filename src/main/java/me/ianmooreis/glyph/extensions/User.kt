@@ -31,3 +31,6 @@ val User.asPlainMention
 
 val Member.asPlainMention
     get() = this.user.asPlainMention
+
+val User.isCreator
+    get() = this.idLong == System.getenv("CREATOR_ID").toLong()

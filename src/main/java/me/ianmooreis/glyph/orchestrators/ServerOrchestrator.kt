@@ -71,9 +71,10 @@ object ServerOrchestrator : ListenerAdapter() {
 
     private fun getGuildEmbed(guild: Guild): EmbedBuilder {
         return EmbedBuilder().setDescription(
-                "**Name** ${guild.name}\n" +
-                        "**ID** ${guild.id}\n" +
-                        "**Members** ${guild.members.size} (Bots: ${guild.members.count { it.user.isBot }})")
+                    "**Name** ${guild.name}\n" +
+                    "**ID** ${guild.id}\n" +
+                    "**Members** ${guild.members.size} (${guild.members.count { it.user.isBot }} bots)\n" +
+                    "**Farm** ${guild.isBotFarm} (${"%.2f".format(guild.botRatio)})")
                 .setThumbnail(guild.iconUrl)
                 .setFooter("Logging", null)
                 .setTimestamp(Instant.now())

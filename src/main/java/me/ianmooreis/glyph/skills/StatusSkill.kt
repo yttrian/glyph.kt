@@ -12,16 +12,22 @@ import java.lang.management.ManagementFactory
 import java.time.Instant
 import java.util.*
 
-object InfoSkill : SkillAdapter("skill.status") {
+object StatusSkill : SkillAdapter("skill.status") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
         val name = jda.selfUser.name
         val uptime = PrettyTime().format(Date(ManagementFactory.getRuntimeMXBean().startTime))
+        val runtime = Runtime.getRuntime()
+        val totalMemory = "%.2f".format(runtime.totalMemory().toFloat()/1000000)
+        val maxMemory = "%.2f".format(runtime.maxMemory().toFloat()/1000000)
         val embed = EmbedBuilder()
                 .setTitle("$name Status")
-                .addField("Discord Info","**Ping** ${jda.ping} ms\n**Servers** ${jda.guilds.size}" +
+                .addField("Discord","**Ping** ${jda.ping} ms\n**Servers** ${jda.guilds.size}" +
                         "\n**Shard** ${jda.shardInfo.shardId + 1}/${jda.shardInfo.shardTotal}\n**Members** ${jda.users.size}" +
-                        "\n**Messages** ${MessagingOrchestrator.getLedgerSize()}\n**Restarted** $uptime", true)
+                        "\n**Messages** ${MessagingOrchestrator.getLedgerSize()}", true)
+                .addField("Dyno", "**Cores** ${runtime.availableProcessors()}\n" +
+                        "**Memory** $totalMemory of $maxMemory MB\n" +
+                        "**Restarted** $uptime", true)
                 .addField("Operating Parameters", ai.result.fulfillment.speech.replace("\\n", "\n", true), true)
                 //.addField("Developer Rambling", ai.result.fulfillment.speech, false)
                 //.setThumbnail(jda.selfUser.avatarUrl)

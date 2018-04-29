@@ -35,30 +35,6 @@ fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUn
     }
 }
 
-fun TextChannel.safeSendMessage(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS){
-    try {
-        this.sendMessage(content).queue {
-            if (deleteAfterDelay > 0){
-                it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-            }
-        }
-    } catch (e: InsufficientPermissionException) {
-        MessagingOrchestrator.logSendFailure(this)
-    }
-}
-
-fun TextChannel.safeSendMessage(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS){
-    try {
-        this.sendMessage(embed).queue {
-            if (deleteAfterDelay > 0){
-                it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-            }
-        }
-    } catch (e: InsufficientPermissionException) {
-        MessagingOrchestrator.logSendFailure(this)
-    }
-}
-
 val Message.contentClean: String
     get() = if (this.channelType.isGuild) {
         this.contentStripped.removePrefix("@${this.guild.selfMember.effectiveName}").trim()

@@ -22,7 +22,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
 
 fun main(args: Array<String>) {
     SkillOrchestrator.addSkill(
-            HelpSkill, InfoSkill,
+            HelpSkill, StatusSkill,
             RoleSetSkill, RoleUnsetSkill, RoleListSkill,
             ServerConfigGetSkill, ServerConfigSetSkill,
             PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill,

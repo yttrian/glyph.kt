@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 
-object RoleListSkill : SkillAdapter("skill.role.list", serverOnly = true) {
+object RoleListSkill : SkillAdapter("skill.role.list", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val selectableRoles = event.guild.config.selectableRoles.roles.filterNotNull().filter { it != "" }
         val limit = event.guild.config.selectableRoles.limit

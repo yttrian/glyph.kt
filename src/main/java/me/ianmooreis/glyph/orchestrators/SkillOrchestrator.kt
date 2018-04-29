@@ -36,7 +36,7 @@ object SkillOrchestrator {
     }
 }
 
-abstract class SkillAdapter(val trigger: String, private val serverOnly: Boolean = false,
+abstract class SkillAdapter(val trigger: String, private val guildOnly: Boolean = false,
                             private val requiredPermissionsUser: Collection<Permission> = emptyList(),
                             private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
                             private val creatorOnly: Boolean = false) {
@@ -50,7 +50,7 @@ abstract class SkillAdapter(val trigger: String, private val serverOnly: Boolean
         val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
         when {
-            ((serverOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild) -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
+            ((guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild) -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
             !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")
             !permittedUser -> event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { prettyPrintPermissionName(it) }})")
             (creatorOnly && !event.author.isCreator) -> event.message.addReaction("❓").queue() //Pretend the skill does not exist

@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException
 import java.time.Instant
 
-object RoleUnsetSkill : SkillAdapter("skill.role.unset", serverOnly = true) {
+object RoleUnsetSkill : SkillAdapter("skill.role.unset", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to remove roles for the specified target(s)
         if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(listOf(Permission.MANAGE_ROLES))) {

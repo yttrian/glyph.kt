@@ -10,7 +10,7 @@ import me.ianmooreis.glyph.orchestrators.SkillAdapter
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object KickSkill : SkillAdapter("skill.moderation.kick", serverOnly = true, requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS), requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)) {
+object KickSkill : SkillAdapter("skill.moderation.kick", guildOnly = true, requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS), requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
             event.message.delete().reason("Kick request").queue()

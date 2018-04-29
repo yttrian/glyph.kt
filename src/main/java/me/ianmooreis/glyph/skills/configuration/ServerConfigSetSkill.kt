@@ -18,7 +18,7 @@ import java.awt.Color
 import java.time.Instant
 
 
-object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val key = ai.result.getStringParameter("url").split("/").last()
         val url = "https://hastebin.com/raw/$key"

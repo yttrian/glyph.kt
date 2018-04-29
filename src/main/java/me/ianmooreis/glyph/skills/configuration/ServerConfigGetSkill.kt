@@ -16,7 +16,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.time.Instant
 
-object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", serverOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON()).responseString { _, response, result ->
             when (result) {

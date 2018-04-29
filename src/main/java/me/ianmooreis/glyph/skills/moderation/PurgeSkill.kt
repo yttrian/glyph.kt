@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
 
-object PurgeSkill : SkillAdapter("skill.moderation.purge", serverOnly = true, requiredPermissionsUser = listOf(Permission.MESSAGE_MANAGE)) {
+object PurgeSkill : SkillAdapter("skill.moderation.purge", guildOnly = true, requiredPermissionsUser = listOf(Permission.MESSAGE_MANAGE)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val time = event.message.creationTime
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")

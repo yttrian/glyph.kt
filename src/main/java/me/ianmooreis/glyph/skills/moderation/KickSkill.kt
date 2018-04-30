@@ -28,7 +28,8 @@ object KickSkill : SkillAdapter("skill.moderation.kick", guildOnly = true, requi
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***")
+                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
+                    deleteWithEnabled = false)
             if (event.guild.config.auditing.kicks) {
                 event.guild.audit("Members Kicked",
                         "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +

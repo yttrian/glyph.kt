@@ -28,7 +28,8 @@ object BanSkill : SkillAdapter("skill.moderation.ban", guildOnly = true, require
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***")
+                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
+                    deleteWithEnabled = false)
             if (event.guild.config.auditing.bans) {
                 event.guild.audit("Members Banned",
                         "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +

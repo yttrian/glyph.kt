@@ -5,6 +5,6 @@ import java.util.*
 
 fun OffsetDateTime.toDate(): Date = Date.from(this.toInstant())
 
-fun <T> List<T>.getRandom(): T {
-    return this[Random().nextInt(this.size)]
+fun <T> List<T>.random(): T? {
+    return if (this.isNotEmpty()) this[Random().nextInt(this.size)] else null
 }

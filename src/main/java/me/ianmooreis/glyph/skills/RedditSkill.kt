@@ -4,6 +4,7 @@ import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.log
+import me.ianmooreis.glyph.extensions.random
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.SkillAdapter
@@ -14,9 +15,10 @@ import net.dean.jraw.http.NoopHttpLogger
 import net.dean.jraw.http.OkHttpNetworkAdapter
 import net.dean.jraw.http.UserAgent
 import net.dean.jraw.models.Submission
+import net.dean.jraw.models.SubredditSort
 import net.dean.jraw.oauth.Credentials
 import net.dean.jraw.oauth.OAuthHelper
-import net.dean.jraw.pagination.DefaultPaginator
+import net.dean.jraw.references.SubredditReference
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
@@ -27,9 +29,7 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
             OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
             Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
-    private var paginatorCache = mutableMapOf<String, DefaultPaginator<Submission>>()
-    private var submissionCache = mutableMapOf<String, Iterator<Submission>>()
-
+    private val imageCache = mutableMapOf<String, List<Submission>>()
     init {
         this.client.logger = NoopHttpLogger()
     }
@@ -37,35 +37,28 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val multiredditName = ai.result.getStringParameter("multireddit").replace("\\", "")
         try {
-            val subreddit = this.client.subreddit(multiredditName)
-            val paginator = this.paginatorCache.getOrPut(subreddit.subreddit) { client.subreddit(subreddit.subreddit).posts().build() }
-            var submissions = this.submissionCache.getOrPut(subreddit.subreddit) { paginator.next().filter {
-                it.preview != null
-            }.listIterator() }
-            if (!submissions.hasNext()) {
-                submissions = paginator.next().filter { it.url.endsWith(".png") }.listIterator()
-                this.submissionCache[subreddit.subreddit] = submissions
-            }
-            val submission = submissions.next()
-            val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
-            if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                event.message.reply(EmbedBuilder()
-                        .setTitle(submission.title, "https://reddit.com${submission.permalink}")
-                        .setImage(submission.url)
-                        .setFooter("r/${submission.subreddit}", null)
-                        .setTimestamp(Instant.now())
-                        .build())
+            val subreddit: SubredditReference = client.subreddit(multiredditName)
+            val submission = getRandomImage(subreddit)
+            if (submission != null) {
+                val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
+                if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
+                    event.message.reply(EmbedBuilder()
+                            .setTitle(submission.title, "https://reddit.com${submission.permalink}")
+                            .setImage(submission.url)
+                            .setFooter("r/${submission.subreddit}", null)
+                            .setTimestamp(Instant.now())
+                            .build())
+                } else {
+                    event.message.reply("${CustomEmote.EXPLICIT} I can only show NSFW submissions in a NSFW channel!")
+                }
             } else {
-                event.message.reply("${CustomEmote.EXPLICIT} I can only show NSFW submissions in a NSFW channel!")
+                event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
             event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
-            //event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
-            event.message.addReaction("❓").queue() //TODO: Stop pretending that a misinterpretation that everything is Reddit is a usual failure
+            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
             event.message.reply("${CustomEmote.CONFIDENTIAL} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
-        } catch (e: NoSuchElementException) {
-            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
         } catch (e: JsonDataException) {
             event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
             event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
@@ -73,5 +66,15 @@ object RedditSkill : SkillAdapter("skill.reddit") {
             event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
             event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
+
+    }
+
+    private fun getRandomImage(multireddit: SubredditReference): Submission? {
+        val imagePosts = imageCache.getOrPut(multireddit.subreddit) {
+            multireddit.posts().sorting(SubredditSort.HOT).build().accumulateMerged(2).filter {
+                it.url.contains(Regex(".(jpg|png|jpeg|gif|webp)$"))
+            }
+        }
+        return imagePosts.random()
     }
 }

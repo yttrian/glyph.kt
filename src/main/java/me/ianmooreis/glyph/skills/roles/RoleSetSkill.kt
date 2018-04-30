@@ -3,7 +3,7 @@ package me.ianmooreis.glyph.skills.roles
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.getRandom
+import me.ianmooreis.glyph.extensions.random
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.SkillAdapter
@@ -26,9 +26,10 @@ object RoleSetSkill : SkillAdapter("skill.role.set", guildOnly = true, requiredP
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
             if (targets.size > 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
                     && event.member.roles.count { selectableRoles.contains(it) } >= config.limit) {
+                val randomRole = event.member.roles.filter { selectableRoles.contains(it) }.random()
                 event.message.reply("" +
                         "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
-                        "Try removing one first, by telling me for example: \"remove me from ${event.member.roles.filter { selectableRoles.contains(it) }.getRandom().name}\"")
+                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else ""))
             } else  {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles
                 if (config.limit == 1) {

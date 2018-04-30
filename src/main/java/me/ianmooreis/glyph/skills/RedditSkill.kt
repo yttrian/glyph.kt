@@ -3,7 +3,6 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
-import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.random
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.CustomEmote
@@ -35,10 +34,19 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     }
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val multiredditName = ai.result.getStringParameter("multireddit").replace("\\", "")
+        // Try to get the multireddit name
+        val multiredditName: String? = try {
+            ai.result.getStringParameter("multireddit").replace("\\", "")
+        } catch (e: IllegalStateException) { null }  // Sometimes it doesn't parse the string right
+        if (multiredditName == null) {
+            event.message.reply("${CustomEmote.XMARK} I did not understand what subreddit you were asking for!")
+            return
+        }
+        // If we have a multireddit name, try getting the reference to it otherwise report the failure
         try {
             val subreddit: SubredditReference = client.subreddit(multiredditName)
-            val submission = getRandomImage(subreddit)
+            val submission: Submission? = getRandomImage(subreddit)
+            // If we were actually able to grab an image, send it, if allowed
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
@@ -49,24 +57,20 @@ object RedditSkill : SkillAdapter("skill.reddit") {
                             .setTimestamp(Instant.now())
                             .build())
                 } else {
-                    event.message.reply("${CustomEmote.EXPLICIT} I can only show NSFW submissions in a NSFW channel!")
+                    event.message.reply("${CustomEmote.XMARK} I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
-            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
-            event.message.reply("${CustomEmote.GRIMACE} I was unable to grab an image from `$multiredditName`! (Network error)")
+            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            event.message.reply("${CustomEmote.CONFIDENTIAL} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: JsonDataException) {
-            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
-            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            event.jda.selfUser.log("Reddit Failure", "**Multireddit** $multiredditName\n**Error**```$e```")
-            event.message.reply("${CustomEmote.THINKING} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
-
     }
 
     private fun getRandomImage(multireddit: SubredditReference): Submission? {

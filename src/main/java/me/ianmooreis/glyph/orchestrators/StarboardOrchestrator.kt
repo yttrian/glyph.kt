@@ -25,10 +25,11 @@ object StarboardOrchestrator : ListenerAdapter() {
                     event.reaction.removeReaction(event.user).queue()
                     return@queue
                 }
-                //Check whether the message should be sent to the starboard, with no duplicates
+                //Check whether the message should be sent to the starboard, with no duplicates and not a starboard of a starboard
                 val thresholdMet = (message.reactions.findLast { emojiAlias(it.reactionEmote.name) == starboardConfig.emoji }?.count ?: 0) >= starboardConfig.threshold
-                val starboarded = message.reactions.findLast { emojiAlias(it.reactionEmote.name) == starboardConfig.emoji }?.users?.contains(event.jda.selfUser) ?: false
-                if (thresholdMet && !starboarded) {
+                val isStarboarded = message.reactions.findLast { emojiAlias(it.reactionEmote.name) == starboardConfig.emoji }?.users?.contains(event.jda.selfUser) ?: false
+                val isStarboard = if (message.embeds.size > 0) message.embeds[0].footer.text.contains("Starboard") else false
+                if (thresholdMet && !isStarboarded && !isStarboard) {
                     //Mark the message as starboarded and send it to the starboard
                     when (event.reactionEmote.emote) {
                         null -> message.addReaction(event.reactionEmote.name).queue { sendToStarboard(message, event.jda.selfUser, starboardConfig.webhook) }

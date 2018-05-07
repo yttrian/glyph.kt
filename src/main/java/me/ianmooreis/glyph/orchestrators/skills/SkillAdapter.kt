@@ -1,42 +1,17 @@
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.orchestrators.skills
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.isCreator
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
+import java.util.concurrent.TimeUnit
 
-object SkillOrchestrator {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private var skills: MutableMap<String, SkillAdapter> = mutableMapOf()
-
-    private fun addSkill(skill: SkillAdapter): SkillOrchestrator {
-        log.debug("Registered: $skill")
-        skills[skill.trigger] = skill
-        return this
-    }
-
-    fun addSkill(vararg skills: SkillAdapter): SkillOrchestrator {
-        skills.distinct().forEach { addSkill(it) }
-        log.info("Registered ${skills.size} skills")
-        return this
-    }
-
-    fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val result = ai.result
-        val action = result.action
-        val skill: SkillAdapter? = skills[action]
-        if (skill != null && !ai.result.isActionIncomplete) {
-            skill.trigger(event, ai)
-        } else {
-            event.message.reply(if (result.fulfillment.speech.isEmpty()) "`$action` is not available yet!" else result.fulfillment.speech)
-        }
-    }
-}
-
-abstract class SkillAdapter(val trigger: String, private val guildOnly: Boolean = false,
+abstract class SkillAdapter(val trigger: String, private val cooldownTime: Long = 2, private val cooldownUnit: TimeUnit = TimeUnit.SECONDS,
+                            private val guildOnly: Boolean = false,
                             private val requiredPermissionsUser: Collection<Permission> = emptyList(),
                             private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
                             private val creatorOnly: Boolean = false) {
@@ -49,12 +24,23 @@ abstract class SkillAdapter(val trigger: String, private val guildOnly: Boolean 
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
+        val currentCooldown: SkillCooldown? = SkillOrchestrator.getCooldown(event.author, this)
         when {
-            ((guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild) -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
+            currentCooldown != null && !currentCooldown.expired ->
+                if (!currentCooldown.warned) {
+                    event.message.reply("⏲ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds.", deleteAfterDelay = 5)
+                    currentCooldown.warned = true
+                } else {
+                    event.message.addReaction("⏲").queue() //React with :timer: to indicate cooldown
+                }
+            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
             !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")
             !permittedUser -> event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString { prettyPrintPermissionName(it) }})")
-            (creatorOnly && !event.author.isCreator) -> event.message.addReaction("❓").queue() //Pretend the skill does not exist
-            else -> this.onTrigger(event, ai)
+            creatorOnly && !event.author.isCreator -> event.message.addReaction("❓").queue() //Pretend the skill does not exist
+            else -> {
+                this.onTrigger(event, ai)
+                SkillOrchestrator.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
+            }
         }
     }
 

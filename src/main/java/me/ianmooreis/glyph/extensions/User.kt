@@ -1,6 +1,6 @@
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.CustomEmote
+import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed

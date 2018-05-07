@@ -1,19 +1,22 @@
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.MessagingOrchestrator
+import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
+import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import java.time.OffsetDateTime
 import java.util.concurrent.TimeUnit
 
 
-fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
+fun Message.reply(content: String? = null, embed: MessageEmbed? = null, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
+    if (content == null && embed == null) { return }
+    val message = MessageBuilder().setContent(content?.trim()).setEmbed(embed).build()
     try {
-        this.channel.sendMessage(content.trim()).queue {
+        this.channel.sendMessage(message).queue {
             if (deleteAfterDelay > 0) {
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
             } else if (deleteWithEnabled) {
-                MessagingOrchestrator.amendLedger(this.id, it.id)
+                MessagingOrchestrator.amendLedger(this.idLong, it.idLong)
             }
         }
     } catch (e: InsufficientPermissionException) {
@@ -22,17 +25,7 @@ fun Message.reply(content: String, deleteAfterDelay: Long = 0, deleteAfterUnit: 
 }
 
 fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
-    try {
-        this.channel.sendMessage(embed).queue {
-            if (deleteAfterDelay > 0){
-                it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-            } else if (deleteWithEnabled) {
-                MessagingOrchestrator.amendLedger(this.id, it.id)
-            }
-        }
-    } catch (e: InsufficientPermissionException) {
-        MessagingOrchestrator.logSendFailure(this.textChannel)
-    }
+    this.reply(content = null, embed = embed, deleteAfterDelay = deleteAfterDelay, deleteAfterUnit = deleteAfterUnit, deleteWithEnabled = deleteWithEnabled)
 }
 
 val Message.contentClean: String

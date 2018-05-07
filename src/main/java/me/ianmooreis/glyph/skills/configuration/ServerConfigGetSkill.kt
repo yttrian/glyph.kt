@@ -6,8 +6,8 @@ import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import me.ianmooreis.glyph.orchestrators.toJSON
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
@@ -16,7 +16,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.time.Instant
 
-object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", cooldownTime = 10, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         "https://hastebin.com/documents".httpPost().body(event.guild.config.toJSON()).responseString { _, response, result ->
             when (result) {

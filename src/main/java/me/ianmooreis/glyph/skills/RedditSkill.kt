@@ -5,8 +5,8 @@ import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.random
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.CustomEmote
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException

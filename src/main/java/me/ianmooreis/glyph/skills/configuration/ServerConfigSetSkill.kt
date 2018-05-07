@@ -7,10 +7,10 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.CustomEmote
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.ServerConfig
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -18,7 +18,7 @@ import java.awt.Color
 import java.time.Instant
 
 
-object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownTime = 4, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val key = ai.result.getStringParameter("url").split("/").last()
         val url = "https://hastebin.com/raw/$key"

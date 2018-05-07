@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.orchestrators.messaging
 
 import ai.api.AIConfiguration
 import ai.api.AIDataService
@@ -8,6 +8,9 @@ import kotlinx.coroutines.experimental.launch
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
+import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
+import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import me.ianmooreis.glyph.utils.quickview.FurAffinity
 import me.ianmooreis.glyph.utils.quickview.Picarto
 import net.dv8tion.jda.core.OnlineStatus
@@ -22,7 +25,7 @@ import java.util.concurrent.TimeUnit
 object MessagingOrchestrator : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
-    private var ledger = mutableMapOf<String, String>()
+    private var ledger = mutableMapOf<Long, Long>()
     private var customEmotes = mapOf<String, Emote>()
 
     fun getCustomEmote(name: String) : Emote? {
@@ -37,9 +40,8 @@ object MessagingOrchestrator : ListenerAdapter() {
         }
     }
 
-    fun amendLedger(invoker: String?, response: String?) {
-        if (invoker != null && response != null)
-            ledger[invoker] = response
+    fun amendLedger(invoker: Long, response: Long) {
+        ledger[invoker] = response
     }
 
     fun getLedgerSize() : Int {
@@ -88,37 +90,14 @@ object MessagingOrchestrator : ListenerAdapter() {
     }
 
     override fun onMessageDelete(event: MessageDeleteEvent) {
-        if (event.messageId in ledger) {
-            event.channel.getMessageById(ledger[event.messageId]).queue {
+        val messageId = ledger[event.messageIdLong]
+        if (messageId != null) {
+            event.channel.getMessageById(messageId).queue {
                 it.addReaction("❌").queue()
                 it.delete().queueAfter(1, TimeUnit.SECONDS)
-                ledger.remove(it.id)
+                ledger.remove(it.idLong)
             }
         }
     }
 }
 
-enum class CustomEmote(val emote: Emote?) {
-    XMARK(MessagingOrchestrator.getCustomEmote("xmark")),
-    NOMARK(MessagingOrchestrator.getCustomEmote("empty")),
-    CHECKMARK(MessagingOrchestrator.getCustomEmote("checkmark")),
-    BOT(MessagingOrchestrator.getCustomEmote("bot")),
-    DOWNLOAD(MessagingOrchestrator.getCustomEmote("download")),
-    DOWNLOADING(MessagingOrchestrator.getCustomEmote("downloading")),
-    LOADING(MessagingOrchestrator.getCustomEmote("loading")),
-    TYPING(MessagingOrchestrator.getCustomEmote("typing")),
-    ONLINE(MessagingOrchestrator.getCustomEmote("online")),
-    STREAMING(MessagingOrchestrator.getCustomEmote("streaming")),
-    AWAY(MessagingOrchestrator.getCustomEmote("away")),
-    DND(MessagingOrchestrator.getCustomEmote("dnd")),
-    OFFLINE(MessagingOrchestrator.getCustomEmote("offline")),
-    INVISIBLE(MessagingOrchestrator.getCustomEmote("invisible")),
-    THINKING(MessagingOrchestrator.getCustomEmote("thinking")),
-    COOL(MessagingOrchestrator.getCustomEmote("cool")),
-    EXPLICIT(MessagingOrchestrator.getCustomEmote("explicit")),
-    CONFIDENTIAL(MessagingOrchestrator.getCustomEmote("confidential")),
-    GRIMACE(MessagingOrchestrator.getCustomEmote("grimace")),
-    MINDBLOWN(MessagingOrchestrator.getCustomEmote("mindblown"));
-
-    override fun toString() = emote?.asMention ?: ""
-}

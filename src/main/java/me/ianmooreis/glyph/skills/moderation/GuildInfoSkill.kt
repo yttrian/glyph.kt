@@ -2,7 +2,7 @@ package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.*
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 

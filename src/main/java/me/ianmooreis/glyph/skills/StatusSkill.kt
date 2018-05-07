@@ -4,8 +4,8 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.isCreator
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.MessagingOrchestrator
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDAInfo
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -14,7 +14,7 @@ import java.lang.management.ManagementFactory
 import java.time.Instant
 import java.util.*
 
-object StatusSkill : SkillAdapter("skill.status") {
+object StatusSkill : SkillAdapter("skill.status", cooldownTime = 5) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
         val name = jda.selfUser.name

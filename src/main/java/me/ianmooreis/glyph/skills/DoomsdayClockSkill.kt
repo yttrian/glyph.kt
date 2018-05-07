@@ -4,7 +4,7 @@ import ai.api.model.AIResponse
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant

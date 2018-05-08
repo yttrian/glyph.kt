@@ -30,9 +30,14 @@ object DatabaseOrchestrator {
     private val defaultConfig = ServerConfig()
 
     init {
+        loadConfigs()
+    }
+
+    fun loadConfigs() {
         val con = DriverManager.getConnection(dbUrl, username, password)
         val ps = con.prepareStatement("SELECT * FROM serverconfigs") //TODO: Not select *
         val rs = ps.executeQuery()
+        configs.clear()
         while (rs.next()) {
             configs[rs.getLong("guild_id")] = ServerConfig(
                     WikiConfig(

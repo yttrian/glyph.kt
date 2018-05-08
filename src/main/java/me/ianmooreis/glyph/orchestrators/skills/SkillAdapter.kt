@@ -28,10 +28,10 @@ abstract class SkillAdapter(val trigger: String, private val cooldownTime: Long 
         when {
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
-                    event.message.reply("⏲ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds.", deleteAfterDelay = 5)
+                    event.message.reply("⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds.", deleteAfterDelay = currentCooldown.remainingSeconds)
                     currentCooldown.warned = true
                 } else {
-                    event.message.addReaction("⏲").queue() //React with :timer: to indicate cooldown
+                    event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown
                 }
             (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
             !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString { prettyPrintPermissionName(it) }})")

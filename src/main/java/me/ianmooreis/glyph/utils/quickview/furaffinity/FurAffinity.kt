@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.utils.quickview
+package me.ianmooreis.glyph.utils.quickview.furaffinity
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
@@ -6,48 +6,10 @@ import com.google.gson.Gson
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
-import java.awt.Color
-import java.net.URL
-import java.util.*
-
-class Submission(private val title: String, private val description: String, private val name: String, private val profile: URL, val link: URL,
-                 val posted: String, private val posted_at: Date, private val download: URL, private val full: URL, private val thumbnail: URL,
-                 private val category: String, private val theme: String, private val species: String?, private val gender: String?,
-                 private val favorites: Int, private val comments: Int, private val views: Int, private val resolution: String?, val rating: SubmissionRating,
-                 private val keywords: List<String>) {
-    fun getEmbed(thumbnail: Boolean): MessageEmbed {
-        val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
-        val fancyKeywords = if (linkedKeywords.length < 1024) linkedKeywords else keywords.joinToString()
-        val fileType = download.toString().substringAfterLast(".")
-        return EmbedBuilder()
-                .setTitle(title, link.toString())
-                .setThumbnail(if (thumbnail) full.toString() else null)
-                .setDescription(
-                        "**Category** $category > $theme (${rating.name})\n" +
-                        (if (species != null) "**Species** $species\n" else "") +
-                        (if (gender != null) "**Gender** $gender\n" else "") +
-                        "**Favorites** $favorites | **Comments** $comments | **Views** $views" +
-                        if ((thumbnail && rating.nsfw) || !rating.nsfw) "\n**Download** [${resolution ?: fileType}]($download)" else "")
-                .addField("Keywords", fancyKeywords, false)
-                .setFooter("FurAffinity", null)
-                .setColor(rating.color)
-                .setAuthor(name, profile.toString())
-                .setTimestamp(posted_at.toInstant())
-                .build()
-    }
-}
-
-enum class SubmissionRating(val color: Color, val nsfw: Boolean) {
-    General(Color.GREEN, false),
-    Mature(Color.BLUE, true),
-    Adult(Color.RED, true)
-}
 
 object FurAffinity {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
@@ -92,7 +54,7 @@ object FurAffinity {
                 Gson().fromJson(result.get(), Submission::class.java)
             }
             is Result.Failure -> {
-                this.log.warn("Failed to get submission $id from FAExport!")
+                log.warn("Failed to get submission $id from FAExport!")
                 return null
             }
         }

@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.utils.libraries
+package me.ianmooreis.glyph.utils.extractors
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result

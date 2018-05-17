@@ -11,8 +11,8 @@ import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
-import me.ianmooreis.glyph.utils.quickview.FurAffinity
-import me.ianmooreis.glyph.utils.quickview.Picarto
+import me.ianmooreis.glyph.utils.quickview.furaffinity.FurAffinity
+import me.ianmooreis.glyph.utils.quickview.picarto.Picarto
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit
 object MessagingOrchestrator : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
-    private var ledger = mutableMapOf<Long, Long>()
-    private var customEmotes = mapOf<String, Emote>()
+    private val ledger = hashMapOf<Long, Long>()
+    private val customEmotes = mapOf<String, Emote>()
 
     fun getCustomEmote(name: String) : Emote? {
         return customEmotes[name]
@@ -34,9 +34,9 @@ object MessagingOrchestrator : ListenerAdapter() {
 
     private fun loadCustomEmotes(guild: Guild) {
         if (customEmotes.isEmpty()) {
-            customEmotes = guild.emotes.map {
+            customEmotes.plus(guild.emotes.map {
                 it.name to it
-            }.toMap()
+            }.toMap())
         }
     }
 

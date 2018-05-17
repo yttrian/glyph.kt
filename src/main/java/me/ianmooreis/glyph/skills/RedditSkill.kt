@@ -34,6 +34,8 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     }
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+        // Send typing since this can take some time and we want to indicate we are paying attention
+        event.channel.sendTyping().queue()
         // Try to get the multireddit name
         val multiredditName: String? = try {
             ai.result.getStringParameter("multireddit").replace("\\", "")

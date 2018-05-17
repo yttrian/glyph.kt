@@ -22,7 +22,7 @@ fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeN
 
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private var configs = mutableMapOf<Long, ServerConfig>()
+    private val configs = mutableMapOf<Long, ServerConfig>()
     private val dbUri = URI(System.getenv("DATABASE_URL"))
     private val username = dbUri.userInfo.split(":")[0]
     private val password = dbUri.userInfo.split(":")[1]

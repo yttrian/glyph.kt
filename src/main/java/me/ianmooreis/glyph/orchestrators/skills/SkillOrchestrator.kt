@@ -9,8 +9,8 @@ import org.slf4j.simple.SimpleLoggerFactory
 
 object SkillOrchestrator {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private var skills: MutableMap<String, SkillAdapter> = mutableMapOf()
-    private var cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
+    private val skills: MutableMap<String, SkillAdapter> = mutableMapOf()
+    private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
 
     private fun addSkill(skill: SkillAdapter): SkillOrchestrator {
         log.debug("Registered: $skill")

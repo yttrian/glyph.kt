@@ -5,8 +5,8 @@ import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
-import me.ianmooreis.glyph.utils.libraries.FandomExtractor
-import me.ianmooreis.glyph.utils.libraries.WikipediaExtractor
+import me.ianmooreis.glyph.utils.extractors.FandomExtractor
+import me.ianmooreis.glyph.utils.extractors.WikipediaExtractor
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent

@@ -37,7 +37,7 @@ object StatusOrchestrator : ListenerAdapter() {
         }
     }
 
-    fun setStatus(jda: JDA, status: OnlineStatus = OnlineStatus.ONLINE, game: Game) {
+    fun setPresence(jda: JDA, status: OnlineStatus = jda.presence.status, game: Game = jda.presence.game) {
         jda.presence.setPresence(status, game)
     }
 

@@ -78,7 +78,7 @@ object MessagingOrchestrator : ListenerAdapter() {
         val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
-            StatusOrchestrator.setStatus(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
+            StatusOrchestrator.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
             return
         }
         val result = ai.result

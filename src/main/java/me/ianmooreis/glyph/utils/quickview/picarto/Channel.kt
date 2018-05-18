@@ -11,7 +11,7 @@ class Channel(val name: String, private val avatar: URL,
               private val online: Boolean, private val adult: Boolean,
               private val tags: List<String>) {
     fun getEmbed(): MessageEmbed {
-        val url = "https://picator.tv/$name"
+        val url = "https://picarto.tv/$name"
         return EmbedBuilder()
                 .setTitle(this.title, url)
                 .setAuthor(this.name, url)

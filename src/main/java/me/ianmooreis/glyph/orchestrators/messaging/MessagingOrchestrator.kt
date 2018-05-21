@@ -26,7 +26,7 @@ object MessagingOrchestrator : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
     private val ledger = hashMapOf<Long, Long>()
-    private val customEmotes = mapOf<String, Emote>()
+    private val customEmotes = mutableMapOf<String, Emote>()
 
     fun getCustomEmote(name: String) : Emote? {
         return customEmotes[name]
@@ -34,9 +34,9 @@ object MessagingOrchestrator : ListenerAdapter() {
 
     private fun loadCustomEmotes(guild: Guild) {
         if (customEmotes.isEmpty()) {
-            customEmotes.plus(guild.emotes.map {
+            customEmotes.putAll(guild.emotes.map {
                 it.name to it
-            }.toMap())
+            })
         }
     }
 

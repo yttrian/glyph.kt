@@ -1,6 +1,5 @@
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed
@@ -10,7 +9,7 @@ import java.awt.Color
 import java.time.Instant
 
 fun User.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false, mutualGuilds: Boolean = false): MessageEmbed {
-    val botTag = if (this.isBot) CustomEmote.BOT.toString() else ""
+    val botTag = if (this.isBot) "(bot)" else ""
     val createdAgo = PrettyTime().format(this.creationTime.toDate())
     return EmbedBuilder().setTitle(title)
             .setDescription(

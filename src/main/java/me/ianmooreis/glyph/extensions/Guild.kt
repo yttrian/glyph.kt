@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageEmbed
+import net.dv8tion.jda.core.entities.User
 import org.ocpsoft.prettytime.PrettyTime
 import java.awt.Color
 import java.time.Instant
@@ -26,6 +27,13 @@ val Guild.botRatio: Float
         val bots = this.members.count { it.user.isBot }
         return (bots.toFloat() / members.toFloat())
     }
+
+fun Guild.findUser(search: String): User? {
+    return this.getMembersByEffectiveName(search, true).firstOrNull()?.user ?:
+    this.getMembersByName(search, true).firstOrNull()?.user ?:
+    this.getMembersByNickname(search, true).firstOrNull()?.user ?:
+    this.jda.getUserById(search)
+}
 
 fun Guild.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false): MessageEmbed {
         val createdAgo = PrettyTime().format(this.creationTime.toDate())

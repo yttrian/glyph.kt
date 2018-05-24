@@ -1,17 +1,12 @@
 package me.ianmooreis.glyph.skills.roles
 
 import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.random
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.*
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
-import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException
-import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 object RoleSetSkill : SkillAdapter("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
@@ -48,16 +43,8 @@ object RoleSetSkill : SkillAdapter("skill.role.set", guildOnly = true, requiredP
                     targets.forEach { target ->
                         event.guild.controller.addSingleRoleToMember(target, desiredRole).reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
                     }
-                    val targetNames = targets.joinToString { it.effectiveName }
-                    event.message.reply(EmbedBuilder()
-                            .setTitle("Poof!")
-                            .setDescription(
-                                    "${if (targetNames.length < 200) targetNames else "${targets.size} people"} " +
-                                            "${if (targets.size == 1) "is" else "are"} now `${desiredRole.name}`!")
-                            .setThumbnail(if (targets.size == 1) targets.first().user.avatarUrl else null)
-                            .setFooter("Roles", null)
-                            .setTimestamp(Instant.now())
-                            .build())
+                    val targetNames = targets.joinToString { it.asPlainMention }
+                    event.message.reply("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
                 } catch (e: HierarchyException) {
                     event.message.reply("${CustomEmote.XMARK} I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
                 }

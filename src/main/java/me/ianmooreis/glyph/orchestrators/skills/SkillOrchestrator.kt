@@ -43,7 +43,11 @@ object SkillOrchestrator {
         if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
-            event.message.reply(if (result.fulfillment.speech.isEmpty()) "`$action` is not available yet!" else result.fulfillment.speech)
+            event.message.reply(if (result.fulfillment.speech.isEmpty()) {
+                "`$action` is not available yet!"
+            } else {
+                result.fulfillment.speech.replace("\\n", "\n")
+            })
         }
     }
 }

@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.findUser
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
@@ -11,9 +12,7 @@ object UserInfoSkill : SkillAdapter("skill.moderation.userInfo") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val userName: String? = ai.result.getStringParameter("user", null)
         val user: User? = if (event.channelType.isGuild && userName != null) {
-            event.guild.getMembersByEffectiveName(userName, true).getOrNull(0)?.user ?:
-            event.guild.getMembersByName(userName, true).getOrNull(0)?.user ?:
-            event.guild.getMembersByNickname(userName, true).getOrNull(0)?.user
+            event.guild.findUser(userName) ?: event.author
         } else {
             event.author
         }

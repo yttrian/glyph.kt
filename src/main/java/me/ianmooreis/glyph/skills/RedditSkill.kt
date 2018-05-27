@@ -20,15 +20,18 @@ import net.dean.jraw.oauth.OAuthHelper
 import net.dean.jraw.references.SubredditReference
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.jodah.expiringmap.ExpiringMap
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 object RedditSkill : SkillAdapter("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
             OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
             Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
-    private val imageCache = mutableMapOf<String, List<Submission>>()
+    private val imageCache: MutableMap<String, List<Submission>> = ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
+
     init {
         this.client.logger = NoopHttpLogger()
     }

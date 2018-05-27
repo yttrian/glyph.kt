@@ -24,7 +24,7 @@ object StatusSkill : SkillAdapter("skill.status", cooldownTime = 5) {
                         "**Guilds** ${jda.guilds.size}\n" +
                         "**Shard** ${jda.shardInfo.shardId}${if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""}\n" +
                         "**Users** ${jda.users.size}" +
-                        (if (event.author.isCreator) "\n**Messages** ${MessagingOrchestrator.getLedgerSize()}" else ""), true)
+                        (if (event.author.isCreator) "\n**Messages** ${MessagingOrchestrator.getTotalMessages()}" else ""), true)
                 .setFooter("$name-Kotlin-${Glyph.version}", null)
                 .setTimestamp(Instant.now())
         if (event.author.isCreator) {

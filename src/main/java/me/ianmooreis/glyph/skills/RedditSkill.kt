@@ -3,7 +3,6 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
-import me.ianmooreis.glyph.extensions.random
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
@@ -30,7 +29,7 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
             OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
             Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
-    private val imageCache: MutableMap<String, List<Submission>> = ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
+    private val imageCache: MutableMap<String, Queue<Submission>> = ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
 
     init {
         this.client.logger = NoopHttpLogger()
@@ -79,11 +78,15 @@ object RedditSkill : SkillAdapter("skill.reddit") {
     }
 
     private fun getRandomImage(multireddit: SubredditReference): Submission? {
-        val imagePosts = imageCache.getOrPut(multireddit.subreddit) {
-            multireddit.posts().sorting(SubredditSort.HOT).build().accumulateMerged(2).filter {
+        val imageQueue: Queue<Submission> = imageCache.getOrDefault(multireddit.subreddit, LinkedList<Submission>())
+        if (imageQueue.isEmpty()) {
+            multireddit.posts().sorting(SubredditSort.HOT).build().accumulateMerged(1).filter {
                 it.url.contains(Regex(".(jpg|png|jpeg|gif|webp)$"))
+            }.shuffled().forEach {
+                imageQueue.offer(it)
             }
+            imageCache[multireddit.subreddit] = imageQueue
         }
-        return imagePosts.random()
+        return imageQueue.poll()
     }
 }

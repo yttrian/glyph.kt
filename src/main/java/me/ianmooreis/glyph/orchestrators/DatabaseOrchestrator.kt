@@ -1,6 +1,5 @@
 package me.ianmooreis.glyph.orchestrators
 
-import com.google.gson.GsonBuilder
 import net.dv8tion.jda.core.entities.Guild
 import org.postgresql.util.PSQLException
 import org.slf4j.Logger
@@ -18,7 +17,6 @@ data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val lim
 data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val kicks: Boolean = false, val bans: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
 data class StarboardConfig(val enabled: Boolean = false, val webhook: String? = null, val emoji: String = "star", val threshold: Int = 1, val allowSelfStarring: Boolean = false)
-fun ServerConfig.toJSON(): String = GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this)
 
 object DatabaseOrchestrator {
     private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)

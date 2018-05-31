@@ -1,10 +1,10 @@
 package me.ianmooreis.glyph.skills.configuration
 
 import ai.api.model.AIResponse
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
@@ -14,6 +14,7 @@ import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import org.yaml.snakeyaml.error.YAMLException
 import java.awt.Color
 import java.time.Instant
 
@@ -26,20 +27,21 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
             when (result) {
                 is Result.Success -> {
                     val data = result.get()
-                    val config = parseJSON(data) { updateError(event, it) }
+                    val config = parseYAML(data) { updateError(event, it) }
                     if (config != null) {
                         DatabaseOrchestrator.setServerConfig(event.guild, config, { updateSuccess(event) }, { updateError(event, it) })
                         this.log.info("Got ${event.guild} config from $url")
                     }
                 }
                 is Result.Failure -> {
-                    event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL ($url)! Check your url or try waiting a bit before retrying.")
+                    event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL `$url`! Check your url or try waiting a bit before retrying.")
                     this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to get config for ${event.guild}!")
                     event.jda.selfUser.log("Hastebin", "${response.statusCode} error when trying to get config for ${event.guild} with $url!")
                 }
             }
         }
     }
+
     private fun updateSuccess(event: MessageReceivedEvent) {
         event.message.reply(EmbedBuilder()
                 .setTitle("Configuration Updated")
@@ -48,13 +50,14 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
                 .setTimestamp(Instant.now())
                 .build())
     }
+
     private fun updateError(event: MessageReceivedEvent, exception: Exception) {
         event.message.reply(EmbedBuilder()
             .setTitle("Configuration Error")
             .setDescription(
                     "This servers configuration failed to update for the following reason(s)! " +
-                    "Please check that you have a properly formatted JSON and the data is as expected!\n" +
-                    "```${exception.message?.split("\n")?.first()?.trim()}```\n" +
+                    "Please check that you have a properly formatted YAML and the data is as expected!\n" +
+                    "```${exception.cause } ${exception.message?.split("\n")?.first()?.trim()}```\n" +
                     "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
                     "[Official Glyph Server](https://discord.me/glyph-discord)")
             .setColor(Color.RED)
@@ -62,10 +65,11 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
             .setTimestamp(Instant.now())
             .build())
     }
-    private fun parseJSON(json: String, onFailure: (e: JsonSyntaxException) -> Unit): ServerConfig? {
+
+    private fun parseYAML(yaml: String, onFailure: (e: YAMLException) -> Unit): ServerConfig? {
         try {
-            return Gson().fromJson(json, ServerConfig::class.java)
-        } catch (e: JsonSyntaxException) {
+            return YAMLMapper().registerKotlinModule().readValue(yaml, ServerConfig::class.java)
+        } catch (e: YAMLException) {
             onFailure(e)
         }
         return null

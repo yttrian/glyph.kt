@@ -1,6 +1,7 @@
 package me.ianmooreis.glyph.skills.configuration
 
 import ai.api.model.AIResponse
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.fuel.httpGet
@@ -14,7 +15,6 @@ import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import org.yaml.snakeyaml.error.YAMLException
 import java.awt.Color
 import java.time.Instant
 
@@ -57,7 +57,7 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
             .setDescription(
                     "This servers configuration failed to update for the following reason(s)! " +
                     "Please check that you have a properly formatted YAML and the data is as expected!\n" +
-                    "```${exception.cause } ${exception.message?.split("\n")?.first()?.trim()}```\n" +
+                    "```${exception.message?.split("\n")?.first()?.trim()}```\n" +
                     "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
                     "[Official Glyph Server](https://discord.me/glyph-discord)")
             .setColor(Color.RED)
@@ -66,10 +66,13 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
             .build())
     }
 
-    private fun parseYAML(yaml: String, onFailure: (e: YAMLException) -> Unit): ServerConfig? {
+    private fun parseYAML(yaml: String, onFailure: (e: Exception) -> Unit): ServerConfig? {
         try {
-            return YAMLMapper().registerKotlinModule().readValue(yaml, ServerConfig::class.java)
-        } catch (e: YAMLException) {
+            return YAMLMapper()
+                    .registerKotlinModule()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+                    .readValue(yaml, ServerConfig::class.java)
+        } catch (e: Exception) {
             onFailure(e)
         }
         return null

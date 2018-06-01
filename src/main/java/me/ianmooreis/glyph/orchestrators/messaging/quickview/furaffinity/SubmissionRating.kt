@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.utils.quickview.furaffinity
+package me.ianmooreis.glyph.orchestrators.messaging.quickview.furaffinity
 
 import java.awt.Color
 

@@ -12,7 +12,7 @@ import java.sql.ResultSet
 data class ServerConfig(val wiki: WikiConfig = WikiConfig(), val selectableRoles: SelectableRolesConfig = SelectableRolesConfig(),
                         val quickview: QuickviewConfig = QuickviewConfig(), val auditing: AuditingConfig = AuditingConfig(),
                         val starboard: StarboardConfig = StarboardConfig())
-data class WikiConfig(val source: String = "wikipedia", val minimumQuality: Int = 50)
+data class WikiConfig(val sources: List<String?> = listOf("wikipedia", "masseffect", "avp"), val minimumQuality: Int = 50)
 data class SelectableRolesConfig(val roles: List<String?> = emptyList(), val limit: Int = 1)
 data class AuditingConfig(val joins: Boolean = false, val leaves: Boolean = false, val purge: Boolean = false, val kicks: Boolean = false, val bans: Boolean = false, val webhook: String? = null)
 data class QuickviewConfig(val furaffinityEnabled: Boolean = true, val furaffinityThumbnails: Boolean = false, val picartoEnabled: Boolean = true)
@@ -39,7 +39,7 @@ object DatabaseOrchestrator {
         while (rs.next()) {
             configs[rs.getLong("guild_id")] = ServerConfig(
                     WikiConfig(
-                            rs.getString("wiki"),
+                            rs.getList("wiki_sources"),
                             rs.getInt("wiki_min_quality")
                     ),
                     SelectableRolesConfig(
@@ -97,23 +97,23 @@ object DatabaseOrchestrator {
         try {
             val con = DriverManager.getConnection(dbUrl, username, password)
             val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                    " (guild_id, wiki, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
+                    " (guild_id, wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, " +
                     " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     " ON CONFLICT (guild_id) DO UPDATE SET" +
-                    " (wiki, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
+                    " (wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                     " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                     " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, " +
                     " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
-                    " = (EXCLUDED.wiki, EXCLUDED.wiki_min_quality, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
+                    " = (EXCLUDED.wiki_sources, EXCLUDED.wiki_min_quality, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                     " EXCLUDED.fa_quickview_enabled, " +
                     " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
                     " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks, EXCLUDED.auditing_bans, " +
                     " EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji, EXCLUDED.starboard_threshold, EXCLUDED.starboard_allow_self_starring)")
             ps.setLong(1, guild.idLong)
-            ps.setString(2, config.wiki.source)
+            ps.setList(2, config.wiki.sources)
             ps.setInt(3, config.wiki.minimumQuality)
             ps.setList(4, config.selectableRoles.roles)
             ps.setInt(5, config.selectableRoles.limit)

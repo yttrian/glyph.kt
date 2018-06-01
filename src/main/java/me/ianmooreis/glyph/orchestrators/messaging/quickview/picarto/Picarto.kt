@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.utils.quickview.picarto
+package me.ianmooreis.glyph.orchestrators.messaging.quickview.picarto
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result

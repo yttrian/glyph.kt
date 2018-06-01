@@ -1,4 +1,4 @@
-package me.ianmooreis.glyph.utils.quickview.picarto
+package me.ianmooreis.glyph.orchestrators.messaging.quickview.picarto
 
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed

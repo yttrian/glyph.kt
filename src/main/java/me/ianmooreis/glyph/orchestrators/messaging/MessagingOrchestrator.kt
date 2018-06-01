@@ -10,9 +10,9 @@ import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
+import me.ianmooreis.glyph.orchestrators.messaging.quickview.furaffinity.FurAffinity
+import me.ianmooreis.glyph.orchestrators.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
-import me.ianmooreis.glyph.utils.quickview.furaffinity.FurAffinity
-import me.ianmooreis.glyph.utils.quickview.picarto.Picarto
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent

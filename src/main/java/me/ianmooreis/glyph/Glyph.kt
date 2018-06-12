@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
 
-object Glyph : JDABuilder(AccountType.BOT) {
+object Glyph: JDABuilder(AccountType.BOT) {
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
     init {
         this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(

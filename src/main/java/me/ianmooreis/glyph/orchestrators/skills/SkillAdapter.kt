@@ -28,7 +28,9 @@ abstract class SkillAdapter(val trigger: String, private val cooldownTime: Long 
         when {
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
-                    event.message.reply("⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds.", deleteAfterDelay = currentCooldown.remainingSeconds)
+                    event.message.reply(
+                            "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
+                            deleteAfterDelay = currentCooldown.remainingSeconds)
                     currentCooldown.warned = true
                 } else {
                     event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown

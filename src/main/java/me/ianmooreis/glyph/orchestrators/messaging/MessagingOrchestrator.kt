@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.events.message.MessageDeleteEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.jodah.expiringmap.ExpiringMap
+import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.util.concurrent.TimeUnit
@@ -76,7 +77,8 @@ object MessagingOrchestrator : ListenerAdapter() {
             event.message.reply("You have to say something!")
             return
         }
-        val ctx = AIServiceContextBuilder().setSessionId("${event.author.id}${event.channel.id}".substring(0..20)).build()
+        val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
+        val ctx = AIServiceContextBuilder().setSessionId(sessionId).build()
         val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")

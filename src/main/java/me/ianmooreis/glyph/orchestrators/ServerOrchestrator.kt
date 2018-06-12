@@ -6,6 +6,7 @@ import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.deleteConfig
 import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.log
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Guild
@@ -70,11 +71,14 @@ object ServerOrchestrator : ListenerAdapter() {
     }
 
     private fun getGuildEmbed(guild: Guild): EmbedBuilder {
-        return EmbedBuilder().setDescription(
-                    "**Name** ${guild.name}\n" +
-                    "**ID** ${guild.id}\n" +
-                    "**Members** ${guild.members.size} (${guild.members.count { it.user.isBot }} bots)\n" +
-                    "**Farm** ${guild.isBotFarm} (${"%.2f".format(guild.botRatio)})")
+        val description = SimpleDescriptionBuilder()
+                .addField("Name", guild.name)
+                .addField("ID", guild.id)
+                .addField("Members", "${guild.members.size} (${guild.members.count { it.user.isBot }} bots)")
+                .addField("Farm", "${guild.isBotFarm} (${"%.2f".format(guild.botRatio)})")
+                .build()
+        return EmbedBuilder()
+                .setDescription(description)
                 .setThumbnail(guild.iconUrl)
                 .setFooter("Logging", null)
                 .setTimestamp(Instant.now())

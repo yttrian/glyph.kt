@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.extensions
 
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.ServerConfig
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Guild
@@ -32,26 +33,38 @@ fun Guild.findUser(search: String): User? {
     return this.getMembersByEffectiveName(search, true).firstOrNull()?.user ?:
     this.getMembersByName(search, true).firstOrNull()?.user ?:
     this.getMembersByNickname(search, true).firstOrNull()?.user ?:
-    this.jda.getUserById(search)
+    try { this.jda.getUserById(search) } catch (e: NumberFormatException) { null }
 }
 
 fun Guild.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false): MessageEmbed {
         val createdAgo = PrettyTime().format(this.creationTime.toDate())
+        val overviewDescription = SimpleDescriptionBuilder()
+                .addField("Name", this.name)
+                .addField("ID", this.id)
+                .addField("Region", this.regionRaw)
+                .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}")
+                .addField("Owner", this.owner.asMention)
+                .build()
+        val membersDescription = SimpleDescriptionBuilder()
+                .addField("Humans", this.members.count { !it.user.isBot })
+                .addField("Bots", this.members.count { it.user.isBot })
+                .addField("Online", this.members.count { it.onlineStatus == OnlineStatus.ONLINE })
+                .addField("Total", this.members.count())
+                .build()
+        val channelsDescription = SimpleDescriptionBuilder()
+                .addField("Text", this.textChannels.count())
+                .addField("Voice", this.voiceChannels.count())
+                .addField("Categories", this.categories.count())
+                .build()
+        val rolesDescription = SimpleDescriptionBuilder()
+                .addField("Total", this.roles.count())
+                .addField("List", this.roles.joinToString { it.asMention })
+                .build()
         return EmbedBuilder().setTitle(title)
-                .addField("Overview", "**Name** ${this.name}\n" +
-                        "**ID** ${this.id}\n" +
-                        "**Region** ${this.regionRaw}\n" +
-                        "**Created** $createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}\n" +
-                        "**Owner** ${this.owner.asMention}", false)
-                .addField("Members", "**Humans** ${this.members.count { !it.user.isBot }}\n" +
-                        "**Bots** ${this.members.count { it.user.isBot }}\n" +
-                        "**Online** ${this.members.count { it.onlineStatus == OnlineStatus.ONLINE }}\n" +
-                        "**Total** ${this.members.count()}", true)
-                .addField("Channels", "**Text** ${this.textChannels.size}\n" +
-                        "**Voice** ${this.voiceChannels.size}\n" +
-                        "**Categories** ${this.categories.size}", true)
-                .addField("Roles", "**Total** ${this.roles.size}\n" +
-                        "**List** ${this.roles.joinToString { it.asMention }}", true)
+                .addField("Overview", overviewDescription, false)
+                .addField("Members", membersDescription, true)
+                .addField("Channels", channelsDescription, true)
+                .addField("Roles", rolesDescription, true)
                 .setThumbnail(this.iconUrl)
                 .setFooter(footer, null)
                 .setColor(color)

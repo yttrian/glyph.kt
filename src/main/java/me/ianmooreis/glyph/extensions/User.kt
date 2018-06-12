@@ -1,5 +1,6 @@
 package me.ianmooreis.glyph.extensions
 
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed
@@ -11,13 +12,16 @@ import java.time.Instant
 fun User.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false, mutualGuilds: Boolean = false): MessageEmbed {
     val botTag = if (this.isBot) "(bot)" else ""
     val createdAgo = PrettyTime().format(this.creationTime.toDate())
+    val descriptionBuilder: SimpleDescriptionBuilder = SimpleDescriptionBuilder()
+            .addField("User", "${this.asPlainMention} $botTag")
+            .addField("ID", this.id)
+            .addField("Mention", this.asMention)
+            .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}")
+    if (mutualGuilds) {
+        descriptionBuilder.addField("Server", "${this.mutualGuilds.size} mutual")
+    }
     return EmbedBuilder().setTitle(title)
-            .setDescription(
-                "**User** ${this.asPlainMention} $botTag\n" +
-                "**ID** ${this.id}\n" +
-                "**Mention** ${this.asMention}\n" +
-                "**Created** $createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}" +
-                if (mutualGuilds) "\n**Server** ${this.mutualGuilds.size} mutual" else "")
+            .setDescription(descriptionBuilder.build())
             .setThumbnail(this.avatarUrl)
             .setFooter(footer, null)
             .setColor(color)

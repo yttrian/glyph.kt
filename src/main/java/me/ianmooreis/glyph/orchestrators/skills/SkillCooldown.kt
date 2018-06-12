@@ -9,7 +9,7 @@ class SkillCooldown(duration: Long, unit: TimeUnit) {
     private var wasWarned: Boolean = false
 
     val expired: Boolean
-        get() = Instant.now().isAfter(endTime)
+        get() = Instant.now().isAfter(endTime) || remainingSeconds.toInt() == 0
 
     val remainingSeconds: Long
         get() = Duration.between(Instant.now(), endTime).toSeconds()

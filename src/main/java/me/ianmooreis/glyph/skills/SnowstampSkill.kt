@@ -3,6 +3,7 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -19,9 +20,13 @@ object SnowstampSkill : SkillAdapter("skill.snowstamp") {
             return
         }
         val snowflakeInstant = MiscUtil.getCreationTime(snowflakeId).toInstant()
+        val description = SimpleDescriptionBuilder()
+                .addField("UTC", snowflakeInstant.toString())
+                .addField("UNIX", snowflakeInstant.toEpochMilli())
+                .build()
         event.message.reply(EmbedBuilder()
                 .setTitle(snowflakeId.toString())
-                .setDescription("**UTC** $snowflakeInstant\n**UNIX** ${snowflakeInstant.toEpochMilli()}")
+                .setDescription(description)
                 .setColor(Color.WHITE)
                 .setFooter("Snowstamp", null)
                 .setTimestamp(snowflakeInstant)

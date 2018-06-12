@@ -3,9 +3,11 @@ package me.ianmooreis.glyph.orchestrators
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getInfoEmbed
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
+import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
@@ -31,6 +33,18 @@ object AuditingOrchestrator : ListenerAdapter() {
     override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
         if(event.guild.config.auditing.purge) {
             event.guild.audit("Purge", "${event.messageIds.size} messages deleted in ${event.channel.asMention}", Color.YELLOW)
+        }
+    }
+
+    override fun onUserUpdateName(event: UserUpdateNameEvent) {
+        val description = SimpleDescriptionBuilder()
+                .addField("Old", event.oldName)
+                .addField("New", event.newName)
+                .addField("Mention", event.user.asMention)
+                .addField("ID", event.user.id)
+                .build()
+        event.user.mutualGuilds.filter { it.config.auditing.names }.forEach { guild ->
+            guild.audit("Name Change", description, Color.orange)
         }
     }
 }

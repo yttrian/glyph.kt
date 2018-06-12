@@ -6,7 +6,7 @@ import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object FeedbackSkill : SkillAdapter("skill.feedback", cooldownTime = 30) {
+object FeedbackSkill : SkillAdapter("skill.feedback", cooldownTime = 90) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         event.jda.selfUser.log("Feedback", "```${ai.result.getStringParameter("feedback")}```")
         event.message.reply(ai.result.fulfillment.speech)

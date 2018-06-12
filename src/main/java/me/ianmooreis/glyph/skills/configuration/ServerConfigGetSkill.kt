@@ -18,8 +18,9 @@ import org.json.JSONObject
 import java.net.URL
 import java.time.Instant
 
-object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", cooldownTime = 10, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", cooldownTime = 15, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+        event.channel.sendTyping().queue()
         val configYAML = toYAML(event.guild.config,
                 "Glyph Configuration for ${event.guild}\n\n" +
                         "This configuration is presented to you in the easy to read and edit YAML format!\n" +

@@ -40,7 +40,7 @@ object ServerConfigGetSkill : SkillAdapter("skill.configuration.view", cooldownT
                             .setDescription(
                                     "Here's the current server config:\n" +
                                             "$url\n" +
-                                            "**Help:** [Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
+                                            "[Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
                                             "[Official Glyph Server](https://discord.me/glyph-discord)")
                             .setFooter("Configuration", null)
                             .setTimestamp(Instant.now())

@@ -11,23 +11,31 @@ import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 
+/**
+ * Handles the creation of QuickViews for furaffinity.net links
+ */
 object FurAffinity {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val standardUrlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
     private val cdnUrlFormat = Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
 
+    /**
+     * Makes any QuickViews for links found in a message
+     *
+     * @param event the message event
+     */
     fun makeQuickviews(event: MessageReceivedEvent) {
         standardUrlFormat.findAll(event.message.contentClean).map { it.groups[6]!!.value.toInt() }
-                .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull { findSubmissionId(it.groups[4]!!.value.toInt(), it.groups[3]!!.value) })
-                .map { getSubmission(it) }
-                .forEach {
-                    if (it != null) {
-                        val allowThumbnail = if (!event.channelType.isGuild && !it.rating.nsfw) true else
-                            event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw)
-                        event.message.reply(it.getEmbed(allowThumbnail))
-                        log.info("Created FurAffinity QuickView in ${event.guild} for submission ${it.link}")
-                    }
+            .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull { findSubmissionId(it.groups[4]!!.value.toInt(), it.groups[3]!!.value) })
+            .map { getSubmission(it) }
+            .forEach {
+                if (it != null) {
+                    val allowThumbnail = if (!event.channelType.isGuild && !it.rating.nsfw) true else
+                        event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw)
+                    event.message.reply(it.getEmbed(allowThumbnail))
+                    log.info("Created FurAffinity QuickView in ${event.guild} for submission ${it.link}")
                 }
+            }
     }
 
     private fun findSubmissionId(cdnId: Int, user: String, maxPages: Int = 1): Int? {

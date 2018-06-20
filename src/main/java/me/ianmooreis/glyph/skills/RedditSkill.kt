@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -21,14 +21,18 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.jodah.expiringmap.ExpiringMap
 import java.time.Instant
-import java.util.*
+import java.util.LinkedList
+import java.util.Queue
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-
-object RedditSkill : SkillAdapter("skill.reddit") {
+/**
+ * A skill that attempts to show users an image from a subreddit
+ */
+object RedditSkill : Skill("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
-            OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
-            Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
+        OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
+        Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
     private val imageCache: MutableMap<String, Queue<Submission>> = ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
 
     init {
@@ -41,7 +45,9 @@ object RedditSkill : SkillAdapter("skill.reddit") {
         // Try to get the multireddit name
         val multiredditName: String? = try {
             ai.result.getStringParameter("multireddit").replace("\\", "")
-        } catch (e: IllegalStateException) { null }  // Sometimes it doesn't parse the string right
+        } catch (e: IllegalStateException) {
+            null
+        }  // Sometimes it doesn't parse the string right
         if (multiredditName == null) {
             event.message.reply("${CustomEmote.XMARK} I did not understand what subreddit you were asking for!")
             return
@@ -55,11 +61,11 @@ object RedditSkill : SkillAdapter("skill.reddit") {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
                     event.message.reply(EmbedBuilder()
-                            .setTitle(submission.title, "https://reddit.com${submission.permalink}")
-                            .setImage(submission.url)
-                            .setFooter("r/${submission.subreddit}", null)
-                            .setTimestamp(Instant.now())
-                            .build())
+                        .setTitle(submission.title, "https://reddit.com${submission.permalink}")
+                        .setImage(submission.url)
+                        .setFooter("r/${submission.subreddit}", null)
+                        .setTimestamp(Instant.now())
+                        .build())
                 } else {
                     event.message.reply("${CustomEmote.XMARK} I can only show NSFW submissions in a NSFW channel!")
                 }

@@ -4,11 +4,14 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.findUser
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object UserInfoSkill : SkillAdapter("skill.moderation.userInfo") {
+/**
+ * A skill that allows users to get an info embed about other or themselves
+ */
+object UserInfoSkill : Skill("skill.moderation.userInfo") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val userName: String? = ai.result.getStringParameter("user", null)
         val user: User? = if (event.channelType.isGuild && userName != null) {

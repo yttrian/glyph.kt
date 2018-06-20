@@ -6,12 +6,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.configs.ServerConfig
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
-import me.ianmooreis.glyph.orchestrators.ServerConfig
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
@@ -22,9 +22,11 @@ import java.awt.Color
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-
-object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownTime = 15, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
-    var strugglers: MutableMap<Member, Int> = ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build()
+/**
+ * A skill to set a server from a Hastebin url
+ */
+object ServerConfigSetSkill : Skill("skill.configuration.load", cooldownTime = 15, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
+    private val strugglers: MutableMap<Member, Int> = ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build()
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val key = ai.result.getStringParameter("url").split("/").last()
@@ -53,23 +55,23 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
 
     private fun updateSuccess(event: MessageReceivedEvent) {
         event.message.reply(EmbedBuilder()
-                .setTitle("Configuration Updated")
-                .setDescription("The server configuration has been successfully updated!")
-                .setFooter("Configuration", null)
-                .setTimestamp(Instant.now())
-                .build())
+            .setTitle("Configuration Updated")
+            .setDescription("The server configuration has been successfully updated!")
+            .setFooter("Configuration", null)
+            .setTimestamp(Instant.now())
+            .build())
     }
 
     private fun updateError(event: MessageReceivedEvent, struggling: Boolean) {
         event.message.reply(EmbedBuilder()
             .setTitle("Configuration Update Error")
             .setDescription(
-                    if (struggling) {
-                        "**You appear to be struggling. Be sure to check out the help links below, " +
+                if (struggling) {
+                    "**You appear to be struggling. Be sure to check out the help links below, " +
                         "or speak to someone in the [official Glyph server](https://discord.me/glyph-discord).**"
-                    } else {
-                        "This servers configuration failed to update!"
-                    } + "\n\n" +
+                } else {
+                    "This servers configuration failed to update!"
+                } + "\n\n" +
                     "Make sure your YAML is in the correct format and that it follows the rules in the documentation. " +
                     "The most common error is forgetting to indent.\n\n" +
                     "[Documentation](https://glyph-discord.readthedocs.io/en/latest/configuration.html) - " +
@@ -84,9 +86,9 @@ object ServerConfigSetSkill : SkillAdapter("skill.configuration.load", cooldownT
     private fun parseYAML(yaml: String, onFailure: (e: Exception) -> Unit): ServerConfig? {
         try {
             return YAMLMapper()
-                    .registerKotlinModule()
-                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-                    .readValue(yaml, ServerConfig::class.java)
+                .registerKotlinModule()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+                .readValue(yaml, ServerConfig::class.java)
         } catch (e: Exception) {
             onFailure(e)
         }

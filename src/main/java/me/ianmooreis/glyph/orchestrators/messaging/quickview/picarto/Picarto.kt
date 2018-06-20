@@ -9,19 +9,27 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 
+/**
+ * Handles the creation of QuickViews for picarto.tv links
+ */
 object Picarto {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
 
+    /**
+     * Makes any QuickViews for links found in a message
+     *
+     * @param event the message event
+     */
     fun makeQuickviews(event: MessageReceivedEvent) {
         urlFormat.findAll(event.message.contentClean)
-                .map { getChannel(it.groups[5]!!.value) }
-                .forEach {
-                    if (it != null) {
-                        event.message.reply(it.getEmbed())
-                        log.info("Created picarto QuickView in ${event.guild} for ${it.name}")
-                    }
+            .map { getChannel(it.groups[5]!!.value) }
+            .forEach {
+                if (it != null) {
+                    event.message.reply(it.getEmbed())
+                    log.info("Created picarto QuickView in ${event.guild} for ${it.name}")
                 }
+            }
     }
 
     private fun getChannel(name: String): Channel? { //TODO: Figure out how not to do it blocking, because async had errors

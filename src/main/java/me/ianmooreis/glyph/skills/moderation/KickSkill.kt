@@ -6,11 +6,14 @@ import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
-object KickSkill : SkillAdapter("skill.moderation.kick", guildOnly = true, requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS), requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)) {
+/**
+ * A skill that allows privileged members to kick other members
+ */
+object KickSkill : Skill("skill.moderation.kick", guildOnly = true, requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS), requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
             event.message.delete().reason("Kick request").queue()
@@ -28,13 +31,13 @@ object KickSkill : SkillAdapter("skill.moderation.kick", guildOnly = true, requi
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
-                    deleteWithEnabled = false)
+                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
+                deleteWithEnabled = false)
             if (event.guild.config.auditing.kicks) {
                 event.guild.audit("Members Kicked",
-                        "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +
-                                "**Reason** $reason\n" +
-                                "**Blame** ${event.author.asMention}")
+                    "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +
+                        "**Reason** $reason\n" +
+                        "**Blame** ${event.author.asMention}")
             }
         }
     }

@@ -9,13 +9,16 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
 
+/**
+ * Manages auditing logs for servers
+ */
 object AuditingOrchestrator : ListenerAdapter() {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
+    /**
+     * When a member joins a guild
+     */
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.config.auditing.joins) {
             val embed = event.user.getInfoEmbed("Member Joined", "Auditing", Color.GREEN)
@@ -23,6 +26,9 @@ object AuditingOrchestrator : ListenerAdapter() {
         }
     }
 
+    /**
+     * When a member leaves a guild
+     */
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
         if (event.guild.config.auditing.leaves) {
             val embed = event.user.getInfoEmbed("Member Left", "Auditing", Color.RED)
@@ -30,19 +36,25 @@ object AuditingOrchestrator : ListenerAdapter() {
         }
     }
 
+    /**
+     * When messages are bulk deleted
+     */
     override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
-        if(event.guild.config.auditing.purge) {
+        if (event.guild.config.auditing.purge) {
             event.guild.audit("Purge", "${event.messageIds.size} messages deleted in ${event.channel.asMention}", Color.YELLOW)
         }
     }
 
+    /**
+     * When a user updates their name
+     */
     override fun onUserUpdateName(event: UserUpdateNameEvent) {
         val description = SimpleDescriptionBuilder()
-                .addField("Old", event.oldName)
-                .addField("New", event.newName)
-                .addField("Mention", event.user.asMention)
-                .addField("ID", event.user.id)
-                .build()
+            .addField("Old", event.oldName)
+            .addField("New", event.newName)
+            .addField("Mention", event.user.asMention)
+            .addField("ID", event.user.id)
+            .build()
         event.user.mutualGuilds.filter { it.config.auditing.names }.forEach { guild ->
             guild.audit("Name Change", description, Color.orange)
         }

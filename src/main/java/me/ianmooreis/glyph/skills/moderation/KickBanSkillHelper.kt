@@ -8,7 +8,18 @@ import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.managers.GuildController
 
+/**
+ * Helps run all the checks before allowing a member to kick or ban
+ */
 object KickBanSkillHelper {
+    /**
+     * Run checks and created a list of targets to kick or ban if allowed
+     *
+     * @param event the message event
+     * @param ai the ai response
+     * @param action the action the user is trying to perform (kick or ban)
+     * @param success the call back to run if the targets are found and allowed
+     */
     fun getInstance(event: MessageReceivedEvent, ai: AIResponse, action: String, success: (targets: List<Member>, reason: String, controller: GuildController) -> Unit) {
         val authorMaxRole = maxRolePosition(event.member)
         val selfMaxRole = maxRolePosition(event.guild.selfMember)

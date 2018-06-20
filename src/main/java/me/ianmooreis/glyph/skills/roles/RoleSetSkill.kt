@@ -1,15 +1,22 @@
 package me.ianmooreis.glyph.skills.roles
 
 import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.*
+import me.ianmooreis.glyph.extensions.asPlainMention
+import me.ianmooreis.glyph.extensions.cleanMentionedMembers
+import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.extensions.random
+import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException
 import java.util.concurrent.TimeUnit
 
-object RoleSetSkill : SkillAdapter("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
+/**
+ * A skill that allows members to assign selectable roles
+ */
+object RoleSetSkill : Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to set roles for the specified target(s)
         if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(Permission.MANAGE_ROLES)) {
@@ -20,12 +27,12 @@ object RoleSetSkill : SkillAdapter("skill.role.set", guildOnly = true, requiredP
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
             if (targets.size > 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
-                    && event.member.roles.count { selectableRoles.contains(it) } >= config.limit) {
+                && event.member.roles.count { selectableRoles.contains(it) } >= config.limit) {
                 val randomRole = event.member.roles.filter { selectableRoles.contains(it) }.random()
                 event.message.reply("" +
-                        "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
-                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else ""))
-            } else  {
+                    "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
+                    (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else ""))
+            } else {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles
                 if (config.limit == 1) {
                     targets.forEach {

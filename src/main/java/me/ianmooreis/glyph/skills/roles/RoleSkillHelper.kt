@@ -9,12 +9,22 @@ import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
+/**
+ * Helps find a selectable role a member is asking about
+ */
 object RoleSkillHelper {
+    /**
+     * Attempt to figure out what selectable role a member is asking about or tell them what went wrong
+     *
+     * @param event the message event
+     * @param ai the ai response
+     * @param success the callback to run if the desired role exists and is found
+     */
     fun getInstance(event: MessageReceivedEvent, ai: AIResponse, success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Unit) {
         //Get the list of target(s) based on the mentions in the messages
         val targets: List<Member> = when {
             event.message.mentionsEveryone() -> event.guild.members
-            //@here -> event.guild.members.filter { it.onlineStatus == OnlineStatus.ONLINE }
+        //@here -> event.guild.members.filter { it.onlineStatus == OnlineStatus.ONLINE }
             event.message.cleanMentionedMembers.isNotEmpty() -> event.message.cleanMentionedMembers
             else -> listOf(event.member)
         }
@@ -30,7 +40,7 @@ object RoleSkillHelper {
             event.message.reply("That role does not exist!")
             return
         }
-        val selectableRoles = config.roles.mapNotNull{ event.guild.getRolesByName(it, true).firstOrNull() }
+        val selectableRoles = config.roles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
         if (selectableRoles.isEmpty()) {
             event.message.reply("${CustomEmote.XMARK} There are no selectable roles configured for this server!")
             return

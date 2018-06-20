@@ -3,14 +3,17 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.google.gson.JsonObject
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-object EphemeralSaySkill : SkillAdapter("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), guildOnly = true) {
+/**
+ * Allows users to briefly say something before it is deleted automatically
+ */
+object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
         if (durationEntity == null) {
@@ -34,11 +37,11 @@ object EphemeralSaySkill : SkillAdapter("skill.ephemeral_say", requiredPermissio
 
         event.message.delete().reason("Ephemeral Say").queue()
         event.message.reply(EmbedBuilder()
-                .setAuthor(event.author.name, null, event.author.avatarUrl)
-                .setDescription(ai.result.getStringParameter("message"))
-                .setFooter("Ephemeral Say", null)
-                .setTimestamp(Instant.now().plus(durationAmount, durationUnit.toChronoUnit()))
-                .build(),
-                deleteAfterDelay = durationAmount, deleteAfterUnit = durationUnit)
+            .setAuthor(event.author.name, null, event.author.avatarUrl)
+            .setDescription(ai.result.getStringParameter("message"))
+            .setFooter("Ephemeral Say", null)
+            .setTimestamp(Instant.now().plus(durationAmount, durationUnit.toChronoUnit()))
+            .build(),
+            deleteAfterDelay = durationAmount, deleteAfterUnit = durationUnit)
     }
 }

@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <kotlin.version>1.2.41</kotlin.version>
+        <kotlin.version>1.2.50</kotlin.version>
         <main.class>me.ianmooreis.glyph.GlyphKt</main.class>
     </properties>
 
@@ -168,6 +168,7 @@
                 </executions>
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
+                    <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
             </plugin>
             <plugin>

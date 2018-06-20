@@ -7,24 +7,45 @@ import net.dv8tion.jda.core.entities.SelfUser
 import net.dv8tion.jda.webhook.WebhookClient
 import net.dv8tion.jda.webhook.WebhookClientBuilder
 import net.dv8tion.jda.webhook.WebhookMessageBuilder
-import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
 
+/**
+ * Manages sending webhook messages
+ */
 object WebhookOrchestrator {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
+    /**
+     * Send a webhook as self
+     *
+     * @param selfUser the self user
+     * @param webhookUrl the webhook to send to
+     * @param embed the embed to send
+     */
     fun send(selfUser: SelfUser, webhookUrl: String, embed: MessageEmbed) {
         getWebhookClient(selfUser.name, selfUser.avatarUrl, webhookUrl) { client, base ->
             client.send(base.addEmbeds(embed).build())
         }
     }
 
+    /**
+     * Send a webhook with a custom name and avatar
+     *
+     * @param name the username to use
+     * @param avatarUrl the avatar to use
+     * @param webhookUrl the webhook to send to
+     * @param embed the embed to send
+     */
     fun send(name: String, avatarUrl: String?, webhookUrl: String, embed: MessageEmbed) {
         getWebhookClient(name, avatarUrl, webhookUrl) { client, base ->
             client.send(base.addEmbeds(embed).build())
         }
     }
 
+    /**
+     * Send a webhook to a guild's auditing webhook (if it has one)
+     *
+     * @param guild the guild to send the webhook message to
+     * @param embed the embed to send
+     */
     fun send(guild: Guild, embed: MessageEmbed) {
         getWebhookClient(guild) { client, base ->
             client.send(base.addEmbeds(embed).build())

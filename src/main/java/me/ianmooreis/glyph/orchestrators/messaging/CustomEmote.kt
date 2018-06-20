@@ -2,6 +2,7 @@ package me.ianmooreis.glyph.orchestrators.messaging
 
 import net.dv8tion.jda.core.entities.Emote
 
+@Suppress("KDocMissingDocumentation")
 enum class CustomEmote(val emote: Emote?) {
     XMARK(MessagingOrchestrator.getCustomEmote("xmark")),
     NOMARK(MessagingOrchestrator.getCustomEmote("empty")),
@@ -24,5 +25,5 @@ enum class CustomEmote(val emote: Emote?) {
     GRIMACE(MessagingOrchestrator.getCustomEmote("grimace")),
     MINDBLOWN(MessagingOrchestrator.getCustomEmote("mindblown"));
 
-    override fun toString() = emote?.asMention ?: ""
+    override fun toString(): String = emote?.asMention ?: ""
 }

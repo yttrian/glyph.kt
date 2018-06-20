@@ -14,7 +14,11 @@ import me.ianmooreis.glyph.orchestrators.messaging.quickview.furaffinity.FurAffi
 import me.ianmooreis.glyph.orchestrators.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import net.dv8tion.jda.core.OnlineStatus
-import net.dv8tion.jda.core.entities.*
+import net.dv8tion.jda.core.entities.Emote
+import net.dv8tion.jda.core.entities.Game
+import net.dv8tion.jda.core.entities.Guild
+import net.dv8tion.jda.core.entities.Message
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -24,13 +28,21 @@ import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.util.concurrent.TimeUnit
 
+/**
+ * Manages message events including handling incoming messages and dispatching the SkillOrchestrator in addition to the message ledger
+ */
 object MessagingOrchestrator : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
+
     private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
     private var totalMessages: Int = 0
     private val customEmotes: MutableMap<String, Emote> = mutableMapOf()
 
+    /**
+     * Attempts to grab a custom emote by name from the emoji server
+     */
     fun getCustomEmote(name: String): Emote? {
         return customEmotes[name]
     }
@@ -43,14 +55,30 @@ object MessagingOrchestrator : ListenerAdapter() {
         }
     }
 
+    /**
+     * Add a message to the ledger
+     *
+     * @param invoker  the message id the invoked the response message
+     * @param response the message id of the response message to the invoking message
+     */
     fun amendLedger(invoker: Long, response: Long) {
         ledger[invoker] = response
     }
 
+    /**
+     * Gets the total number of messages received and reacted upon since startup
+     *
+     * @returns the total number of messages received and reacted upon since startup
+     */
     fun getTotalMessages(): Int {
         return totalMessages
     }
 
+    /**
+     * Log a failure to send a message
+     *
+     * @param channel the channel where the message failed to send
+     */
     fun logSendFailure(channel: TextChannel) {
         if (channel.type.isGuild) {
             log.warn("Failed to send message in $channel of ${channel.guild}!")
@@ -59,6 +87,9 @@ object MessagingOrchestrator : ListenerAdapter() {
         }
     }
 
+    /**
+     * When a new message is seen anywhere
+     */
     override fun onMessageReceived(event: MessageReceivedEvent) {
         loadCustomEmotes(event.jda.getGuildById(System.getenv("EMOJI_GUILD")))
         if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
@@ -85,15 +116,15 @@ object MessagingOrchestrator : ListenerAdapter() {
             StatusOrchestrator.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
             return
         }
-        val result = ai.result
-        val action = result.action
         launch {
             SkillOrchestrator.trigger(event, ai)
         }
-        log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, acted with $action")
         totalMessages++
     }
 
+    /**
+     * When a message is deleted anywhere
+     */
     override fun onMessageDelete(event: MessageDeleteEvent) {
         val messageId = ledger[event.messageIdLong]
         if (messageId != null) {

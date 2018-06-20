@@ -1,12 +1,19 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.*
-import me.ianmooreis.glyph.orchestrators.skills.SkillAdapter
+import me.ianmooreis.glyph.extensions.asPlainMention
+import me.ianmooreis.glyph.extensions.getInfoEmbed
+import me.ianmooreis.glyph.extensions.isBotFarm
+import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
-object GuildInfoSkill : SkillAdapter("skill.moderation.guildInfo", guildOnly = true) {
+/**
+ * A skill that allows users to ask for different info about a guild
+ */
+object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val property: String? = ai.result.getStringParameter("guildProperty", null)
         if (property != null) {

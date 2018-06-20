@@ -9,9 +9,17 @@ import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URL
 import java.net.URLEncoder
 
+/**
+ * Grabs articles from Wikipedia
+ */
 object WikipediaExtractor {
-    private val log : Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
+    /**
+     * Tries to find an article from a search
+     *
+     * @param query the search query
+     */
     fun getArticle(query: String): WikiArticle? {
         val queryUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cinfo&titles=${URLEncoder.encode(query, "UTF-8")}&redirects=1&exintro=1&explaintext=1&inprop=url&exchars=500"
         val (_, _, result) = queryUrl.httpGet().responseString()

@@ -11,6 +11,7 @@ import me.ianmooreis.glyph.skills.EphemeralSaySkill
 import me.ianmooreis.glyph.skills.FallbackSkill
 import me.ianmooreis.glyph.skills.FeedbackSkill
 import me.ianmooreis.glyph.skills.HelpSkill
+import me.ianmooreis.glyph.skills.RankSkill
 import me.ianmooreis.glyph.skills.RedditSkill
 import me.ianmooreis.glyph.skills.SnowstampSkill
 import me.ianmooreis.glyph.skills.StatusSkill
@@ -57,7 +58,7 @@ fun main(args: Array<String>) {
         HelpSkill, StatusSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,
         ServerConfigGetSkill, ServerConfigSetSkill,
-        PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill,
+        PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
         EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
         ReloadConfigsSkill, ChangeStatusSkill, FarmsSkill,
         FallbackSkill)

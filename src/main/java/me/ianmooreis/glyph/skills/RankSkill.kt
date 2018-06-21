@@ -1,7 +1,9 @@
 package me.ianmooreis.glyph.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.EmbedBuilder
@@ -9,6 +11,7 @@ import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.apache.commons.collections4.ListUtils
+import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
 
 /**
@@ -29,51 +32,28 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
         }
     }
 
-    private data class Ranking(val rank: Int, val description: String)
-
     private fun rankMembersByJoin(members: List<Member>, requester: Member): MessageEmbed {
-        fun getRank(member: Member, ranking: List<Member>): Ranking {
-            return Ranking(
-                ranking.indexOf(member).plus(1),
-                "${member.asMention} joined on **${member.joinDate}**")
-        }
-
         val rankedMembers = members.sortedBy { it.joinDate }
-        val notable = SimpleDescriptionBuilder()
-        ListUtils.union(rankedMembers.take(3), rankedMembers.takeLast(3)).forEach {
-            val rank = getRank(it, rankedMembers)
-            notable.addField("`${rank.rank}.`", rank.description)
+        return createRankEmbed("Guild Join Rankings", rankedMembers, requester) {
+            "**${it.asPlainMention}** joined **${PrettyTime().format(it.joinDate.toDate())}** on **${it.joinDate}**"
         }
-        val requesterRank = getRank(requester, rankedMembers)
-        val requesterRankDescription = SimpleDescriptionBuilder()
-            .addField("`${requesterRank.rank}.`", requesterRank.description).build()
-        return EmbedBuilder()
-            .setTitle("Guild Join Rankings")
-            .addField("Notable", notable.build(), true)
-            .addField("You", requesterRankDescription, false)
-            .setFooter("Rank", null)
-            .setTimestamp(Instant.now())
-            .build()
     }
 
     private fun rankMembersByCreation(members: List<Member>, requester: Member): MessageEmbed {
-        fun getRank(member: Member, ranking: List<Member>): Ranking {
-            return Ranking(
-                ranking.indexOf(member).plus(1),
-                "${member.asMention} was created on **${member.user.creationTime}**")
-        }
-
         val rankedMembers = members.sortedBy { it.user.idLong }
+        return createRankEmbed("Account Creation Rankings", rankedMembers, requester) {
+            "**${it.asPlainMention}** was created **${PrettyTime().format(it.user.creationTime.toDate())}** on **${it.user.creationTime}**"
+        }
+    }
+
+    private fun createRankEmbed(title: String, rankedMembers: List<Member>, requester: Member, description: (Member) -> String): MessageEmbed {
         val notable = SimpleDescriptionBuilder()
         ListUtils.union(rankedMembers.take(3), rankedMembers.takeLast(3)).forEach {
-            val rank = getRank(it, rankedMembers)
-            notable.addField("`${rank.rank}.`", rank.description)
+            notable.addField("`${rankedMembers.indexOf(it).plus(1)}.`", description(it))
         }
-        val requesterRank = getRank(requester, rankedMembers)
-        val requesterRankDescription = SimpleDescriptionBuilder()
-            .addField("`${requesterRank.rank}.`", requesterRank.description).build()
+        val requesterRankDescription = "`${rankedMembers.indexOf(requester).plus(1)}.` ${description(requester)}"
         return EmbedBuilder()
-            .setTitle("Account Creation Rankings")
+            .setTitle(title)
             .addField("Notable", notable.build(), true)
             .addField("You", requesterRankDescription, false)
             .setFooter("Rank", null)

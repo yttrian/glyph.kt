@@ -6,6 +6,7 @@ import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
+import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed
@@ -19,6 +20,7 @@ import java.time.Instant
  */
 object RankSkill : Skill("skill.rank", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+        event.channel.sendTyping().queue()
         val property: String? = ai.result.getStringParameter("memberProperty", null)
         if (property != null) {
             val members = event.guild.members
@@ -52,12 +54,21 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
             notable.addField("`${rankedMembers.indexOf(it).plus(1)}.`", description(it))
         }
         val requesterRankDescription = "`${rankedMembers.indexOf(requester).plus(1)}.` ${description(requester)}"
-        return EmbedBuilder()
+        val embed = EmbedBuilder()
             .setTitle(title)
-            .addField("Notable", notable.build(), true)
-            .addField("You", requesterRankDescription, false)
+            .addField("Notable", notable.build(), false)
+            .addField("You", requesterRankDescription, true)
             .setFooter("Rank", null)
             .setTimestamp(Instant.now())
-            .build()
+        val everyone = SimpleDescriptionBuilder(true)
+        rankedMembers.forEach {
+            everyone.addField("${rankedMembers.indexOf(it).plus(1)}.", description(it).replace("*", ""))
+        }
+        Hastebin.postHasteBlocking(everyone.build(), 500).also {
+            if (it !== null) {
+                embed.addField("Everyone", "[Click to view]($it)", true)
+            }
+        }
+        return embed.build()
     }
 }

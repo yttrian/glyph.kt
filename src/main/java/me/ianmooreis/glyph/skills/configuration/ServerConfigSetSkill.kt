@@ -4,7 +4,6 @@ import ai.api.model.AIResponse
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.configs.ServerConfig
 import me.ianmooreis.glyph.extensions.log
@@ -12,6 +11,7 @@ import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.skills.Skill
+import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
@@ -29,9 +29,8 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", cooldownTime = 1
     private val strugglers: MutableMap<Member, Int> = ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build()
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val key = ai.result.getStringParameter("url").split("/").last()
-        val url = "https://hastebin.com/raw/$key"
-        url.httpGet().responseString { _, response, result ->
+        val url = ai.result.getStringParameter("url")
+        Hastebin.getHaste(url) { response, result ->
             val struggles = strugglers.getOrDefault(event.member, 1)
             val struggling = struggles > 2
             when (result) {

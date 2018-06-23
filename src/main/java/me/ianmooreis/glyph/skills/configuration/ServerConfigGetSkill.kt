@@ -3,7 +3,6 @@ package me.ianmooreis.glyph.skills.configuration
 import ai.api.model.AIResponse
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.configs.ServerConfig
 import me.ianmooreis.glyph.extensions.config
@@ -11,11 +10,10 @@ import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.skills.Skill
+import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import org.json.JSONObject
-import java.net.URL
 import java.time.Instant
 
 /**
@@ -23,6 +21,7 @@ import java.time.Instant
  */
 object ServerConfigGetSkill : Skill("skill.configuration.view", cooldownTime = 15, guildOnly = true, requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+        event.message.contentStripped
         event.channel.sendTyping().queue()
         val configYAML = toYAML(event.guild.config,
             "Glyph Configuration for ${event.guild}\n\n" +
@@ -32,11 +31,9 @@ object ServerConfigGetSkill : Skill("skill.configuration.view", cooldownTime = 1
                 "https://glyph-discord.readthedocs.io/en/latest/configuration.html\n\n" +
                 "Click the button labeled Duplicate & Edit on the side to begin, and click save when done.\n" +
                 "Then copy the url and tell Glyph \"load config URL\".")
-        "https://hastebin.com/documents".httpPost().body(configYAML).responseString { _, response, result ->
+        Hastebin.postHaste(configYAML) { _, url, response, result ->
             when (result) {
                 is Result.Success -> {
-                    val key = JSONObject(result.get()).getString("key")
-                    val url = URL("https://hastebin.com/$key")
                     this.log.info("Posted ${event.guild} config to $url")
                     event.message.reply(EmbedBuilder()
                         .setTitle("Configuration Viewer")

@@ -14,6 +14,7 @@ import me.ianmooreis.glyph.skills.HelpSkill
 import me.ianmooreis.glyph.skills.RankSkill
 import me.ianmooreis.glyph.skills.RedditSkill
 import me.ianmooreis.glyph.skills.SnowstampSkill
+import me.ianmooreis.glyph.skills.SourceSkill
 import me.ianmooreis.glyph.skills.StatusSkill
 import me.ianmooreis.glyph.skills.TimeSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
@@ -55,7 +56,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
  */
 fun main(args: Array<String>) {
     SkillOrchestrator.addSkill(
-        HelpSkill, StatusSkill,
+        HelpSkill, StatusSkill, SourceSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,
         ServerConfigGetSkill, ServerConfigSetSkill,
         PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,

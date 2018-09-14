@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <kotlin.version>1.2.50</kotlin.version>
+        <kotlin.version>1.2.70</kotlin.version>
         <main.class>me.ianmooreis.glyph.GlyphKt</main.class>
     </properties>
 

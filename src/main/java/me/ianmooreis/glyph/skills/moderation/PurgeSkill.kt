@@ -32,6 +32,7 @@ import me.ianmooreis.glyph.extensions.getMessagesSince
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
@@ -93,10 +94,14 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true, requiredPe
                     .setTimestamp(Instant.now())
                     .build(), deleteAfterDelay = 10)
                 if (event.guild.config.auditing.purge) {
-                    event.guild.audit("Messages Purged",
-                        "**Total** ${messages.size} messages\n" +
-                            "**Channel** ${event.textChannel.asMention}\n" +
-                            "**Blame** ${event.author.asMention}")
+                    val reason = ai.result.getStringParameter("reason", "No reason provided")
+                    val auditMessage = SimpleDescriptionBuilder()
+                        .addField("Total", "${messages.size} messages")
+                        .addField("Channel", event.textChannel.asMention)
+                        .addField("Blame", event.author.asMention)
+                        .addField("Reason", reason)
+                        .build()
+                    event.guild.audit("Messages Purged", auditMessage)
                 }
             }
         } else {

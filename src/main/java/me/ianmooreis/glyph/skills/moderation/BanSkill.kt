@@ -30,6 +30,7 @@ import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -45,7 +46,7 @@ object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermis
                 val finally = { controller.ban(member, 7, reason).queue() }
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue({
+                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue({ _ ->
                             pm.close().queue { finally() }
                         }, { finally() })
                     }
@@ -58,10 +59,12 @@ object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermis
                 "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
                 deleteWithEnabled = false)
             if (event.guild.config.auditing.bans) {
-                event.guild.audit("Members Banned",
-                    "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +
-                        "**Reason** $reason\n" +
-                        "**Blame** ${event.author.asMention}")
+                val auditMessage = SimpleDescriptionBuilder()
+                    .addField("Who", if (targetNames.length < 200) targetNames else "${targets.size} people")
+                    .addField("Blame", event.author.asMention)
+                    .addField("Reason", reason)
+                    .build()
+                event.guild.audit("Members Banned", auditMessage)
             }
         }
     }

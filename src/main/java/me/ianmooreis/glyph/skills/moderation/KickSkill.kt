@@ -30,6 +30,7 @@ import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
+import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -45,7 +46,7 @@ object KickSkill : Skill("skill.moderation.kick", guildOnly = true, requiredPerm
                 val finally = { controller.kick(member, reason).queue() }
                 if (!member.user.isBot) {
                     member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue({
+                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue({ _ ->
                             pm.close().queue { finally() }
                         }, { finally() })
                     }
@@ -58,10 +59,12 @@ object KickSkill : Skill("skill.moderation.kick", guildOnly = true, requiredPerm
                 "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
                 deleteWithEnabled = false)
             if (event.guild.config.auditing.kicks) {
-                event.guild.audit("Members Kicked",
-                    "**Who** ${if (targetNames.length < 200) targetNames else "${targets.size} people"}\n" +
-                        "**Reason** $reason\n" +
-                        "**Blame** ${event.author.asMention}")
+                val auditMessage = SimpleDescriptionBuilder()
+                    .addField("Who", if (targetNames.length < 200) targetNames else "${targets.size} people")
+                    .addField("Blame", event.author.asMention)
+                    .addField("Reason", reason)
+                    .build()
+                event.guild.audit("Members Kicked", auditMessage)
             }
         }
     }

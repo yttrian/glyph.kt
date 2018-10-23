@@ -29,6 +29,7 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.sendDeathPM
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
@@ -43,15 +44,8 @@ object KickSkill : Skill("skill.moderation.kick", guildOnly = true, requiredPerm
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
             event.message.delete().reason("Kick request").queue()
             targets.forEach { member ->
-                val finally = { controller.kick(member, reason).queue() }
-                if (!member.user.isBot) {
-                    member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***").queue({ _ ->
-                            pm.close().queue { finally() }
-                        }, { finally() })
-                    }
-                } else {
-                    finally()
+                member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***") {
+                    controller.kick(member, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }

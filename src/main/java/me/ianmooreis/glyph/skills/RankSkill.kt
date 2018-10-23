@@ -35,7 +35,6 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import org.apache.commons.collections4.ListUtils
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
 
@@ -74,7 +73,10 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
 
     private fun createRankEmbed(title: String, rankedMembers: List<Member>, requester: Member, description: (Member) -> String): MessageEmbed {
         val notable = SimpleDescriptionBuilder()
-        ListUtils.union(rankedMembers.take(3), rankedMembers.takeLast(3)).forEach {
+        val notableMembers = ArrayList<Member>()
+        notableMembers.addAll(rankedMembers.take(3))
+        notableMembers.addAll(rankedMembers.takeLast(3))
+        notableMembers.forEach {
             notable.addField("`${rankedMembers.indexOf(it).plus(1)}.`", description(it))
         }
         val requesterRankDescription = "`${rankedMembers.indexOf(requester).plus(1)}.` ${description(requester)}"

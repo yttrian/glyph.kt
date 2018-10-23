@@ -1,5 +1,5 @@
 /*
- * HelpSkill.kt
+ * CrucibleConfigg.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,26 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills
-
-import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.skills.Skill
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import java.awt.Color
+package me.ianmooreis.glyph.configs
 
 /**
- * A skill that shows users a help messgae
+ * A configuration for auto moderation
  */
-object HelpSkill : Skill("skill.help") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val name = event.jda.selfUser.name
-        val embed = EmbedBuilder()
-            .setTitle("$name Help")
-            .setDescription(ai.result.fulfillment.speech.replace("\\n", "\n", true))
-            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
-            .build()
-        event.message.reply(embed = embed)
-    }
-}
+data class CrucibleConfig(
+    /**
+     * Ban joining members that have URLs in their name
+     */
+    val banURLsInNames: Boolean = false
+)

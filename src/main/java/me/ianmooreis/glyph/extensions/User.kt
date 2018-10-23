@@ -81,3 +81,20 @@ val Member.asPlainMention: String
  */
 val User.isCreator: Boolean
     get() = this.idLong == System.getenv("CREATOR_ID").toLong()
+
+/**
+ * Send a user a PM before an action where they might not be seen again (kick/ban)
+ */
+fun User.sendDeathPM(message: String, die: () -> Unit) {
+    if (!this.isBot) {
+        this.openPrivateChannel().queue { pm ->
+            pm.sendMessage(message).queue({ _ ->
+                pm.close().queue {
+                    die()
+                }
+            }, { die() })
+        }
+    } else {
+        die()
+    }
+}

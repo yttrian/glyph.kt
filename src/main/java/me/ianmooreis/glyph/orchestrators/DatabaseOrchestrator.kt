@@ -25,6 +25,7 @@
 package me.ianmooreis.glyph.orchestrators
 
 import me.ianmooreis.glyph.configs.AuditingConfig
+import me.ianmooreis.glyph.configs.CrucibleConfig
 import me.ianmooreis.glyph.configs.QuickviewConfig
 import me.ianmooreis.glyph.configs.SelectableRolesConfig
 import me.ianmooreis.glyph.configs.ServerConfig
@@ -84,6 +85,9 @@ object DatabaseOrchestrator {
                     rs.getBoolean("auditing_bans"),
                     rs.getBoolean("auditing_names"),
                     rs.getString("auditing_webhook")),
+                CrucibleConfig(
+                    rs.getBoolean("crucible_ban_urls_in_names")
+                ),
                 StarboardConfig(
                     rs.getBoolean("starboard_enabled"),
                     rs.getString("starboard_webhook"),
@@ -158,18 +162,18 @@ object DatabaseOrchestrator {
                 " (guild_id, wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                 " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                 " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, auditing_names, " +
-                " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                " crucible_ban_urls_in_names, starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                 " ON CONFLICT (guild_id) DO UPDATE SET" +
                 " (wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
                 " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
                 " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, auditing_names, " +
-                " starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
+                " crucible_ban_urls_in_names, starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
                 " = (EXCLUDED.wiki_sources, EXCLUDED.wiki_min_quality, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
                 " EXCLUDED.fa_quickview_enabled, " +
                 " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
                 " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks, EXCLUDED.auditing_bans, EXCLUDED.auditing_names, " +
-                " EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji, EXCLUDED.starboard_threshold, EXCLUDED.starboard_allow_self_starring)")
+                " EXCLUDED.crucible_ban_urls_in_names, EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji, EXCLUDED.starboard_threshold, EXCLUDED.starboard_allow_self_starring)")
             ps.setLong(1, guild.idLong)
             ps.setList(2, config.wiki.sources)
             ps.setInt(3, config.wiki.minimumQuality)
@@ -185,11 +189,12 @@ object DatabaseOrchestrator {
             ps.setBoolean(13, config.auditing.kicks)
             ps.setBoolean(14, config.auditing.bans)
             ps.setBoolean(15, config.auditing.names)
-            ps.setBoolean(16, config.starboard.enabled)
-            ps.setString(17, config.starboard.webhook)
-            ps.setString(18, config.starboard.emoji)
-            ps.setInt(19, config.starboard.threshold)
-            ps.setBoolean(20, config.starboard.allowSelfStarring)
+            ps.setBoolean(16, config.crucible.banURLsInNames)
+            ps.setBoolean(17, config.starboard.enabled)
+            ps.setString(18, config.starboard.webhook)
+            ps.setString(19, config.starboard.emoji)
+            ps.setInt(20, config.starboard.threshold)
+            ps.setBoolean(21, config.starboard.allowSelfStarring)
             ps.executeUpdate()
             con.close()
             configs.replace(guild.idLong, config)
@@ -210,8 +215,10 @@ object DatabaseOrchestrator {
  * @return hopefully a list from the array string
  */
 fun ResultSet.getList(columnLabel: String): List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.
-    return this.getArray(columnLabel).toString().removeSurrounding("{", "}")
-        .split(",").map { it.removeSurrounding("\"") }
+    return this.getArray(columnLabel).toString()
+        .removeSurrounding("{", "}")
+        .split(",")
+        .map { it.removeSurrounding("\"") }
 }
 
 /**

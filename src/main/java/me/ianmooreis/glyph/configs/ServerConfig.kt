@@ -45,6 +45,10 @@ data class ServerConfig(
      */
     val auditing: AuditingConfig = AuditingConfig(),
     /**
+     * The auto moderator config
+     */
+    val crucible: CrucibleConfig = CrucibleConfig(),
+    /**
      * The starboard config
      */
     val starboard: StarboardConfig = StarboardConfig())

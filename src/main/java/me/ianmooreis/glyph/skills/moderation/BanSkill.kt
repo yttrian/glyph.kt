@@ -29,6 +29,7 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.sendDeathPM
 import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.orchestrators.skills.Skill
@@ -43,15 +44,8 @@ object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermis
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
-                val finally = { controller.ban(member, 7, reason).queue() }
-                if (!member.user.isBot) {
-                    member.user.openPrivateChannel().queue { pm ->
-                        pm.sendMessage("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***").queue({ _ ->
-                            pm.close().queue { finally() }
-                        }, { finally() })
-                    }
-                } else {
-                    finally()
+                member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***") {
+                    controller.ban(member, 7, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }

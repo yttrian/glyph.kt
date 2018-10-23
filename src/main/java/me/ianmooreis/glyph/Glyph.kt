@@ -28,6 +28,7 @@ import me.ianmooreis.glyph.orchestrators.AuditingOrchestrator
 import me.ianmooreis.glyph.orchestrators.ServerOrchestrator
 import me.ianmooreis.glyph.orchestrators.StarboardOrchestrator
 import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
+import me.ianmooreis.glyph.orchestrators.automod.CrucibleOrchestrator
 import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import me.ianmooreis.glyph.skills.DoomsdayClockSkill
@@ -56,7 +57,6 @@ import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
 import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
 
 /**
@@ -70,7 +70,8 @@ object Glyph : JDABuilder(AccountType.BOT) {
 
     init {
         this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
-            MessagingOrchestrator, AuditingOrchestrator, ServerOrchestrator, StatusOrchestrator, StarboardOrchestrator)
+            MessagingOrchestrator, AuditingOrchestrator, ServerOrchestrator, CrucibleOrchestrator,
+            StatusOrchestrator, StarboardOrchestrator)
     }
 }
 
@@ -89,7 +90,7 @@ fun main(args: Array<String>) {
         FallbackSkill)
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
     for (i in 0..(shardTotal - 1)) {
-        Glyph.useSharding(i, shardTotal).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION)
+        Glyph.useSharding(i, shardTotal).build()
         Thread.sleep(5000)
     }
 }

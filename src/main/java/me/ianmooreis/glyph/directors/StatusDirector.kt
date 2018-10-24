@@ -1,6 +1,5 @@
 /*
- * StatusOrchestrator.kt
- *
+ * StatusDirector *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
@@ -22,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.OnlineStatus
@@ -38,7 +37,7 @@ import kotlin.concurrent.schedule
 /**
  * Manages the status messages of the client
  */
-object StatusOrchestrator : ListenerAdapter() {
+object StatusDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val playing = listOf(
         "Quasar", "Armax Arsenal Arena", "Alliance Corsair", "Towers of Hanoi", "Shattered Eezo",

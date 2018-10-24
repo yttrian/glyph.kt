@@ -30,11 +30,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.configs.ServerConfig
+import me.ianmooreis.glyph.directors.DatabaseDirector
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
@@ -62,7 +62,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", cooldownTime = 1
                     val data = result.get()
                     val config = parseYAML(data) { updateError(event, struggling) }
                     if (config != null) {
-                        DatabaseOrchestrator.setServerConfig(event.guild, config, { updateSuccess(event) }, { updateError(event, struggling) })
+                        DatabaseDirector.setServerConfig(event.guild, config, { updateSuccess(event) }, { updateError(event, struggling) })
                         this.log.info("Got ${event.guild} config from $url")
                     }
                 }

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.messaging.quickview.furaffinity
+package me.ianmooreis.glyph.directors.messaging.quickview.furaffinity
 
 import java.awt.Color
 

@@ -25,10 +25,10 @@
 package me.ianmooreis.glyph.skills.creator
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 /**

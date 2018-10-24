@@ -27,9 +27,9 @@ package me.ianmooreis.glyph.skills
 import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException

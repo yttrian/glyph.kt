@@ -22,13 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.automod
+package me.ianmooreis.glyph.directors.automod
 
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.sendDeathPM
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
@@ -40,7 +40,7 @@ import java.awt.Color
 /**
  * Manages auto moderation actions, if enabled via server config
  */
-object CrucibleOrchestrator : ListenerAdapter() {
+object CrucibleDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     /**

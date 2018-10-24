@@ -25,10 +25,10 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.findUser
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 

@@ -1,7 +1,5 @@
 /*
- * ServerOrchestrator.kt
- *
- * Glyph, a Discord bot that uses natural language instead of commands
+ * ServerDirector.kt * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
  * Copyright (C) 2017-2018 by Ian Moore
@@ -22,16 +20,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import kotlinx.coroutines.experimental.launch
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.deleteConfig
 import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.log
-import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Guild
@@ -48,7 +46,7 @@ import java.time.Instant
 /**
  * Manages server related events
  */
-object ServerOrchestrator : ListenerAdapter() {
+object ServerDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     /**

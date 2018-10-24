@@ -1,5 +1,5 @@
 /*
- * DatabaseOrchestrator.kt
+ * DatabaseDirector.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
 import me.ianmooreis.glyph.configs.AuditingConfig
 import me.ianmooreis.glyph.configs.CrucibleConfig
@@ -43,7 +43,7 @@ import java.sql.ResultSet
 /**
  * Manages the configuration database
  */
-object DatabaseOrchestrator {
+object DatabaseDirector {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val configs = mutableMapOf<Long, ServerConfig>()
     private val dbUri = URI(System.getenv("DATABASE_URL"))

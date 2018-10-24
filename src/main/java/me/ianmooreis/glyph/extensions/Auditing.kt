@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.WebhookOrchestrator
+import me.ianmooreis.glyph.directors.WebhookDirector
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageEmbed
@@ -40,7 +40,7 @@ import java.time.Instant
  * @param color the color of the embed
  */
 fun Guild.audit(title: String, description: String, color: Color? = null) {
-    WebhookOrchestrator.send(this,
+    WebhookDirector.send(this,
         EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
@@ -58,7 +58,7 @@ fun Guild.audit(title: String, description: String, color: Color? = null) {
  * @param color the color of the embed
  */
 fun SelfUser.log(title: String, description: String, color: Color? = null) {
-    WebhookOrchestrator.send(this, System.getenv("LOGGING_WEBHOOK"),
+    WebhookDirector.send(this, System.getenv("LOGGING_WEBHOOK"),
         EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
@@ -74,5 +74,5 @@ fun SelfUser.log(title: String, description: String, color: Color? = null) {
  * @param embed the embed to send
  */
 fun SelfUser.log(embed: MessageEmbed) {
-    WebhookOrchestrator.send(this, System.getenv("LOGGING_WEBHOOK"), embed)
+    WebhookDirector.send(this, System.getenv("LOGGING_WEBHOOK"), embed)
 }

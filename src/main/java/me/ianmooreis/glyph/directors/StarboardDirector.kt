@@ -1,6 +1,5 @@
 /*
- * StarboardOrchestrator.kt
- *
+ * StarboardDirector *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
@@ -22,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
 import com.vdurmont.emoji.EmojiParser
 import me.ianmooreis.glyph.extensions.asPlainMention
@@ -37,7 +36,7 @@ import java.awt.Color
 /**
  * Manages starboards in guilds with them configured
  */
-object StarboardOrchestrator : ListenerAdapter() {
+object StarboardDirector : ListenerAdapter() {
     /**
      * When a message is reacted upon in a guild
      */
@@ -84,16 +83,16 @@ object StarboardOrchestrator : ListenerAdapter() {
                 .setThumbnail(if (firstEmbed?.title != null) message.embeds.getOrNull(0)?.thumbnail?.url else null)
         }
         //Add the contents of embeds on the original message to the starboard embed
-        message.embeds.forEach {
-            val title = it.title ?: it.author?.name ?: "No title"
-            val value = ((it.description
-                ?: "No description") + it.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" })
+        message.embeds.forEach { subEmbed ->
+            val title = subEmbed.title ?: subEmbed.author?.name ?: "No title"
+            val value = ((subEmbed.description
+                ?: "No description") + subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" })
             if (title != "No title" && value != "No description") {
                 embed.addField(title, if (value.length < 1024) value else "${value.substring(0..1020)}...", false)
             }
         }
         //Send the starboard embed to the starboard
-        WebhookOrchestrator.send(selfUser, webhook, embed.build())
+        WebhookDirector.send(selfUser, webhook, embed.build())
     }
 
     private fun emojiAlias(emoji: String): String {

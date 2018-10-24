@@ -22,13 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.skills
+package me.ianmooreis.glyph.directors.skills
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.slf4j.Logger
@@ -66,7 +66,7 @@ abstract class Skill(
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val permittedUser: Boolean = if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
-        val currentCooldown: SkillCooldown? = SkillOrchestrator.getCooldown(event.author, this)
+        val currentCooldown: SkillCooldown? = SkillDirector.getCooldown(event.author, this)
         when {
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
@@ -85,7 +85,7 @@ abstract class Skill(
             else -> {
                 this.onTrigger(event, ai)
                 log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}")
-                SkillOrchestrator.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
+                SkillDirector.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
             }
         }
     }

@@ -24,14 +24,14 @@
 
 package me.ianmooreis.glyph
 
-import me.ianmooreis.glyph.orchestrators.AuditingOrchestrator
-import me.ianmooreis.glyph.orchestrators.ServerOrchestrator
-import me.ianmooreis.glyph.orchestrators.StarboardOrchestrator
-import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
-import me.ianmooreis.glyph.orchestrators.automod.CrucibleOrchestrator
-import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
-import me.ianmooreis.glyph.orchestrators.messaging.quickview.QuickviewOrchestrator
-import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
+import me.ianmooreis.glyph.directors.AuditingDirector
+import me.ianmooreis.glyph.directors.ServerDirector
+import me.ianmooreis.glyph.directors.StarboardDirector
+import me.ianmooreis.glyph.directors.StatusDirector
+import me.ianmooreis.glyph.directors.automod.CrucibleDirector
+import me.ianmooreis.glyph.directors.messaging.MessagingDirector
+import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
+import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.skills.DoomsdayClockSkill
 import me.ianmooreis.glyph.skills.EphemeralSaySkill
 import me.ianmooreis.glyph.skills.FallbackSkill
@@ -71,8 +71,8 @@ object Glyph : JDABuilder(AccountType.BOT) {
 
     init {
         this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
-            MessagingOrchestrator, AuditingOrchestrator, ServerOrchestrator, CrucibleOrchestrator,
-            QuickviewOrchestrator, StatusOrchestrator, StarboardOrchestrator)
+            MessagingDirector, AuditingDirector, ServerDirector, CrucibleDirector,
+            QuickviewDirector, StatusDirector, StarboardDirector)
     }
 }
 
@@ -81,7 +81,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
  * Registers all the skills and builds the clients with optional sharding
  */
 fun main(args: Array<String>) {
-    SkillOrchestrator.addSkill(
+    SkillDirector.addSkill(
         HelpSkill, StatusSkill, SourceSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,
         ServerConfigGetSkill, ServerConfigSetSkill,

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.automod
+package me.ianmooreis.glyph.directors.automod
 
 import me.ianmooreis.glyph.extensions.config
 import net.dv8tion.jda.core.entities.Member

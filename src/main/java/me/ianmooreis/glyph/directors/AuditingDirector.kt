@@ -1,6 +1,5 @@
 /*
- * AuditingOrchestrator.kt
- *
+ * AuditingDirector *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
@@ -22,12 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getInfoEmbed
-import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
@@ -38,7 +37,7 @@ import java.awt.Color
 /**
  * Manages auditing logs for servers
  */
-object AuditingOrchestrator : ListenerAdapter() {
+object AuditingDirector : ListenerAdapter() {
 
     /**
      * When a member joins a guild

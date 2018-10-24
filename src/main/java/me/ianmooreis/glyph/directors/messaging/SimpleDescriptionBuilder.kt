@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.messaging
+package me.ianmooreis.glyph.directors.messaging
 
 /**
  * A simple way to present a list of information with a one-world field name in bold and a description

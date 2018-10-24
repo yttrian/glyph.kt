@@ -1,6 +1,5 @@
 /*
- * SkillOrchestrator.kt
- *
+ * SkillDirector *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
@@ -22,24 +21,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.skills
+package me.ianmooreis.glyph.directors.skills
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 
 /**
  * Manages all the available skills
  */
-object SkillOrchestrator {
+object SkillDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
     private val skills: MutableMap<String, Skill> = mutableMapOf()
     private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
 
-    private fun addSkill(skill: Skill): SkillOrchestrator {
+    private fun addSkill(skill: Skill): SkillDirector {
         log.debug("Registered: $skill")
         skills[skill.trigger] = skill
         return this
@@ -50,7 +50,7 @@ object SkillOrchestrator {
      *
      * @param skills skills to be registered as available
      */
-    fun addSkill(vararg skills: Skill): SkillOrchestrator {
+    fun addSkill(vararg skills: Skill): SkillDirector {
         skills.distinct().forEach { addSkill(it) }
         log.info("Registered ${skills.size} skills")
         return this

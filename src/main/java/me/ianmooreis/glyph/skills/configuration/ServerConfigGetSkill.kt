@@ -29,11 +29,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.configs.ServerConfig
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission

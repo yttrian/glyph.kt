@@ -1,7 +1,5 @@
 /*
- * WebhookOrchestrator.kt
- *
- * Glyph, a Discord bot that uses natural language instead of commands
+ * WebhookDirector.kt * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
  * Copyright (C) 2017-2018 by Ian Moore
@@ -22,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators
+package me.ianmooreis.glyph.directors
 
 import me.ianmooreis.glyph.extensions.config
 import net.dv8tion.jda.core.entities.Guild
@@ -38,7 +36,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Manages sending webhook messages
  */
-object WebhookOrchestrator {
+object WebhookDirector {
     /**
      * Cache webhook clients so we don't continuously recreate them (like when a lot of people leave a server)
      * and can obey rate limits by reusing a client. Though, don't keep them forever because memory.

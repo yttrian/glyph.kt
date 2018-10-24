@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed

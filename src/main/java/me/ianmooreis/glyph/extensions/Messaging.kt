@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
+import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Message
@@ -54,11 +54,11 @@ fun Message.reply(content: String? = null, embed: MessageEmbed? = null, deleteAf
             if (deleteAfterDelay > 0) {
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
             } else if (deleteWithEnabled) {
-                MessagingOrchestrator.amendLedger(this.idLong, it.idLong)
+                MessagingDirector.amendLedger(this.idLong, it.idLong)
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessagingOrchestrator.logSendFailure(this.textChannel)
+        MessagingDirector.logSendFailure(this.textChannel)
     }
 }
 

@@ -26,10 +26,10 @@ package me.ianmooreis.glyph.skills.wiki
 
 import ai.api.model.AIResponse
 import me.ianmooreis.glyph.configs.WikiConfig
+import me.ianmooreis.glyph.directors.DatabaseDirector
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -42,7 +42,7 @@ import java.time.Instant
 object WikiSkill : Skill("skill.wiki") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query: String = ai.result.getStringParameter("search_query")
-        val config: WikiConfig = event.guild?.config?.wiki ?: DatabaseOrchestrator.getDefaultServerConfig().wiki
+        val config: WikiConfig = event.guild?.config?.wiki ?: DatabaseDirector.getDefaultServerConfig().wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki", null)?.trim()
         val sources: List<String> = if (requestedSource != null) listOf(requestedSource) else config.sources.filterNotNull()
         val sourcesDisplay = sources.map { if (it.toLowerCase() == "wikipedia") "Wikipedia" else "$it wiki" }

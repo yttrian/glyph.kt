@@ -25,14 +25,14 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
+import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.sendDeathPM
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
-import me.ianmooreis.glyph.orchestrators.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.orchestrators.skills.Skill
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 

@@ -1,6 +1,5 @@
 /*
- * MessagingOrchestrator.kt
- *
+ * MessagingDirector *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
@@ -22,17 +21,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.orchestrators.messaging
+package me.ianmooreis.glyph.directors.messaging
 
 import ai.api.AIConfiguration
 import ai.api.AIDataService
 import ai.api.AIServiceContextBuilder
 import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
+import me.ianmooreis.glyph.directors.StatusDirector
+import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
-import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Emote
 import net.dv8tion.jda.core.entities.Game
@@ -50,9 +49,9 @@ import org.slf4j.simple.SimpleLoggerFactory
 import java.util.concurrent.TimeUnit
 
 /**
- * Manages message events including handling incoming messages and dispatching the SkillOrchestrator in addition to the message ledger
+ * Manages message events including handling incoming messages and dispatching the SkillDirector in addition to the message ledger
  */
-object MessagingOrchestrator : ListenerAdapter() {
+object MessagingDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
 
     private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
@@ -138,13 +137,13 @@ object MessagingOrchestrator : ListenerAdapter() {
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
-            StatusOrchestrator.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
+            StatusDirector.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
             return
         }
 
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
         launch {
-            SkillOrchestrator.trigger(event, ai)
+            SkillDirector.trigger(event, ai)
         }
 
         // Increment the total message count for curiosity's sake

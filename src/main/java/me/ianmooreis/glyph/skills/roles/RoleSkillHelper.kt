@@ -25,10 +25,10 @@
 package me.ianmooreis.glyph.skills.roles
 
 import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.messaging.CustomEmote
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent

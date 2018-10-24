@@ -31,11 +31,25 @@ import net.dv8tion.jda.core.entities.SelfUser
 import net.dv8tion.jda.webhook.WebhookClient
 import net.dv8tion.jda.webhook.WebhookClientBuilder
 import net.dv8tion.jda.webhook.WebhookMessageBuilder
+import net.jodah.expiringmap.ExpirationPolicy
+import net.jodah.expiringmap.ExpiringMap
+import java.util.concurrent.TimeUnit
 
 /**
  * Manages sending webhook messages
  */
 object WebhookOrchestrator {
+    /**
+     * Cache webhook clients so we don't continuously recreate them (like when a lot of people leave a server)
+     * and can obey rate limits by reusing a client. Though, don't keep them forever because memory.
+     */
+    private val cachedClients: MutableMap<String, WebhookClient> = ExpiringMap.builder()
+        .expiration(10, TimeUnit.MINUTES)
+        .expirationPolicy(ExpirationPolicy.ACCESSED)
+        .expirationListener<String, WebhookClient> { _, client ->
+            client.close()
+        }
+        .build()
 
     /**
      * Send a webhook as self
@@ -80,17 +94,19 @@ object WebhookOrchestrator {
         val webhookUrl = guild.config.auditing.webhook
         if (webhookUrl != null) {
             val selfUser = guild.jda.selfUser
-            val client = WebhookClientBuilder(webhookUrl).build()
+            val client = cachedClients.getOrPut(webhookUrl) {
+                WebhookClientBuilder(webhookUrl).build()
+            }
             val baseMessage = WebhookMessageBuilder().setUsername(selfUser.name).setAvatarUrl(selfUser.avatarUrl)
             success(client, baseMessage)
-            client.close()
         }
     }
 
     private fun getWebhookClient(name: String, avatarUrl: String?, webhookUrl: String, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
-        val client = WebhookClientBuilder(webhookUrl).build()
+        val client = cachedClients.getOrPut(webhookUrl) {
+            WebhookClientBuilder(webhookUrl).build()
+        }
         val baseMessage = WebhookMessageBuilder().setUsername(name).setAvatarUrl(avatarUrl)
         success(client, baseMessage)
-        client.close()
     }
 }

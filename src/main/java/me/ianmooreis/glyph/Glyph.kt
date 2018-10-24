@@ -30,6 +30,7 @@ import me.ianmooreis.glyph.orchestrators.StarboardOrchestrator
 import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
 import me.ianmooreis.glyph.orchestrators.automod.CrucibleOrchestrator
 import me.ianmooreis.glyph.orchestrators.messaging.MessagingOrchestrator
+import me.ianmooreis.glyph.orchestrators.messaging.quickview.QuickviewOrchestrator
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import me.ianmooreis.glyph.skills.DoomsdayClockSkill
 import me.ianmooreis.glyph.skills.EphemeralSaySkill
@@ -71,7 +72,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
     init {
         this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
             MessagingOrchestrator, AuditingOrchestrator, ServerOrchestrator, CrucibleOrchestrator,
-            StatusOrchestrator, StarboardOrchestrator)
+            QuickviewOrchestrator, StatusOrchestrator, StarboardOrchestrator)
     }
 }
 

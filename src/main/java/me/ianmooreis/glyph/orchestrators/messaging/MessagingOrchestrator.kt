@@ -29,13 +29,9 @@ import ai.api.AIDataService
 import ai.api.AIServiceContextBuilder
 import ai.api.model.AIRequest
 import kotlinx.coroutines.experimental.launch
-import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.orchestrators.DatabaseOrchestrator
 import me.ianmooreis.glyph.orchestrators.StatusOrchestrator
-import me.ianmooreis.glyph.orchestrators.messaging.quickview.furaffinity.FurAffinity
-import me.ianmooreis.glyph.orchestrators.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.orchestrators.skills.SkillOrchestrator
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Emote
@@ -43,6 +39,7 @@ import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -99,7 +96,7 @@ object MessagingOrchestrator : ListenerAdapter() {
     }
 
     /**
-     * Log a failure to send a message
+     * Log a failure to send a message, useful so figuring out the if someone complains Glyph won't respond
      *
      * @param channel the channel where the message failed to send
      */
@@ -112,37 +109,45 @@ object MessagingOrchestrator : ListenerAdapter() {
     }
 
     /**
+     * When the client is ready, perform any needed tasks
+     */
+    override fun onReady(event: ReadyEvent) {
+        loadCustomEmotes(event.jda.getGuildById(System.getenv("EMOJI_GUILD")))
+    }
+
+    /**
      * When a new message is seen anywhere
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        loadCustomEmotes(event.jda.getGuildById(System.getenv("EMOJI_GUILD")))
-        if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
-        val config = if (event.channelType.isGuild) event.guild.config else DatabaseOrchestrator.getDefaultServerConfig()
-        launch {
-            if (config.quickview.furaffinityEnabled) {
-                FurAffinity.makeQuickviews(event)
-            }
-            if (config.quickview.picartoEnabled) {
-                Picarto.makeQuickviews(event)
-            }
-        }
         val message: Message = event.message
+
+        // Ignore self, other bots, and webhooks
+        if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
+        // Require a mention in a server, but not in a PM
         if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
+        // Ignore empty messages
         if (event.message.contentClean.isEmpty()) {
             event.message.reply("You have to say something!")
             return
         }
+
+        // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
         val ctx = AIServiceContextBuilder().setSessionId(sessionId).build()
         val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
+        // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
             StatusOrchestrator.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
             return
         }
+
+        // Assuming everything else went well, launch the appropriate skill with the event info and ai response
         launch {
             SkillOrchestrator.trigger(event, ai)
         }
+
+        // Increment the total message count for curiosity's sake
         totalMessages++
     }
 

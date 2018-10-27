@@ -31,14 +31,14 @@ import me.ianmooreis.glyph.configs.SelectableRolesConfig
 import me.ianmooreis.glyph.configs.ServerConfig
 import me.ianmooreis.glyph.configs.StarboardConfig
 import me.ianmooreis.glyph.configs.WikiConfig
+import me.ianmooreis.glyph.extensions.getList
+import me.ianmooreis.glyph.extensions.setList
 import net.dv8tion.jda.core.entities.Guild
 import org.postgresql.util.PSQLException
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
 import java.sql.DriverManager
-import java.sql.PreparedStatement
-import java.sql.ResultSet
 
 /**
  * Manages the configuration database
@@ -206,27 +206,3 @@ object DatabaseDirector {
     }
 }
 
-//TODO: Something better than this
-/**
- * Attempts to convert an array from a PostgreSQL database into a list
- *
- * @param columnLabel the name of the column with the array
- *
- * @return hopefully a list from the array string
- */
-fun ResultSet.getList(columnLabel: String): List<String> { //This is probably the stupidest thing in the history of stupid things, maybe ever.
-    return this.getArray(columnLabel).toString()
-        .removeSurrounding("{", "}")
-        .split(",")
-        .map { it.removeSurrounding("\"") }
-}
-
-/**
- * Attempts to add a list as a value in a prepared statement
- *
- * @param parameterIndex the index of the prepared parameter
- * @param list the list to set as a text array in the prepared statement
- */
-fun PreparedStatement.setList(parameterIndex: Int, list: List<String?>) {
-    this.setArray(parameterIndex, this.connection.createArrayOf("text", list.filterNotNull().filter { it != "" }.toTypedArray()))
-}

@@ -34,29 +34,30 @@ import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getMessagesSince
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
-import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
-import java.time.Instant
 
 /**
  * A skill that allows privileged members to purge messages within a duration to the past
  */
-object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true, requiredPermissionsUser = listOf(Permission.MESSAGE_MANAGE)) {
+object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val time = event.message.creationTime
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
 
+        // We need to check that we have permission in the channel specifically, not the server as a whole
         if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            event.message.reply("I need permission to Manage Messages in order to purge messages!")
+            event.message.reply("I need permission to Manage Messages in this channel in order to purge messages!")
             return
         } else if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_HISTORY)) {
-            event.message.reply("I need permission to Read Message History in order to purge messages!")
+            event.message.reply("I need permission to Read Message History in this channel in order to purge messages!")
             return
         }
+
+        // Warn the user if we can't determine what time duration they want
         if (durationEntity == null) {
-            event.message.reply("That is an invalid time duration, try being less vague with abbreviations.")
+            event.message.reply("${CustomEmote.XMARK} That is an invalid time duration, try being less vague with abbreviations.")
             return
         }
 
@@ -69,49 +70,42 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true, requiredPe
             "min" -> time.minusMinutes(durationAmount)
             "s" -> time.minusSeconds(durationAmount)
             null -> time
-            else -> time
+            else -> null
         }
-        if (duration.isBefore(time.minusDays(14))) {
-            event.message.reply("You can only purge up to 14 days!")
+        if (duration === null || duration.isBefore(time.minusDays(14))) {
+            event.message.reply("${CustomEmote.XMARK} Discord only allows me to purge up to 14 days!")
             return
         } else if (duration.isAfter(time)) {
-            event.message.reply("You can't purge the future!")
+            event.message.reply("${CustomEmote.XMARK} I cannot purge messages from the future!")
             return
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())
-        event.message.addReaction(CustomEmote.LOADING.emote).queue()
         val messages = event.textChannel.getMessagesSince(duration)
         if (messages.size > 2) {
-            messages.chunked(100).forEach { chunk ->
-                event.textChannel.deleteMessages(chunk).queue()
-            }.also {
-                event.message.reply(EmbedBuilder()
-                    .setTitle(if (messages.size > 100) "Purge Running" else "Purge Completed")
-                    .setDescription("${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
-                        if (messages.size > 100) "queued for deletion!" else "deleted!")
-                    .setFooter("Moderation", null)
-                    .setTimestamp(Instant.now())
-                    .build(), deleteAfterDelay = 10)
-                if (event.guild.config.auditing.purge) {
-                    val reason = ai.result.getStringParameter("reason", "No reason provided")
-                    val auditMessage = SimpleDescriptionBuilder()
-                        .addField("Total", "${messages.size} messages")
-                        .addField("Channel", event.textChannel.asMention)
-                        .addField("Blame", event.author.asMention)
-                        .addField("Reason", reason)
-                        .build()
-                    event.guild.audit("Messages Purged", auditMessage)
-                }
+            // JDA now handles chunking for bulk deletion, so we'll let it deal with that
+            event.textChannel.purgeMessages(messages)
+            // Inform the use of a successful purge request
+            event.message.reply(
+                "${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
+                    if (messages.size > 100) "queued for purging!" else "purged!"
+                , deleteAfterDelay = 10)
+            // If purge auditing is enabled, log it
+            if (event.guild.config.auditing.purge) {
+                val reason = ai.result.getStringParameter("reason", "No reason provided")
+                val auditMessage = SimpleDescriptionBuilder()
+                    .addField("Total", "${messages.size} messages")
+                    .addField("Channel", event.textChannel.asMention)
+                    .addField("Blame", event.author.asMention)
+                    .addField("Reason", reason)
+                    .build()
+                event.guild.audit("Messages Purged", auditMessage)
             }
         } else {
             event.message.delete().reason("Failed purge request").queue()
-            event.message.reply(EmbedBuilder()
-                .setTitle("Purge Failed")
-                .setDescription("${CustomEmote.XMARK} There must be at least two messages to purge!")
-                .setFooter("Moderation", null)
-                .setTimestamp(Instant.now())
-                .build(), deleteAfterDelay = 10)
+            event.message.reply(
+                "${CustomEmote.XMARK} There must be at least two messages to purge! Try a longer duration.",
+                deleteAfterDelay = 10)
         }
     }
 }

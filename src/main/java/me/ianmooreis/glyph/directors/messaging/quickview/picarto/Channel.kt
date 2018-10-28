@@ -24,6 +24,7 @@
 
 package me.ianmooreis.glyph.directors.messaging.quickview.picarto
 
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import java.awt.Color
@@ -47,13 +48,15 @@ class Channel(
      */
     fun getEmbed(): MessageEmbed {
         val url = "https://picarto.tv/$name"
+        val description = SimpleDescriptionBuilder()
+            .addField("Status", if (online) "Online" else "Offline")
+            .addField("Category", "$category (${if (adult) "NSFW" else "SFW"})")
+            .addField(null, "**Viewers** $viewers | **Followers** $followers")
+            .build()
         return EmbedBuilder()
             .setTitle(this.title, url)
             .setAuthor(this.name, url)
-            .setDescription(
-                "**Status** ${if (online) "Online" else "Offline"}\n" +
-                    "**Category** $category (${if (adult) "NSFW" else "SFW"})\n" +
-                    "**Viewers** $viewers | **Followers** $followers")
+            .setDescription(description)
             .addField("Tags", tags.joinToString(), false)
             .setThumbnail(avatar.toString())
             .setColor(if (online) Color.GREEN else Color.RED)

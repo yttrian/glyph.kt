@@ -1,5 +1,5 @@
 /*
- * WikiConfig.kt
+ * CrucibleConfigg.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,17 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.configs
+package me.ianmooreis.glyph.directors.config
 
 /**
- * A configuration for wikis
+ * A configuration for auto moderation
  */
-data class WikiConfig(
+data class CrucibleConfig(
     /**
-     * The list of wiki sources to search in order
+     * Ban joining members that have URLs in their name
      */
-    val sources: List<String?> = listOf("wikipedia", "masseffect", "avp"),
-    /**
-     * The minimum Wikia article quality to allow pass
-     */
-    val minimumQuality: Int = 50)
+    val banURLsInNames: Boolean = false
+)

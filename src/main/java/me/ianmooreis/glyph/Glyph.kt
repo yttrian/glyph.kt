@@ -28,7 +28,7 @@ import me.ianmooreis.glyph.directors.AuditingDirector
 import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
-import me.ianmooreis.glyph.directors.automod.CrucibleDirector
+import me.ianmooreis.glyph.directors.crucible.CrucibleDirector
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector

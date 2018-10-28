@@ -1,5 +1,5 @@
 /*
- * ServerConfig.kt
+ * SelectableRolesConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,33 +22,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.configs
+package me.ianmooreis.glyph.directors.config
 
 /**
- * The holder of all the sub-configurations
+ * A configuration for selectable roles
  */
-data class ServerConfig(
+data class SelectableRolesConfig(
     /**
-     * The wiki config
+     * The list of selectable roles
      */
-    val wiki: WikiConfig = WikiConfig(),
+    val roles: List<String?> = emptyList(),
     /**
-     * The selectable roles config
+     * How many selectable roles a member can have at once
      */
-    val selectableRoles: SelectableRolesConfig = SelectableRolesConfig(),
-    /**
-     * The QuickView config
-     */
-    val quickview: QuickviewConfig = QuickviewConfig(),
-    /**
-     * The auditing config
-     */
-    val auditing: AuditingConfig = AuditingConfig(),
-    /**
-     * The auto moderator config
-     */
-    val crucible: CrucibleConfig = CrucibleConfig(),
-    /**
-     * The starboard config
-     */
-    val starboard: StarboardConfig = StarboardConfig())
+    val limit: Int = 1)

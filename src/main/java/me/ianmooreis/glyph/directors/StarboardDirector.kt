@@ -30,13 +30,12 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.SelfUser
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
 import java.awt.Color
 
 /**
  * Manages starboards in guilds with them configured
  */
-object StarboardDirector : ListenerAdapter() {
+object StarboardDirector : Director() {
     /**
      * When a message is reacted upon in a guild
      */

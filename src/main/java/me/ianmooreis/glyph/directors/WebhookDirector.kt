@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Manages sending webhook messages
  */
-object WebhookDirector {
+object WebhookDirector : Director() {
     /**
      * Cache webhook clients so we don't continuously recreate them (like when a lot of people leave a server)
      * and can obey rate limits by reusing a client. Though, don't keep them forever because memory.

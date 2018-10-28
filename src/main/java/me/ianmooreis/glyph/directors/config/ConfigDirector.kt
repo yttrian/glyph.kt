@@ -1,5 +1,5 @@
 /*
- * DatabaseDirector.kt
+ * ConfigDirector.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,29 +22,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors
+package me.ianmooreis.glyph.directors.config
 
-import me.ianmooreis.glyph.configs.AuditingConfig
-import me.ianmooreis.glyph.configs.CrucibleConfig
-import me.ianmooreis.glyph.configs.QuickviewConfig
-import me.ianmooreis.glyph.configs.SelectableRolesConfig
-import me.ianmooreis.glyph.configs.ServerConfig
-import me.ianmooreis.glyph.configs.StarboardConfig
-import me.ianmooreis.glyph.configs.WikiConfig
+import me.ianmooreis.glyph.directors.Director
+import me.ianmooreis.glyph.extensions.deleteConfig
 import me.ianmooreis.glyph.extensions.getList
 import me.ianmooreis.glyph.extensions.setList
 import net.dv8tion.jda.core.entities.Guild
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import org.postgresql.util.PSQLException
-import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
 import java.net.URI
 import java.sql.DriverManager
 
 /**
  * Manages the configuration database
  */
-object DatabaseDirector {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+object ConfigDirector : Director() {
     private val configs = mutableMapOf<Long, ServerConfig>()
     private val dbUri = URI(System.getenv("DATABASE_URL"))
     private val username = dbUri.userInfo.split(":")[0]
@@ -203,6 +196,13 @@ object DatabaseDirector {
             log.warn(e.message)
             onFailure(e)
         }
+    }
+
+    /**
+     * Delete a guild's config when the server if left
+     */
+    override fun onGuildLeave(event: GuildLeaveEvent) {
+        event.guild.deleteConfig()
     }
 }
 

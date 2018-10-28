@@ -24,7 +24,7 @@
 package me.ianmooreis.glyph.directors.messaging.quickview
 
 import kotlinx.coroutines.experimental.launch
-import me.ianmooreis.glyph.directors.DatabaseDirector
+import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.furaffinity.FurAffinity
 import me.ianmooreis.glyph.directors.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.extensions.config
@@ -39,7 +39,7 @@ object QuickviewDirector : ListenerAdapter() {
      * Check for quickviews when a message is received
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        val config = if (event.channelType.isGuild) event.guild.config else DatabaseDirector.getDefaultServerConfig()
+        val config = if (event.channelType.isGuild) event.guild.config else ConfigDirector.getDefaultServerConfig()
         launch {
             if (config.quickview.furaffinityEnabled) {
                 FurAffinity.makeQuickviews(event)

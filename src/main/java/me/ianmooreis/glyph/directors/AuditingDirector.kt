@@ -31,13 +31,12 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
 import java.awt.Color
 
 /**
  * Manages auditing logs for servers
  */
-object AuditingDirector : ListenerAdapter() {
+object AuditingDirector : Director() {
 
     /**
      * When a member joins a guild

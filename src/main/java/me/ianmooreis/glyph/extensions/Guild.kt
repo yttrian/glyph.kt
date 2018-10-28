@@ -24,8 +24,8 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.configs.ServerConfig
-import me.ianmooreis.glyph.directors.DatabaseDirector
+import me.ianmooreis.glyph.directors.config.ConfigDirector
+import me.ianmooreis.glyph.directors.config.ServerConfig
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.OnlineStatus
@@ -40,20 +40,20 @@ import java.time.Instant
  * The configuration of a guild (either custom or default if no custom one found)
  */
 val Guild.config: ServerConfig
-    get() = DatabaseDirector.getServerConfig(this)
+    get() = ConfigDirector.getServerConfig(this)
 
 /**
  * Delete a guild's configuration from the database
  */
 fun Guild.deleteConfig() {
-    DatabaseDirector.deleteServerConfig(this)
+    ConfigDirector.deleteServerConfig(this)
 }
 
 /**
  * Whether or not the guild is considered a bot farm
  */
 val Guild.isBotFarm: Boolean
-    get() = (botRatio > .8 && members.count() > 10 && !DatabaseDirector.hasCustomConfig(this))
+    get() = (botRatio > .8 && members.count() > 10 && !ConfigDirector.hasCustomConfig(this))
 
 /**
  * The ratio of bots to humans as a percentage

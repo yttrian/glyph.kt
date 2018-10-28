@@ -27,7 +27,6 @@ import com.github.kittinunf.result.Result
 import kotlinx.coroutines.experimental.launch
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.botRatio
-import me.ianmooreis.glyph.extensions.deleteConfig
 import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.log
 import net.dv8tion.jda.core.EmbedBuilder
@@ -36,18 +35,14 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.json.JSONObject
-import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
 import java.time.Instant
 
 /**
  * Manages server related events
  */
-object ServerDirector : ListenerAdapter() {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+object ServerDirector : Director() {
 
     /**
      * When the client becomes ready
@@ -74,7 +69,6 @@ object ServerDirector : ListenerAdapter() {
     override fun onGuildLeave(event: GuildLeaveEvent) {
         updateServerCount(event.jda)
         event.jda.selfUser.log(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
-        event.guild.deleteConfig()
         log.info("Left ${event.guild}")
     }
 

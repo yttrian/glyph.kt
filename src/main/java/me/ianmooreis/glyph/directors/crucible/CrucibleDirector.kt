@@ -22,8 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.automod
+package me.ianmooreis.glyph.directors.crucible
 
+import me.ianmooreis.glyph.directors.Director
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.asPlainMention
@@ -32,17 +33,12 @@ import me.ianmooreis.glyph.extensions.sendDeathPM
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
 import java.awt.Color
 
 /**
  * Manages auto moderation actions, if enabled via server config
  */
-object CrucibleDirector : ListenerAdapter() {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-
+object CrucibleDirector : Director() {
     /**
      * Perform auto moderator checks when someone joins a server
      */

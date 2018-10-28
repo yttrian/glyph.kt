@@ -1,5 +1,5 @@
 /*
- * StarboardConfig.kt
+ * QuickviewConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,29 +22,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.configs
+package me.ianmooreis.glyph.directors.config
 
 /**
- * A configuration for starboarding
+ * A configuration for QuickViews
  */
-data class StarboardConfig(
+data class QuickviewConfig(
     /**
-     * Whether or not the starboard is enabled
+     * Whether or not FurAffinity QuickViews are enabled
      */
-    val enabled: Boolean = false,
+    val furaffinityEnabled: Boolean = true,
     /**
-     * The webhook to send starred messages to
+     * Whether or not FurAffinity QuickViews should show thumbnails
      */
-    val webhook: String? = null,
+    val furaffinityThumbnails: Boolean = false,
     /**
-     * The emoji to check for when starboarding
+     * Whether or not Picarto QuickViews are enabled
      */
-    val emoji: String = "star",
-    /**
-     * The minimum number of reactions of the check emoji needed before the message is sent to the starboard
-     */
-    val threshold: Int = 1,
-    /**
-     * Whether or not members can star their own messages
-     */
-    val allowSelfStarring: Boolean = false)
+    val picartoEnabled: Boolean = true)

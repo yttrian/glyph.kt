@@ -1,5 +1,5 @@
 /*
- * CrucibleConfigg.kt
+ * StarboardConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,14 +22,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.configs
+package me.ianmooreis.glyph.directors.config
 
 /**
- * A configuration for auto moderation
+ * A configuration for starboarding
  */
-data class CrucibleConfig(
+data class StarboardConfig(
     /**
-     * Ban joining members that have URLs in their name
+     * Whether or not the starboard is enabled
      */
-    val banURLsInNames: Boolean = false
-)
+    val enabled: Boolean = false,
+    /**
+     * The webhook to send starred messages to
+     */
+    val webhook: String? = null,
+    /**
+     * The emoji to check for when starboarding
+     */
+    val emoji: String = "star",
+    /**
+     * The minimum number of reactions of the check emoji needed before the message is sent to the starboard
+     */
+    val threshold: Int = 1,
+    /**
+     * Whether or not members can star their own messages
+     */
+    val allowSelfStarring: Boolean = false)

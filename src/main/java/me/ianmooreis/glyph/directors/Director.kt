@@ -1,5 +1,5 @@
 /*
- * QuickviewConfig.kt
+ * Director.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,21 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.configs
+package me.ianmooreis.glyph.directors
+
+import net.dv8tion.jda.core.hooks.ListenerAdapter
+import org.slf4j.Logger
+import org.slf4j.simple.SimpleLoggerFactory
 
 /**
- * A configuration for QuickViews
+ * The definition of a director, with pre-included properties like a logger
  */
-data class QuickviewConfig(
+abstract class Director : ListenerAdapter() {
     /**
-     * Whether or not FurAffinity QuickViews are enabled
+     * The directors's logger which will show the director's name in the console when logs are made
      */
-    val furaffinityEnabled: Boolean = true,
-    /**
-     * Whether or not FurAffinity QuickViews should show thumbnails
-     */
-    val furaffinityThumbnails: Boolean = false,
-    /**
-     * Whether or not Picarto QuickViews are enabled
-     */
-    val picartoEnabled: Boolean = true)
+    val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+}

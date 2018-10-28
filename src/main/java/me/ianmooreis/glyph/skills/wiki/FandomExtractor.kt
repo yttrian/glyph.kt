@@ -53,20 +53,16 @@ object FandomExtractor {
         return when (searchResult) {
             is Result.Success -> {
                 val page = JSONObject(searchResult.get()).getJSONArray("items").getJSONObject(0)
-                val snippet = try {
-                    val pageUrl = "http://$wiki.wikia.com/api/v1/Articles/AsSimpleJson?id=${page.getInt("id")}"
-                    val (_, pageResponse, pageResult) = pageUrl.httpGet().responseString()
-                    if (pageResponse.statusCode == 200) {
-                        JSONObject(pageResult.get()).getJSONArray("sections").getJSONObject(0)
-                            .getJSONArray("content").getJSONObject(0)
-                            .getString("text")
-                    } else {
-                        throw Exception("No page text found!")
-                    }
-                } catch (e: Exception) {
-                    log.warn(e.message)
+                val pageUrl = "http://$wiki.wikia.com/api/v1/Articles/AsSimpleJson?id=${page.getInt("id")}"
+                val (_, pageResponse, pageResult) = pageUrl.httpGet().responseString()
+                val snippet = if (pageResponse.statusCode == 200) {
+                    JSONObject(pageResult.get()).getJSONArray("sections").getJSONObject(0)
+                        .getJSONArray("content").getJSONObject(0)
+                        .getString("text")
+                } else {
                     page.getString("snippet")
                 }
+
                 WikiArticle(page.getString("title"), snippet, URL(page.getString("url")))
             }
             is Result.Failure -> {

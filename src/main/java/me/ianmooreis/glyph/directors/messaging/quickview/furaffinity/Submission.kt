@@ -24,6 +24,7 @@
 
 package me.ianmooreis.glyph.directors.messaging.quickview.furaffinity
 
+import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import java.net.URL
@@ -53,16 +54,25 @@ class Submission(private val title: String, private val name: String, private va
         val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
         val fancyKeywords = if (linkedKeywords.length < 1024) linkedKeywords else keywords.joinToString()
         val fileType = download.toString().substringAfterLast(".")
+        val description = SimpleDescriptionBuilder()
+
+        // Add the different fields to the quickview embed description
+        description.addField("Category", "$category - $theme (${rating.name})")
+        if (species != null) {
+            description.addField("Species", species)
+        }
+        if (gender != null) {
+            description.addField("Gender", gender)
+        }
+        description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
+        if ((thumbnail && rating.nsfw) || !rating.nsfw) {
+            description.addField("Download", "[${resolution ?: fileType}]($download)")
+        }
+
         return EmbedBuilder()
             .setTitle(title, link.toString())
             .setThumbnail(if (thumbnail) full.toString() else null)
-            .setDescription(
-                "**Category** $category > $theme (${rating.name})\n" +
-                    (if (species != null) "**Species** $species\n" else "") +
-                    (if (gender != null) "**Gender** $gender\n" else "") +
-                    "**Favorites** $favorites | **Comments** $comments | **Views** $views" +
-                    if ((thumbnail && rating.nsfw) || !rating.nsfw) "\n**Download** [${resolution
-                        ?: fileType}]($download)" else "")
+            .setDescription(description.build())
             .addField("Keywords", fancyKeywords, false)
             .setFooter("FurAffinity", null)
             .setColor(rating.color)

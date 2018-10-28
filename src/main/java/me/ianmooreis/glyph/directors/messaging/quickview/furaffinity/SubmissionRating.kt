@@ -37,8 +37,8 @@ enum class SubmissionRating(
     /**
      * Whether or not the rating is considered a NSFW rating
      */
-    val nsfw: Boolean) {
-
+    val nsfw: Boolean
+) {
     /**
      * Suitable for all-ages
      */

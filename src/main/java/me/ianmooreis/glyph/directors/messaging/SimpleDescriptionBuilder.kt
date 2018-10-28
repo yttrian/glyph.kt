@@ -32,19 +32,19 @@ class SimpleDescriptionBuilder(
      * Whether or not formatting like italics or bold should be used and/or allowed when built
      */
     private val noFormatting: Boolean = false) {
-    private var fields: MutableMap<String, String> = mutableMapOf()
+    private var fields: MutableList<Pair<String?, String>> = mutableListOf()
 
     /**
      * Add a field to a simple description
      *
-     * @param name the field name, must be 1 word only
+     * @param name the field name, must be max 1 word
      * @param content the field content
      */
-    fun addField(name: String, content: String): SimpleDescriptionBuilder {
-        if (name.split(" ").size != 1) {
-            throw IllegalArgumentException("The field name must be exactly 1 word. No more, no less!")
+    fun addField(name: String?, content: String): SimpleDescriptionBuilder {
+        if (name != null && name.split(" ").size != 1) {
+            throw IllegalArgumentException("The field name must be max 1 word.")
         }
-        fields[name] = content
+        fields.add(Pair(name, content))
         return this
     }
 
@@ -54,7 +54,7 @@ class SimpleDescriptionBuilder(
      * @param name the field name, must be 1 word only
      * @param content the field content
      */
-    fun addField(name: String, content: Int): SimpleDescriptionBuilder {
+    fun addField(name: String?, content: Int): SimpleDescriptionBuilder {
         return addField(name, content.toString())
     }
 
@@ -64,7 +64,7 @@ class SimpleDescriptionBuilder(
      * @param name the field name, must be 1 word only
      * @param content the field content
      */
-    fun addField(name: String, content: Long): SimpleDescriptionBuilder {
+    fun addField(name: String?, content: Long): SimpleDescriptionBuilder {
         return addField(name, content.toString())
     }
 
@@ -76,12 +76,12 @@ class SimpleDescriptionBuilder(
     }
 
     override fun toString(): String {
-        return fields.map {
-            if (noFormatting) {
-                "${it.key} ${it.value}".replace("*", "")
-            } else {
-                "**${it.key}** ${it.value}"
+        return fields.joinToString("\n") { (name, value) ->
+            when {
+                name == null -> value
+                noFormatting -> "$name $value".replace("*", "")
+                else -> "**$name** $value"
             }
-        }.joinToString("\n")
+        }
     }
 }

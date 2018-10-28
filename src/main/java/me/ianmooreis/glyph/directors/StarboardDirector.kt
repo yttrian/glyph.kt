@@ -91,10 +91,10 @@ object StarboardDirector : Director() {
         }
         //Add the contents of embeds on the original message to the starboard embed
         message.embeds.forEach { subEmbed ->
-            val title = subEmbed.title ?: subEmbed.author?.name ?: "No title"
-            val value = ((subEmbed.description
-                ?: "No description") + subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" })
-            if (title != "No title" && value != "No description") {
+            val title = subEmbed.title ?: subEmbed.author?.name ?: ""
+            val value = (subEmbed?.description ?: "") +
+                subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" }
+            if (value.isNotBlank()) {
                 embed.addField(title, if (value.length < 1024) value else "${value.substring(0..1020)}...", false)
             }
         }

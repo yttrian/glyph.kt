@@ -26,27 +26,94 @@ package me.ianmooreis.glyph.directors.messaging
 
 import net.dv8tion.jda.core.entities.Emote
 
-@Suppress("KDocMissingDocumentation")
-enum class CustomEmote(val emote: Emote?) {
+/**
+ * Useful custom emotes from the EMOJI_GUILD
+ */
+enum class CustomEmote(
+    /**
+     * An emote
+     */
+    val emote: Emote?
+) {
+    /**
+     * An X in a red box
+     */
     XMARK(MessagingDirector.getCustomEmote("xmark")),
+    /**
+     * An empty box
+     */
     NOMARK(MessagingDirector.getCustomEmote("empty")),
+    /**
+     * A checkbox
+     */
     CHECKMARK(MessagingDirector.getCustomEmote("checkmark")),
+    /**
+     * A badge that says bot
+     */
     BOT(MessagingDirector.getCustomEmote("bot")),
+    /**
+     * A download symbol
+     */
     DOWNLOAD(MessagingDirector.getCustomEmote("download")),
+    /**
+     * An animated download symbol
+     */
     DOWNLOADING(MessagingDirector.getCustomEmote("downloading")),
+    /**
+     * The Discord loading squares
+     */
     LOADING(MessagingDirector.getCustomEmote("loading")),
+    /**
+     * The Discord typing indicator
+     */
     TYPING(MessagingDirector.getCustomEmote("typing")),
+    /**
+     * The Discord status dot for online
+     */
     ONLINE(MessagingDirector.getCustomEmote("online")),
+    /**
+     * The Discord status dot for streaming
+     */
     STREAMING(MessagingDirector.getCustomEmote("streaming")),
+    /**
+     * The Discord status dot for away
+     */
     AWAY(MessagingDirector.getCustomEmote("away")),
+    /**
+     * The Discord status dot for do not disturb
+     */
     DND(MessagingDirector.getCustomEmote("dnd")),
+    /**
+     * The Discord status dot for offline
+     */
     OFFLINE(MessagingDirector.getCustomEmote("offline")),
+    /**
+     * The Discord status dot for invisible
+     */
     INVISIBLE(MessagingDirector.getCustomEmote("invisible")),
+    /**
+     * A custom thinking emote
+     */
     THINKING(MessagingDirector.getCustomEmote("thinking")),
+    /**
+     * A custom emote of a cool face (like wearing sunglasses)
+     */
     COOL(MessagingDirector.getCustomEmote("cool")),
+    /**
+     * A custom emote warning of explicit nature
+     */
     EXPLICIT(MessagingDirector.getCustomEmote("explicit")),
+    /**
+     * A custom emote indicating something confidential
+     */
     CONFIDENTIAL(MessagingDirector.getCustomEmote("confidential")),
+    /**
+     * A custom emote of a face grimacing for something bad that happened
+     */
     GRIMACE(MessagingDirector.getCustomEmote("grimace")),
+    /**
+     * A custom emote of a mind being blow
+     */
     MINDBLOWN(MessagingDirector.getCustomEmote("mindblown"));
 
     override fun toString(): String = emote?.asMention ?: ""

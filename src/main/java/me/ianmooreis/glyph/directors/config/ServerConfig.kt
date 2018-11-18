@@ -24,6 +24,9 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+import rufus.lzstring4java.LZString
+
 /**
  * The holder of all the sub-configurations
  */
@@ -51,4 +54,16 @@ data class ServerConfig(
     /**
      * The starboard config
      */
-    val starboard: StarboardConfig = StarboardConfig())
+    val starboard: StarboardConfig = StarboardConfig()
+) : Config() {
+    /**
+     * Returns an lz-string of the micro-config
+     */
+    fun dumpMicroConfig(guild: Guild): String {
+        val configs: List<Config> = listOf(wiki, selectableRoles, quickview, auditing, crucible, starboard)
+        val microConfigString = configs.joinToString("\n\n") {
+            it.getMicroConfig(guild).toString()
+        }
+        return LZString.compressToEncodedURIComponent(microConfigString).trim()
+    }
+}

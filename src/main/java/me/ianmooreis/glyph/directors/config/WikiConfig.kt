@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+
 /**
  * A configuration for wikis
  */
@@ -35,4 +37,12 @@ data class WikiConfig(
     /**
      * The minimum Wikia article quality to allow pass
      */
-    val minimumQuality: Int = 50)
+    val minimumQuality: Int = 50
+) : Config() {
+    override fun getMicroConfig(guild: Guild): MicroConfig {
+        return MicroConfigBuilder()
+            .addValue(minimumQuality)
+            .addValue(*sources.toTypedArray())
+            .build()
+    }
+}

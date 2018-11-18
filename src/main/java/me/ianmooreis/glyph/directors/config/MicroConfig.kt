@@ -1,5 +1,5 @@
 /*
- * CrucibleConfigg.kt
+ * MicroConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,20 +24,16 @@
 
 package me.ianmooreis.glyph.directors.config
 
-import net.dv8tion.jda.core.entities.Guild
-
 /**
- * A configuration for auto moderation
+ * A config format designed to minimize size, not intended to be read by humans (but can be)
  */
-data class CrucibleConfig(
+class MicroConfig(
     /**
-     * Ban joining members that have URLs in their name
+     * A list of the micro-config values
      */
-    val banURLsInNames: Boolean = false
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder()
-            .addValue(banURLsInNames)
-            .build()
+    private val values: List<String>
+) {
+    override fun toString(): String {
+        return values.joinToString("\n")
     }
 }

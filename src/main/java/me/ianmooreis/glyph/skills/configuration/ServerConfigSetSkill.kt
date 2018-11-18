@@ -25,17 +25,8 @@
 package me.ianmooreis.glyph.skills.configuration
 
 import ai.api.model.AIResponse
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.kittinunf.result.Result
-import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.config.ServerConfig
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.skills.hastebin.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
@@ -53,27 +44,7 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", cooldownTime = 1
     private val strugglers: MutableMap<Member, Int> = ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build()
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val url = ai.result.getStringParameter("url")
-        Hastebin.getHaste(url) { response, result ->
-            val struggles = strugglers.getOrDefault(event.member, 1)
-            val struggling = struggles > 2
-            when (result) {
-                is Result.Success -> {
-                    val data = result.get()
-                    val config = parseYAML(data) { updateError(event, struggling) }
-                    if (config != null) {
-                        ConfigDirector.setServerConfig(event.guild, config, { updateSuccess(event) }, { updateError(event, struggling) })
-                        this.log.info("Got ${event.guild} config from $url")
-                    }
-                }
-                is Result.Failure -> {
-                    event.message.reply("${CustomEmote.XMARK} An error occurred while try to retrieve a config from the given URL `$url`! Check your url or try waiting a bit before retrying.")
-                    this.log.error("Hastebin has thrown a ${response.statusCode} error when trying to get config for ${event.guild}!")
-                    event.jda.selfUser.log("Hastebin", "${response.statusCode} error when trying to get config for ${event.guild} with $url!")
-                }
-            }
-            strugglers[event.member] = struggles + 1
-        }
+        event.message.reply("well, this ain't it chief!")
     }
 
     private fun updateSuccess(event: MessageReceivedEvent) {
@@ -104,17 +75,5 @@ object ServerConfigSetSkill : Skill("skill.configuration.load", cooldownTime = 1
             .setFooter("Configuration", null)
             .setTimestamp(Instant.now())
             .build())
-    }
-
-    private fun parseYAML(yaml: String, onFailure: (e: Exception) -> Unit): ServerConfig? {
-        try {
-            return YAMLMapper()
-                .registerKotlinModule()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-                .readValue(yaml, ServerConfig::class.java)
-        } catch (e: Exception) {
-            onFailure(e)
-        }
-        return null
     }
 }

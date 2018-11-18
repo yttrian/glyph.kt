@@ -24,7 +24,8 @@ package me.ianmooreis.glyph.directors
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.isBotFarm
@@ -37,6 +38,7 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import org.json.JSONObject
 import java.awt.Color
+import java.net.URL
 import java.time.Instant
 
 /**
@@ -49,7 +51,7 @@ object ServerDirector : Director() {
      */
     override fun onReady(event: ReadyEvent) {
         updateServerCount(event.jda)
-        launch {
+        GlobalScope.launch {
             antiBotFarm(event.jda.guilds)
         }
     }
@@ -105,12 +107,13 @@ object ServerDirector : Director() {
      */
     private fun sendServerCount(url: String, countJSON: JSONObject, token: String) {
         url.httpPost().header("Authorization" to token, "Content-Type" to "application/json").body(countJSON.toString()).responseString { _, response, result ->
+            val host = URL(url).host
             when (result) {
                 is Result.Success -> {
-                    log.debug("Updated server count at $url.")
+                    log.debug("Updated $host server count")
                 }
                 is Result.Failure -> {
-                    log.warn("Failed to update server count at $url with ${response.statusCode} error!")
+                    log.warn("Failed to update $host server count due to ${response.statusCode} error!")
                 }
             }
         }

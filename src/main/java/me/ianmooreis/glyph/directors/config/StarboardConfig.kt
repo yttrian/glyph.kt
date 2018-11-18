@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+
 /**
  * A configuration for starboarding
  */
@@ -47,4 +49,14 @@ data class StarboardConfig(
     /**
      * Whether or not members can star their own messages
      */
-    val allowSelfStarring: Boolean = false)
+    val allowSelfStarring: Boolean = false
+) : Config() {
+    override fun getMicroConfig(guild: Guild): MicroConfig {
+        return MicroConfigBuilder()
+            .addValue(enabled)
+            .addValue(threshold)
+            .addValue(allowSelfStarring)
+            .addValue(webhook, emoji)
+            .build()
+    }
+}

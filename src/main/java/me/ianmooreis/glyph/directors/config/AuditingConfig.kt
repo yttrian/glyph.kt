@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+
 /**
  * A configuration for auditing
  */
@@ -55,4 +57,12 @@ data class AuditingConfig(
     /**
      * The Discord webhook to send audits to
      */
-    val webhook: String? = null)
+    val webhook: String? = null
+) : Config() {
+    override fun getMicroConfig(guild: Guild): MicroConfig {
+        return MicroConfigBuilder()
+            .addValue(joins, leaves, purge, kicks, bans, names)
+            .addValue(webhook)
+            .build()
+    }
+}

@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+
 /**
  * A configuration for QuickViews
  */
@@ -39,4 +41,12 @@ data class QuickviewConfig(
     /**
      * Whether or not Picarto QuickViews are enabled
      */
-    val picartoEnabled: Boolean = true)
+    val picartoEnabled: Boolean = true
+) : Config() {
+    override fun getMicroConfig(guild: Guild): MicroConfig {
+        return MicroConfigBuilder()
+            .addValue(furaffinityEnabled)
+            .addValue(picartoEnabled)
+            .build()
+    }
+}

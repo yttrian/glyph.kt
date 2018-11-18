@@ -48,7 +48,7 @@ object RoleSkillHelper {
         //Get the list of target(s) based on the mentions in the messages
         val targets: List<Member> = when {
             event.message.mentionsEveryone() -> event.guild.members
-        //@here -> event.guild.members.filter { it.onlineStatus == OnlineStatus.ONLINE }
+            //@here -> event.guild.members.filter { it.onlineStatus == OnlineStatus.ONLINE }
             event.message.cleanMentionedMembers.isNotEmpty() -> event.message.cleanMentionedMembers
             else -> listOf(event.member)
         }

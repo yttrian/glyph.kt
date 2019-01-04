@@ -5,6 +5,7 @@ Glyph is an experimental Discord bot that makes use of [DialogFlow](https://dial
 
 To learn more about how to use Glyph, check out the documentation [here](https://glyph-discord.readthedocs.io/en/latest/welcome.html).
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/60f13f47ba0d427a84ea713b0f8897a8)](https://app.codacy.com/app/IanMooreIsMe/glyph-kotlin?utm_source=github.com&utm_medium=referral&utm_content=glyph-discord/glyph-kotlin&utm_campaign=Badge_Grade_Settings)
 [![Discord Bots](https://discordbots.org/api/widget/status/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032) [![Discord Bots](https://discordbots.org/api/widget/servers/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
 
 ## Self Hosting

@@ -33,20 +33,26 @@ data class QuickviewConfig(
     /**
      * Whether or not FurAffinity QuickViews are enabled
      */
-    val furaffinityEnabled: Boolean = true,
+    var furaffinityEnabled: Boolean = true,
     /**
      * Whether or not FurAffinity QuickViews should show thumbnails
      */
-    val furaffinityThumbnails: Boolean = false,
+    var furaffinityThumbnails: Boolean = false,
     /**
      * Whether or not Picarto QuickViews are enabled
      */
-    val picartoEnabled: Boolean = true
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+    var picartoEnabled: Boolean = true
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         return MicroConfigBuilder()
-            .addValue(furaffinityEnabled)
-            .addValue(picartoEnabled)
+            .addValue(furaffinityEnabled, furaffinityThumbnails, picartoEnabled)
             .build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        val booleans = microConfig.getBooleans(0)
+        furaffinityEnabled = booleans[0]
+        furaffinityThumbnails = booleans[1]
+        picartoEnabled = booleans[2]
     }
 }

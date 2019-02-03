@@ -27,8 +27,6 @@ import ai.api.AIConfiguration
 import ai.api.AIDataService
 import ai.api.AIServiceContextBuilder
 import ai.api.model.AIRequest
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
@@ -143,10 +141,7 @@ object MessagingDirector : ListenerAdapter() {
         }
 
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
-        // TODO: Reconsider if/how this is launched
-        GlobalScope.launch {
-            SkillDirector.trigger(event, ai)
-        }
+        SkillDirector.trigger(event, ai)
 
         // Increment the total message count for curiosity's sake
         totalMessages++

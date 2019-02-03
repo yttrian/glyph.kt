@@ -45,7 +45,8 @@ object StarboardDirector : Director() {
 
         // Welcome to callback hell
         // TODO: Make these starboard handling/checks "shallower"
-        if (starboardConfig.enabled && emojiName == starboardConfig.emoji && starboardConfig.webhook != null) {
+        val webhook = starboardConfig.webhook
+        if (starboardConfig.enabled && emojiName == starboardConfig.emoji && webhook !== null) {
             event.channel.getMessageById(event.messageId).queue { message ->
                 // Prevent self-starring if disallowed
                 if (message.author == event.user && !starboardConfig.allowSelfStarring && message.author != event.jda.selfUser) {
@@ -61,7 +62,7 @@ object StarboardDirector : Director() {
                     if (!reactedUsers.contains(event.jda.selfUser)) {
                         val messageFooter = message.embeds.getOrNull(0)?.footer?.text ?: ""
                         val isStarboard = (message.isWebhookMessage && message.embeds.size > 0 && messageFooter.contains("Starboard"))
-                        val send = { sendToStarboard(message, event.jda.selfUser, starboardConfig.webhook) }
+                        val send = { sendToStarboard(message, event.jda.selfUser, webhook) }
                         if (thresholdMet && !isStarboard) {
                             // Mark the message as starboarded and send it to the starboard
                             when (event.reactionEmote.emote) {

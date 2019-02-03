@@ -38,40 +38,58 @@ data class SelectableRolesConfig(
      * How many selectable roles a member can have at once
      */
     val limit: Int = 1
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         val microConfigBuilder = MicroConfigBuilder()
         microConfigBuilder.addValue(limit)
 
         val selfPosition = guild.selfMember.roles.maxBy { it.position }?.position ?: 0
         val guildRoles = guild.roles
-        val ghostRoles = roles.filter { guild.getRolesByName(it, false).firstOrNull() === null }
+        val ghostRoles = roles.filter { roleName ->
+            // Make sure the role does not exist
+            guild.getRolesByName(roleName, false).firstOrNull() === null
+        }.filterNotNull()
+
+        val roleGroups = mutableMapOf<RoleStatus, MutableList<String>>()
 
         // Iterate through every role except @everyone
         guildRoles.forEach { role ->
             val available = role.position < selfPosition
             val selected = roles.contains(role.name)
             val status = when {
-                role.isPublicRole -> RoleStatus.IGNORE
-                role.isManaged -> RoleStatus.IGNORE
+                role.isPublicRole -> null
+                role.isManaged -> null
                 available && !selected -> RoleStatus.UNSELECTED
                 available && selected -> RoleStatus.SELECTED
                 !available && !selected -> RoleStatus.ILLEGAL_UNSELECTED
                 !available && selected -> RoleStatus.ILLEGAL_SELECTED
                 else -> RoleStatus.UNSELECTED
             }
-            if (status !== RoleStatus.IGNORE) {
-                microConfigBuilder.addValue(status.ordinal)
-                microConfigBuilder.addValue(role.name)
+            if (status !== null) {
+                roleGroups.getOrPut(status) {
+                    mutableListOf()
+                }.add(role.name)
             }
         }
         // Add roles that are still in the config but no longer exist
-        ghostRoles.forEach {
-            microConfigBuilder.addValue(RoleStatus.GHOST.ordinal)
-            microConfigBuilder.addValue(it)
+        roleGroups[RoleStatus.GHOST] = ghostRoles.toMutableList()
+
+        // Add the role groups to the config
+        val statuses = RoleStatus.values().sortedBy { it.ordinal }
+        statuses.forEach { status ->
+            microConfigBuilder.addValue(roleGroups[status]?.size ?: 0)
+        }
+        statuses.forEach { status ->
+            roleGroups[status]?.forEach { roleName ->
+                microConfigBuilder.addValue(roleName)
+            }
         }
 
         return microConfigBuilder.build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     /**
@@ -97,10 +115,6 @@ data class SelectableRolesConfig(
         /**
          * The role no longer exists by the name
          */
-        GHOST,
-        /**
-         * Should be completely ignored
-         */
-        IGNORE
+        GHOST
     }
 }

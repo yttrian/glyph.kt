@@ -29,13 +29,19 @@ import net.dv8tion.jda.core.entities.Guild
 /**
  * The definition of a config that can be modified by users
  */
-abstract class Config {
+interface Config {
     /**
      * A non-human readable config format used for sending as little data to the online editor as possible
      *
      * @param guild the guild the micro-config is being created for, used to provide helpful setting suggestions
      */
-    open fun getMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder().addValue(this.javaClass.name).build()
-    }
+    fun dumpMicroConfig(guild: Guild): MicroConfig
+
+    /**
+     * Read in a micro-config and update all the values of the config
+     *
+     * @param guild the guild the micro-config is being created for, used to find webhooks for example
+     * @param microConfig the micro-config to read in
+     */
+    fun loadMicroConfig(guild: Guild, microConfig: MicroConfig)
 }

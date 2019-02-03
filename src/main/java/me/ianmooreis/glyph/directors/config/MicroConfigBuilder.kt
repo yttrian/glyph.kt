@@ -51,21 +51,40 @@ class MicroConfigBuilder {
     /**
      * Add an integer value to the micro-config
      */
-    fun addValue(vararg newValues: Int): MicroConfigBuilder {
+    fun addValue(vararg newValues: Int, radix: Int = 36): MicroConfigBuilder {
         newValues.forEach {
-            addValue(it.toString())
+            addValue(it.toString(radix))
         }
         return this
     }
 
     /**
-     * Add a boolean value to the micro-config
+     * Combine a group of booleans into a single integer based on the binary value
      */
     fun addValue(vararg newValues: Boolean): MicroConfigBuilder {
-        newValues.forEach {
-            addValue(it.toInt().toString())
+        val binaryString = newValues.joinToString("") {
+            it.toInt().toString()
+        }
+        addValue(binaryString.toInt(2))
+        return this
+    }
+
+    /**
+     * Add a webhook to the micro-config
+     */
+    fun addWebhookValue(vararg newValues: String?): MicroConfigBuilder {
+        newValues.filterNotNull().forEach {
+            addValue(stripWebhook(it).toString(36))
         }
         return this
+    }
+
+    /**
+     * Strips a webhook url to just its ID
+     */
+    private fun stripWebhook(webhookURL: String): Long {
+        val snowflake = Regex("https://discordapp.com/api/webhooks/(\\d+)").find(webhookURL)?.groups?.get(1)?.value
+        return snowflake?.toLong() ?: 0
     }
 
     /**

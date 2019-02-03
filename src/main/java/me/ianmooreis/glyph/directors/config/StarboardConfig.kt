@@ -33,30 +33,39 @@ data class StarboardConfig(
     /**
      * Whether or not the starboard is enabled
      */
-    val enabled: Boolean = false,
+    var enabled: Boolean = false,
     /**
      * The webhook to send starred messages to
      */
-    val webhook: String? = null,
+    var webhook: String? = null,
     /**
      * The emoji to check for when starboarding
      */
-    val emoji: String = "star",
+    var emoji: String = "star",
     /**
      * The minimum number of reactions of the check emoji needed before the message is sent to the starboard
      */
-    val threshold: Int = 1,
+    var threshold: Int = 1,
     /**
      * Whether or not members can star their own messages
      */
-    val allowSelfStarring: Boolean = false
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+    var allowSelfStarring: Boolean = false
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         return MicroConfigBuilder()
-            .addValue(enabled)
+            .addValue(enabled, allowSelfStarring)
             .addValue(threshold)
-            .addValue(allowSelfStarring)
-            .addValue(webhook, emoji)
+            .addWebhookValue(webhook)
+            .addValue(emoji)
             .build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        val booleans = microConfig.getBooleans(0)
+        enabled = booleans[0]
+        allowSelfStarring = booleans[1]
+        threshold = microConfig.getInt(1)
+        webhook = microConfig.getWebhook(2, guild)
+        emoji = microConfig.getString(3)
     }
 }

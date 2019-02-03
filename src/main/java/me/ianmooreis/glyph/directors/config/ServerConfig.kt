@@ -55,14 +55,14 @@ data class ServerConfig(
      * The starboard config
      */
     val starboard: StarboardConfig = StarboardConfig()
-) : Config() {
+) {
     /**
      * Returns an lz-string of the micro-config
      */
     fun dumpMicroConfig(guild: Guild): String {
         val configs: List<Config> = listOf(wiki, selectableRoles, quickview, auditing, crucible, starboard)
         val microConfigString = configs.joinToString("\n\n") {
-            it.getMicroConfig(guild).toString()
+            it.dumpMicroConfig(guild).toString()
         }
         return LZString.compressToEncodedURIComponent(microConfigString).trim()
     }

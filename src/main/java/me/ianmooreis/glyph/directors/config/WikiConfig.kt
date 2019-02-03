@@ -33,16 +33,21 @@ data class WikiConfig(
     /**
      * The list of wiki sources to search in order
      */
-    val sources: List<String?> = listOf("wikipedia", "masseffect", "avp"),
+    var sources: List<String?> = listOf("wikipedia", "masseffect", "avp"),
     /**
      * The minimum Wikia article quality to allow pass
      */
-    val minimumQuality: Int = 50
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+    var minimumQuality: Int = 50
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         return MicroConfigBuilder()
             .addValue(minimumQuality)
             .addValue(*sources.toTypedArray())
             .build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        minimumQuality = microConfig.getInt(1)
+        sources = listOf()
     }
 }

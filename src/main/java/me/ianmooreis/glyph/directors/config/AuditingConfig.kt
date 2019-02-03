@@ -33,36 +33,48 @@ data class AuditingConfig(
     /**
      * Whether or not to audit member joins
      */
-    val joins: Boolean = false,
+    var joins: Boolean = false,
     /**
      * Whether or not to audit member leaves
      */
-    val leaves: Boolean = false,
+    var leaves: Boolean = false,
     /**
      * Whether or not to purges
      */
-    val purge: Boolean = false,
+    var purge: Boolean = false,
     /**
      * Whether or not to audit kicks
      */
-    val kicks: Boolean = false,
+    var kicks: Boolean = false,
     /**
      * Whether or not to audit bans
      */
-    val bans: Boolean = false,
+    var bans: Boolean = false,
     /**
      * Whether or not to audit username changes
      */
-    val names: Boolean = false,
+    var names: Boolean = false,
     /**
      * The Discord webhook to send audits to
      */
-    val webhook: String? = null
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+    var webhook: String? = null
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         return MicroConfigBuilder()
             .addValue(joins, leaves, purge, kicks, bans, names)
-            .addValue(webhook)
+            .addWebhookValue(webhook)
             .build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        val booleans = microConfig.getBooleans(0)
+        joins = booleans[0]
+        leaves = booleans[1]
+        purge = booleans[2]
+        kicks = booleans[3]
+        bans = booleans[4]
+        names = booleans[5]
+
+        webhook = microConfig.getWebhook(1, guild)
     }
 }

@@ -26,13 +26,15 @@ package me.ianmooreis.glyph.directors.config
 
 import me.ianmooreis.glyph.directors.Director
 import me.ianmooreis.glyph.extensions.deleteConfig
-import me.ianmooreis.glyph.extensions.getList
-import me.ianmooreis.glyph.extensions.setList
+import me.ianmooreis.glyph.extensions.upsert
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import org.postgresql.util.PSQLException
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.deleteIgnoreWhere
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.URI
-import java.sql.DriverManager
 
 /**
  * Manages the configuration database
@@ -45,51 +47,42 @@ object ConfigDirector : Director() {
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
     private val defaultConfig = ServerConfig()
 
+    private val sct = ServerConfigTable
+
     init {
-        loadConfigs()
+        Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
+
+        createTables()
+        loadAllConfigs()
+    }
+
+    /**
+     * Creates the database tables if they don't already exist
+     */
+    private fun createTables() {
+        transaction {
+            SchemaUtils.create(sct)
+        }
     }
 
     /**
      * Load all the configurations from the database
      */
-    fun loadConfigs() {
-        val con = DriverManager.getConnection(dbUrl, username, password)
-        val ps = con.prepareStatement("SELECT * FROM serverconfigs") //TODO: Not select *
-        val rs = ps.executeQuery()
+    fun loadAllConfigs() {
         configs.clear()
-        while (rs.next()) {
-            configs[rs.getLong("guild_id")] = ServerConfig(
-                WikiConfig(
-                    rs.getList("wiki_sources"),
-                    rs.getInt("wiki_min_quality")
-                ),
-                SelectableRolesConfig(
-                    rs.getList("selectable_roles"),
-                    rs.getInt("selectable_roles_limit")),
-                QuickviewConfig(
-                    rs.getBoolean("fa_quickview_enabled"),
-                    rs.getBoolean("fa_quickview_thumbnail"),
-                    rs.getBoolean("picarto_quickview_enabled")),
-                AuditingConfig(
-                    rs.getBoolean("auditing_joins"),
-                    rs.getBoolean("auditing_leaves"),
-                    rs.getBoolean("auditing_purge"),
-                    rs.getBoolean("auditing_kicks"),
-                    rs.getBoolean("auditing_bans"),
-                    rs.getBoolean("auditing_names"),
-                    rs.getString("auditing_webhook")),
-                CrucibleConfig(
-                    rs.getBoolean("crucible_ban_urls_in_names")
-                ),
-                StarboardConfig(
-                    rs.getBoolean("starboard_enabled"),
-                    rs.getString("starboard_webhook"),
-                    rs.getString("starboard_emoji"),
-                    rs.getInt("starboard_threshold"),
-                    rs.getBoolean("starboard_allow_self_starring"))
-            )
+
+        transaction {
+            sct.selectAll().forEach { r ->
+                configs[r[sct.serverId]] = ServerConfig(
+                    WikiConfig(emptyList(), r[sct.wikiMinQuality]),
+                    SelectableRolesConfig(emptyList(), r[sct.selectableRolesLimit]),
+                    QuickviewConfig(r[sct.quickviewFuraffinityEnabled], r[sct.quickviewFuraffinityThumbnail], r[sct.quickviewPicartoEnabled]),
+                    AuditingConfig(r[sct.logJoins], r[sct.logLeaves], r[sct.logPurge], r[sct.logKicks], r[sct.logBans], r[sct.logNames], r[sct.logChannel]),
+                    CrucibleConfig(r[sct.autoModBanUrlNames]),
+                    StarboardConfig(r[sct.starboardEnabled], r[sct.starboardChannel], r[sct.starboardEmoji], r[sct.starboardThreshold], r[sct.starboardAllowSelfStar])
+                )
+            }
         }
-        con.close()
     }
 
     /**
@@ -98,16 +91,10 @@ object ConfigDirector : Director() {
      * @param guild the guild who's configuration to delete
      */
     fun deleteServerConfig(guild: Guild) {
-        try {
-            configs.remove(guild.idLong)
-            val con = DriverManager.getConnection(dbUrl, username, password)
-            val ps = con.prepareStatement("DELETE FROM serverconfigs WHERE guild_id = ?")
-            ps.setLong(1, guild.idLong)
-            ps.executeQuery()
-            con.commit()
-            con.close()
-        } catch (e: PSQLException) {
-            log.debug("Failed to delete config for $guild! (Maybe it never existed?)")
+        transaction {
+            sct.deleteIgnoreWhere {
+                sct.serverId.eq(guild.idLong)
+            }
         }
     }
 
@@ -149,52 +136,31 @@ object ConfigDirector : Director() {
      * @param onFailure the callback to run if the update fails
      */
     fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        try {
-            val con = DriverManager.getConnection(dbUrl, username, password)
-            val ps = con.prepareStatement("INSERT INTO serverconfigs" +
-                " (guild_id, wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
-                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, auditing_names, " +
-                " crucible_ban_urls_in_names, starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
-                " ON CONFLICT (guild_id) DO UPDATE SET" +
-                " (wiki_sources, wiki_min_quality, selectable_roles, selectable_roles_limit, " +
-                " fa_quickview_enabled, fa_quickview_thumbnail, picarto_quickview_enabled, " +
-                " auditing_webhook, auditing_joins, auditing_leaves, auditing_purge, auditing_kicks, auditing_bans, auditing_names, " +
-                " crucible_ban_urls_in_names, starboard_enabled, starboard_webhook, starboard_emoji, starboard_threshold, starboard_allow_self_starring)" +
-                " = (EXCLUDED.wiki_sources, EXCLUDED.wiki_min_quality, EXCLUDED.selectable_roles, EXCLUDED.selectable_roles_limit, " +
-                " EXCLUDED.fa_quickview_enabled, " +
-                " EXCLUDED.fa_quickview_thumbnail, EXCLUDED.picarto_quickview_enabled, " +
-                " EXCLUDED.auditing_webhook, EXCLUDED.auditing_joins, EXCLUDED.auditing_leaves, EXCLUDED.auditing_purge, EXCLUDED.auditing_kicks, EXCLUDED.auditing_bans, EXCLUDED.auditing_names, " +
-                " EXCLUDED.crucible_ban_urls_in_names, EXCLUDED.starboard_enabled, EXCLUDED.starboard_webhook, EXCLUDED.starboard_emoji, EXCLUDED.starboard_threshold, EXCLUDED.starboard_allow_self_starring)")
-            ps.setLong(1, guild.idLong)
-            ps.setList(2, config.wiki.sources)
-            ps.setInt(3, config.wiki.minimumQuality)
-            ps.setList(4, config.selectableRoles.roles)
-            ps.setInt(5, config.selectableRoles.limit)
-            ps.setBoolean(6, config.quickview.furaffinityEnabled)
-            ps.setBoolean(7, config.quickview.furaffinityThumbnails)
-            ps.setBoolean(8, config.quickview.picartoEnabled)
-            ps.setString(9, config.auditing.webhook)
-            ps.setBoolean(10, config.auditing.joins)
-            ps.setBoolean(11, config.auditing.leaves)
-            ps.setBoolean(12, config.auditing.purge)
-            ps.setBoolean(13, config.auditing.kicks)
-            ps.setBoolean(14, config.auditing.bans)
-            ps.setBoolean(15, config.auditing.names)
-            ps.setBoolean(16, config.crucible.banURLsInNames)
-            ps.setBoolean(17, config.starboard.enabled)
-            ps.setString(18, config.starboard.webhook)
-            ps.setString(19, config.starboard.emoji)
-            ps.setInt(20, config.starboard.threshold)
-            ps.setBoolean(21, config.starboard.allowSelfStarring)
-            ps.executeUpdate()
-            con.close()
-            configs.replace(guild.idLong, config)
-            onSuccess()
-        } catch (e: Exception) {
-            log.warn(e.message)
-            onFailure(e)
+        val sct = ServerConfigTable
+
+        transaction {
+            sct.upsert(sct.serverId) {
+                it[sct.serverId] = guild.idLong
+                it[sct.wikiMinQuality] = config.wiki.minimumQuality
+                it[sct.selectableRolesLimit] = config.selectableRoles.limit
+                it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
+                it[sct.quickviewFuraffinityThumbnail] = config.quickview.furaffinityThumbnails
+                it[sct.quickviewPicartoEnabled] = config.quickview.picartoEnabled
+                it[sct.logJoins] = config.auditing.joins
+                it[sct.logLeaves] = config.auditing.leaves
+                it[sct.logPurge] = config.auditing.purge
+                it[sct.logKicks] = config.auditing.kicks
+                it[sct.logBans] = config.auditing.bans
+                it[sct.logNames] = config.auditing.names
+                it[sct.logChannel] = config.auditing.webhook
+                it[sct.autoModBanUrlNames] = config.crucible.banURLsInNames
+                it[sct.starboardEnabled] = config.starboard.enabled
+                it[sct.starboardChannel] = config.starboard.webhook
+                it[sct.starboardEmoji] = config.starboard.emoji
+                it[sct.starboardThreshold] = config.starboard.threshold
+                it[sct.starboardAllowSelfStar] = config.starboard.allowSelfStarring
+
+            }
         }
     }
 

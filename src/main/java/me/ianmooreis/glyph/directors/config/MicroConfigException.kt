@@ -1,5 +1,5 @@
 /*
- * ReloadConfigsSkill.kt
+ * MicroConfigException.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,20 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills.creator
-
-import ai.api.model.AIResponse
-import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+package me.ianmooreis.glyph.directors.config
 
 /**
- * A skill that allows the creator to ask the client to reload all config from the database
+ * An exception with a custom message thrown when there's an error with the micro-config
  */
-object ReloadConfigsSkill : Skill("skill.creator.reloadConfigs", creatorOnly = true) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        ConfigDirector.loadAllConfigs()
-        event.message.reply("Reloaded all config.")
-    }
-}
+internal class MicroConfigException(message: String) : Exception(message)

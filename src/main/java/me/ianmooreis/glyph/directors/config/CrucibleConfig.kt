@@ -1,5 +1,5 @@
 /*
- * CrucibleConfigg.kt
+ * CrucibleConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -33,11 +33,16 @@ data class CrucibleConfig(
     /**
      * Ban joining members that have URLs in their name
      */
-    val banURLsInNames: Boolean = false
-) : Config() {
-    override fun getMicroConfig(guild: Guild): MicroConfig {
+    var banURLsInNames: Boolean = false
+) : Config {
+    override fun dumpMicroConfig(guild: Guild): MicroConfig {
         return MicroConfigBuilder()
             .addValue(banURLsInNames)
             .build()
+    }
+
+    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
+        val booleans = microConfig.getBooleans(0)
+        banURLsInNames = booleans[0]
     }
 }

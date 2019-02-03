@@ -29,11 +29,7 @@ import com.google.gson.JsonObject
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.audit
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.getMessagesSince
-import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.extensions.*
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime

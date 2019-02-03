@@ -64,7 +64,7 @@ object RoleSkillHelper {
             event.message.reply("That role does not exist!")
             return
         }
-        val selectableRoles = config.roles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
+        val selectableRoles = config.roles.mapNotNull { event.guild.getRoleById(it) }
         if (selectableRoles.isEmpty()) {
             event.message.reply("${CustomEmote.XMARK} There are no selectable roles configured for this server!")
             return

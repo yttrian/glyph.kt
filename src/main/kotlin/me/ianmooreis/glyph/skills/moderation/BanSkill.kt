@@ -1,5 +1,5 @@
 /*
- * KickSkill.kt
+ * BanSkill.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -28,37 +28,33 @@ import ai.api.model.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.asPlainMention
-import me.ianmooreis.glyph.extensions.audit
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.extensions.sendDeathPM
+import me.ianmooreis.glyph.extensions.*
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 /**
- * A skill that allows privileged members to kick other members
+ * A skill that allows privileged members to ban other members
  */
-object KickSkill : Skill("skill.moderation.kick", guildOnly = true, requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS), requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)) {
+object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS), requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
-            event.message.delete().reason("Kick request").queue()
+        KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
+            event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
-                member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***") {
-                    controller.kick(member, reason).queue()
+                member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***") {
+                    controller.ban(member, 7, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply("${CustomEmote.CHECKMARK} " +
-                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
+                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
                 deleteWithEnabled = false)
-            if (event.guild.config.auditing.kicks) {
+            if (event.guild.config.auditing.bans) {
                 val auditMessage = SimpleDescriptionBuilder()
                     .addField("Who", if (targetNames.length < 200) targetNames else "${targets.size} people")
                     .addField("Blame", event.author.asMention)
                     .addField("Reason", reason)
                     .build()
-                event.guild.audit("Members Kicked", auditMessage)
+                event.guild.audit("Members Banned", auditMessage)
             }
         }
     }

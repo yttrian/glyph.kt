@@ -38,10 +38,10 @@ import java.time.Instant
  */
 object RoleListSkill : Skill("skill.role.list", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val selectableRoles = event.guild.config.selectableRoles.roles.filterNotNull().filter { it != "" }
+        val selectableRoles = event.guild.config.selectableRoles.roles
         val limit = event.guild.config.selectableRoles.limit
         if (selectableRoles.isNotEmpty()) {
-            val roles = selectableRoles.mapNotNull { event.guild.getRolesByName(it, true).firstOrNull() }
+            val roles = selectableRoles.mapNotNull { event.guild.getRoleById(it) }
             val randomRole = roles.random()
             event.message.reply(EmbedBuilder()
                 .setTitle("Available Roles")

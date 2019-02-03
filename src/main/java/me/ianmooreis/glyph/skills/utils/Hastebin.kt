@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills.hastebin
+package me.ianmooreis.glyph.skills.utils
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
@@ -44,11 +44,11 @@ object Hastebin {
      * @param handler a callback to run on completion
      */
     fun postHaste(content: String, timeout: Int = 4000, handler: (key: String?, url: URL?, response: Response, result: Result<String, FuelError>) -> Unit) {
-        "https://hastebin.com/documents".httpPost().body(content).timeout(timeout).responseString { _, response, result ->
+        "https://utils.com/documents".httpPost().body(content).timeout(timeout).responseString { _, response, result ->
             when (result) {
                 is Result.Success -> {
                     val key = JSONObject(result.get()).getString("key")
-                    val url = URL("https://hastebin.com/$key")
+                    val url = URL("https://utils.com/$key")
                     handler(key, url, response, result)
                 }
                 is Result.Failure -> {
@@ -67,7 +67,7 @@ object Hastebin {
      */
     fun getHaste(reference: String, timeout: Int = 4000, handler: (response: Response, result: Result<String, FuelError>) -> Unit) {
         val key = reference.split("/").last()
-        val url = "https://hastebin.com/raw/$key"
+        val url = "https://utils.com/raw/$key"
         url.httpGet().timeout(timeout).responseString { _, response, result ->
             handler(response, result)
         }
@@ -81,10 +81,10 @@ object Hastebin {
      * @return the Hastebin document url or null if failed
      */
     fun postHasteBlocking(content: String, timeout: Int = 4000): String? {
-        val (_, _, result) = "https://hastebin.com/documents".httpPost().body(content).timeout(timeout).responseString()
+        val (_, _, result) = "https://utils.com/documents".httpPost().body(content).timeout(timeout).responseString()
         return if (result is Result.Success) {
             val key = JSONObject(result.get()).getString("key")
-            "https://hastebin.com/$key"
+            "https://utils.com/$key"
         } else {
             null
         }

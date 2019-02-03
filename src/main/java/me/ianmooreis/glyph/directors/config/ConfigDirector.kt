@@ -25,14 +25,12 @@
 package me.ianmooreis.glyph.directors.config
 
 import me.ianmooreis.glyph.directors.Director
+import me.ianmooreis.glyph.directors.config.server.*
 import me.ianmooreis.glyph.extensions.deleteConfig
 import me.ianmooreis.glyph.extensions.upsert
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.deleteIgnoreWhere
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.URI
 
@@ -47,7 +45,10 @@ object ConfigDirector : Director() {
     private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
     private val defaultConfig = ServerConfig()
 
-    private val sct = ServerConfigTable
+    // Some shorthand for long table names
+    private val sct = ServerConfigsTable
+    private val swst = ServerWikiSourcesTable
+    private val ssrt = ServerSelectableRolesTable
 
     init {
         Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
@@ -61,7 +62,7 @@ object ConfigDirector : Director() {
      */
     private fun createTables() {
         transaction {
-            SchemaUtils.create(sct)
+            SchemaUtils.create(sct, swst, ssrt)
         }
     }
 
@@ -73,12 +74,26 @@ object ConfigDirector : Director() {
 
         transaction {
             sct.selectAll().forEach { r ->
-                configs[r[sct.serverId]] = ServerConfig(
-                    WikiConfig(emptyList(), r[sct.wikiMinQuality]),
-                    SelectableRolesConfig(emptyList(), r[sct.selectableRolesLimit]),
+                val serverId = r[sct.serverId]
+
+                val wikiSources = swst.select {
+                    swst.serverId.eq(serverId)
+                }.map {
+                    it[swst.destination]
+                }
+
+                val selectableRoles = ssrt.select {
+                    ssrt.serverId.eq(serverId)
+                }.map {
+                    it[ssrt.roleId]
+                }
+
+                configs[serverId] = ServerConfig(
+                    WikiConfig(wikiSources, r[sct.wikiMinQuality]),
+                    SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit]),
                     QuickviewConfig(r[sct.quickviewFuraffinityEnabled], r[sct.quickviewFuraffinityThumbnail], r[sct.quickviewPicartoEnabled]),
                     AuditingConfig(r[sct.logJoins], r[sct.logLeaves], r[sct.logPurge], r[sct.logKicks], r[sct.logBans], r[sct.logNames], r[sct.logChannel]),
-                    CrucibleConfig(r[sct.autoModBanUrlNames]),
+                    AutoModConfig(r[sct.autoModBanUrlNames]),
                     StarboardConfig(r[sct.starboardEnabled], r[sct.starboardChannel], r[sct.starboardEmoji], r[sct.starboardThreshold], r[sct.starboardAllowSelfStar])
                 )
             }
@@ -136,11 +151,12 @@ object ConfigDirector : Director() {
      * @param onFailure the callback to run if the update fails
      */
     fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val sct = ServerConfigTable
+        val sct = ServerConfigsTable
+        val serverId = guild.idLong
 
         transaction {
             sct.upsert(sct.serverId) {
-                it[sct.serverId] = guild.idLong
+                it[sct.serverId] = serverId
                 it[sct.wikiMinQuality] = config.wiki.minimumQuality
                 it[sct.selectableRolesLimit] = config.selectableRoles.limit
                 it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
@@ -159,7 +175,21 @@ object ConfigDirector : Director() {
                 it[sct.starboardEmoji] = config.starboard.emoji
                 it[sct.starboardThreshold] = config.starboard.threshold
                 it[sct.starboardAllowSelfStar] = config.starboard.allowSelfStarring
-
+            }.also {
+                swst.deleteWhere {
+                    swst.serverId.eq(serverId)
+                }
+                swst.batchInsert(config.wiki.sources, true) { wiki ->
+                    this[swst.serverId] = serverId
+                    this[swst.destination] = wiki
+                }
+                ssrt.deleteWhere {
+                    ssrt.serverId.eq(serverId)
+                }
+                ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
+                    this[ssrt.serverId] = serverId
+                    this[ssrt.roleId] = role
+                }
             }
         }
     }

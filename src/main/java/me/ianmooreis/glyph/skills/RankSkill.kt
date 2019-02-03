@@ -30,7 +30,7 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
-import me.ianmooreis.glyph.skills.hastebin.Hastebin
+import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageEmbed

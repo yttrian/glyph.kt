@@ -25,7 +25,7 @@
 package me.ianmooreis.glyph.extensions
 
 import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.config.ServerConfig
+import me.ianmooreis.glyph.directors.config.server.ServerConfig
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.OnlineStatus

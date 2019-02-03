@@ -32,27 +32,12 @@ import me.ianmooreis.glyph.directors.crucible.CrucibleDirector
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
-import me.ianmooreis.glyph.skills.DoomsdayClockSkill
-import me.ianmooreis.glyph.skills.EphemeralSaySkill
-import me.ianmooreis.glyph.skills.FallbackSkill
-import me.ianmooreis.glyph.skills.FeedbackSkill
-import me.ianmooreis.glyph.skills.HelpSkill
-import me.ianmooreis.glyph.skills.RankSkill
-import me.ianmooreis.glyph.skills.RedditSkill
-import me.ianmooreis.glyph.skills.SnowstampSkill
-import me.ianmooreis.glyph.skills.SourceSkill
-import me.ianmooreis.glyph.skills.StatusSkill
-import me.ianmooreis.glyph.skills.TimeSkill
-import me.ianmooreis.glyph.skills.configuration.ServerConfigGetSkill
-import me.ianmooreis.glyph.skills.configuration.ServerConfigSetSkill
+import me.ianmooreis.glyph.skills.*
+import me.ianmooreis.glyph.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.skills.creator.ChangeStatusSkill
 import me.ianmooreis.glyph.skills.creator.FarmsSkill
 import me.ianmooreis.glyph.skills.creator.ReloadConfigsSkill
-import me.ianmooreis.glyph.skills.moderation.BanSkill
-import me.ianmooreis.glyph.skills.moderation.GuildInfoSkill
-import me.ianmooreis.glyph.skills.moderation.KickSkill
-import me.ianmooreis.glyph.skills.moderation.PurgeSkill
-import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
+import me.ianmooreis.glyph.skills.moderation.*
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -84,7 +69,7 @@ fun main(args: Array<String>) {
     SkillDirector.addSkill(
         HelpSkill, StatusSkill, SourceSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,
-        ServerConfigGetSkill, ServerConfigSetSkill,
+        ServerConfigSkill,
         PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
         EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
         ReloadConfigsSkill, ChangeStatusSkill, FarmsSkill,

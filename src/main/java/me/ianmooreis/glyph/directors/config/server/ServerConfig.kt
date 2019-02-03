@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,10 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import me.ianmooreis.glyph.directors.config.ConfigContainer
 import net.dv8tion.jda.core.entities.Guild
-import rufus.lzstring4java.LZString
 
 /**
  * The holder of all the sub-configurations
@@ -50,20 +54,32 @@ data class ServerConfig(
     /**
      * The auto moderator config
      */
-    val crucible: CrucibleConfig = CrucibleConfig(),
+    val crucible: AutoModConfig = AutoModConfig(),
     /**
      * The starboard config
      */
     val starboard: StarboardConfig = StarboardConfig()
-) {
-    /**
-     * Returns an lz-string of the micro-config
-     */
-    fun dumpMicroConfig(guild: Guild): String {
-        val configs: List<Config> = listOf(wiki, selectableRoles, quickview, auditing, crucible, starboard)
-        val microConfigString = configs.joinToString("\n\n") {
-            it.dumpMicroConfig(guild).toString()
+) : ConfigContainer {
+    override fun toJSON(guild: Guild): String {
+        val serializer = GsonBuilder().serializeNulls().create()
+        val config = serializer.toJsonTree(this).asJsonObject
+        val serverDetails = JsonObject()
+
+        // Let's add some extra useful details about the server for suggestions
+        val roles = JsonArray()
+        guild.roles.forEach {
+            val roleData = JsonObject()
+            roleData.addProperty("id", it.idLong)
+            roleData.addProperty("name", it.name)
+            roleData.addProperty("position", it.position)
+            roles.add(roleData)
         }
-        return LZString.compressToEncodedURIComponent(microConfigString).trim()
+        serverDetails.add("roles", roles)
+
+        // Package it all up and send it out
+        config.add("_details", serverDetails)
+        return config.toString()
     }
+
+    override fun fromJSON(json: String): ServerConfig = Gson().fromJson(json, ServerConfig::class.java)
 }

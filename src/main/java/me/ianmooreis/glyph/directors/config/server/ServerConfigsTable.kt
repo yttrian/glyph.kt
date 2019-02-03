@@ -1,5 +1,5 @@
 /*
- * ServerConfigTable.kt
+ * ServerConfigsTablee.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,12 +22,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.or
 
-object ServerConfigTable : Table() {
+object ServerConfigsTable : Table() {
     val serverId = long("ServerID").primaryKey()
     val autoModBanUrlNames = bool("AutoModBanUrlNames").default(false)
     val logChannel = varchar("LogChannel", 32).nullable()

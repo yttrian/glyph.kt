@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-import net.dv8tion.jda.core.entities.Guild
+import me.ianmooreis.glyph.directors.config.Config
 
 /**
  * A configuration for starboarding
@@ -33,39 +33,21 @@ data class StarboardConfig(
     /**
      * Whether or not the starboard is enabled
      */
-    var enabled: Boolean = false,
+    val enabled: Boolean = false,
     /**
      * The webhook to send starred messages to
      */
-    var webhook: String? = null,
+    val webhook: String? = null,
     /**
      * The emoji to check for when starboarding
      */
-    var emoji: String = "star",
+    val emoji: String = "star",
     /**
      * The minimum number of reactions of the check emoji needed before the message is sent to the starboard
      */
-    var threshold: Int = 1,
+    val threshold: Int = 1,
     /**
      * Whether or not members can star their own messages
      */
-    var allowSelfStarring: Boolean = false
-) : Config {
-    override fun dumpMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder()
-            .addValue(enabled, allowSelfStarring)
-            .addValue(threshold)
-            .addWebhookValue(webhook)
-            .addValue(emoji)
-            .build()
-    }
-
-    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
-        val booleans = microConfig.getBooleans(0)
-        enabled = booleans[0]
-        allowSelfStarring = booleans[1]
-        threshold = microConfig.getInt(1)
-        webhook = microConfig.getWebhook(2, guild)
-        emoji = microConfig.getString(3)
-    }
-}
+    val allowSelfStarring: Boolean = false
+) : Config

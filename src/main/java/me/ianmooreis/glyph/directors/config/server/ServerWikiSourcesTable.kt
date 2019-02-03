@@ -1,5 +1,5 @@
 /*
- * Config.kt
+ * ServerWikiSourcesTable.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,9 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-/**
- * The definition of a config that can be modified by users
- */
-interface Config
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.Table
+
+object ServerWikiSourcesTable : Table() {
+    val serverId =
+        long("ServerID").references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val destination = varchar("Destination", 100)
+}

@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-import net.dv8tion.jda.core.entities.Guild
+import me.ianmooreis.glyph.directors.config.Config
 
 /**
  * A configuration for auditing
@@ -33,48 +33,29 @@ data class AuditingConfig(
     /**
      * Whether or not to audit member joins
      */
-    var joins: Boolean = false,
+    val joins: Boolean = false,
     /**
      * Whether or not to audit member leaves
      */
-    var leaves: Boolean = false,
+    val leaves: Boolean = false,
     /**
      * Whether or not to purges
      */
-    var purge: Boolean = false,
+    val purge: Boolean = false,
     /**
      * Whether or not to audit kicks
      */
-    var kicks: Boolean = false,
+    val kicks: Boolean = false,
     /**
      * Whether or not to audit bans
      */
-    var bans: Boolean = false,
+    val bans: Boolean = false,
     /**
      * Whether or not to audit username changes
      */
-    var names: Boolean = false,
+    val names: Boolean = false,
     /**
      * The Discord webhook to send audits to
      */
-    var webhook: String? = null
-) : Config {
-    override fun dumpMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder()
-            .addValue(joins, leaves, purge, kicks, bans, names)
-            .addWebhookValue(webhook)
-            .build()
-    }
-
-    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
-        val booleans = microConfig.getBooleans(0)
-        joins = booleans[0]
-        leaves = booleans[1]
-        purge = booleans[2]
-        kicks = booleans[3]
-        bans = booleans[4]
-        names = booleans[5]
-
-        webhook = microConfig.getWebhook(1, guild)
-    }
-}
+    val webhook: String? = null
+) : Config

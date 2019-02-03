@@ -1,10 +1,10 @@
 /*
- * CrucibleConfig.kt
+ * SelectableRolesConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,27 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-import net.dv8tion.jda.core.entities.Guild
+import me.ianmooreis.glyph.directors.config.Config
 
 /**
- * A configuration for auto moderation
+ * A configuration for selectable roles
  */
-data class CrucibleConfig(
+data class SelectableRolesConfig(
     /**
-     * Ban joining members that have URLs in their name
+     * The list of selectable roles
      */
-    var banURLsInNames: Boolean = false
-) : Config {
-    override fun dumpMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder()
-            .addValue(banURLsInNames)
-            .build()
-    }
-
-    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
-        val booleans = microConfig.getBooleans(0)
-        banURLsInNames = booleans[0]
-    }
-}
+    val roles: List<Long> = emptyList(),
+    /**
+     * How many selectable roles a member can have at once
+     */
+    val limit: Int = 1
+) : Config

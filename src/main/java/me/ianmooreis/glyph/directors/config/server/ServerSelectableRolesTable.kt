@@ -1,10 +1,10 @@
 /*
- * MicroConfigException.kt
+ * ServerSelectableRolesTable.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,9 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-/**
- * An exception with a custom message thrown when there's an error with the micro-config
- */
-internal class MicroConfigException(message: String) : Exception(message)
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.Table
+
+object ServerSelectableRolesTable : Table() {
+    val serverId =
+        long("ServerID").references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val roleId = long("RoleID")
+}

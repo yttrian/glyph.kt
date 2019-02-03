@@ -1,5 +1,5 @@
 /*
- * Config.kt
+ * ConfigContainer.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,7 +24,19 @@
 
 package me.ianmooreis.glyph.directors.config
 
+import net.dv8tion.jda.core.entities.Guild
+
 /**
- * The definition of a config that can be modified by users
+ * A container for holding multiple configs
  */
-interface Config
+interface ConfigContainer {
+    /**
+     * Dumps a config container to a JSON string
+     */
+    fun toJSON(guild: Guild): String
+
+    /**
+     * Creates a config container from a JSON string
+     */
+    fun fromJSON(json: String): ConfigContainer
+}

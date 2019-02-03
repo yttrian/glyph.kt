@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.directors.config.server
 
-import net.dv8tion.jda.core.entities.Guild
+import me.ianmooreis.glyph.directors.config.Config
 
 /**
  * A configuration for wikis
@@ -33,21 +33,9 @@ data class WikiConfig(
     /**
      * The list of wiki sources to search in order
      */
-    var sources: List<String?> = listOf("wikipedia", "masseffect", "avp"),
+    val sources: List<String> = listOf("wikipedia", "masseffect", "avp"),
     /**
      * The minimum Wikia article quality to allow pass
      */
-    var minimumQuality: Int = 50
-) : Config {
-    override fun dumpMicroConfig(guild: Guild): MicroConfig {
-        return MicroConfigBuilder()
-            .addValue(minimumQuality)
-            .addValue(*sources.toTypedArray())
-            .build()
-    }
-
-    override fun loadMicroConfig(guild: Guild, microConfig: MicroConfig) {
-        minimumQuality = microConfig.getInt(1)
-        sources = listOf()
-    }
-}
+    val minimumQuality: Int = 50
+) : Config

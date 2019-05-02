@@ -24,8 +24,6 @@ package me.ianmooreis.glyph.directors
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.isBotFarm
@@ -51,9 +49,9 @@ object ServerDirector : Director() {
      */
     override fun onReady(event: ReadyEvent) {
         updateServerCount(event.jda)
-        GlobalScope.launch {
-            antiBotFarm(event.jda.guilds)
-        }
+        // GlobalScope.launch {
+        //     antiBotFarm(event.jda.guilds)
+        // }
     }
 
     /**

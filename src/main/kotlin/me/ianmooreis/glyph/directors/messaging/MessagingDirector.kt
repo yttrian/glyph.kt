@@ -132,7 +132,11 @@ object MessagingDirector : ListenerAdapter() {
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
-            StatusDirector.setPresence(event.jda, OnlineStatus.DO_NOT_DISTURB, Game.watching("temporary outage at DialogFlow"))
+            StatusDirector.setPresence(
+                event.jda,
+                OnlineStatus.DO_NOT_DISTURB,
+                Game.watching("temporary outage at DialogFlow")
+            )
             return
         }
 

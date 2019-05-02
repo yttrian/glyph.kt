@@ -35,9 +35,9 @@ data class StarboardConfig(
      */
     val enabled: Boolean = false,
     /**
-     * The webhook to send starred messages to
+     * The channel to send starred messages to
      */
-    val webhook: String? = null,
+    val channel: Long? = null,
     /**
      * The emoji to check for when starboarding
      */

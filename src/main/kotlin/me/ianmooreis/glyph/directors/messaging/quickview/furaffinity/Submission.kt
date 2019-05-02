@@ -28,12 +28,13 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import java.net.URL
-import java.util.Date
+import java.util.*
 
 /**
  * A FurAffinity submission
  */
-class Submission(private val title: String, private val name: String, private val profile: URL,
+class Submission(
+    private val title: String, private val name: String, private val profile: URL,
     /**
      * The direct link to the submission
      */
@@ -45,7 +46,8 @@ class Submission(private val title: String, private val name: String, private va
      * The submission rating (maturity level) of the submission
      */
     val rating: SubmissionRating,
-    private val keywords: List<String>) {
+    private val keywords: List<String>
+) {
 
     /**
      * Creates an embed with the submission's info and a thumbnail if desired

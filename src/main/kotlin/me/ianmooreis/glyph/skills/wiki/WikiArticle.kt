@@ -41,4 +41,5 @@ data class WikiArticle(
     /**
      * The url linking to the article
      */
-    val url: URL)
+    val url: URL
+)

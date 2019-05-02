@@ -22,10 +22,9 @@
 
 package me.ianmooreis.glyph.directors
 
-import me.ianmooreis.glyph.extensions.config
-import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.entities.SelfUser
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.webhook.WebhookClient
 import net.dv8tion.jda.webhook.WebhookClientBuilder
 import net.dv8tion.jda.webhook.WebhookMessageBuilder
@@ -77,30 +76,52 @@ object WebhookDirector : Director() {
     }
 
     /**
-     * Send a webhook to a guild's auditing webhook (if it has one)
+     * Send a webhook to a channel
      *
-     * @param guild the guild to send the webhook message to
+     * @param channel the channel to send the webhook message to
      * @param embed the embed to send
      */
-    fun send(guild: Guild, embed: MessageEmbed) {
-        getWebhookClient(guild) { client, base ->
+    fun send(channel: TextChannel, embed: MessageEmbed) {
+        getWebhookClient(channel) { client, base ->
             client.send(base.addEmbeds(embed).build())
         }
     }
 
-    private fun getWebhookClient(guild: Guild, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
-        val webhookUrl = guild.config.auditing.webhook
-        if (webhookUrl != null) {
-            val selfUser = guild.jda.selfUser
-            val client = cachedClients.getOrPut(webhookUrl) {
-                WebhookClientBuilder(webhookUrl).build()
+    private fun getWebhookClient(channel: TextChannel, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
+        val selfUser = channel.jda.selfUser
+        val baseMessage = WebhookMessageBuilder().setUsername(selfUser.name).setAvatarUrl(selfUser.avatarUrl)
+        val key = channel.id
+        val existingClient: WebhookClient? = cachedClients[key]
+
+        // If there's no client cached, make one
+        if (existingClient == null) {
+            channel.webhooks.queue { webhooks ->
+                // If the channel has no webhooks then create one, otherwise steal one
+                if (webhooks.isEmpty()) {
+                    channel.createWebhook(selfUser.name).queue { webhook ->
+                        val newClient = WebhookClientBuilder(webhook).build()
+                        cachedClients[key] = newClient
+
+                        success(newClient, baseMessage)
+                    }
+                } else {
+                    val newClient = WebhookClientBuilder(webhooks.first()).build()
+                    cachedClients[key] = newClient
+
+                    success(newClient, baseMessage)
+                }
             }
-            val baseMessage = WebhookMessageBuilder().setUsername(selfUser.name).setAvatarUrl(selfUser.avatarUrl)
-            success(client, baseMessage)
+        } else {
+            success(existingClient, baseMessage)
         }
     }
 
-    private fun getWebhookClient(name: String, avatarUrl: String?, webhookUrl: String, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
+    private fun getWebhookClient(
+        name: String,
+        avatarUrl: String?,
+        webhookUrl: String,
+        success: (WebhookClient, WebhookMessageBuilder) -> Unit
+    ) {
         val client = cachedClients.getOrPut(webhookUrl) {
             WebhookClientBuilder(webhookUrl).build()
         }

@@ -25,8 +25,7 @@
 package me.ianmooreis.glyph.extensions
 
 import java.time.OffsetDateTime
-import java.util.Date
-import java.util.Random
+import java.util.*
 
 /**
  * Convert an OffsetDateTime to a Date

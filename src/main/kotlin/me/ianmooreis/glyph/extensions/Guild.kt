@@ -92,7 +92,12 @@ fun Guild.findUser(search: String): User? {
  *
  * @return an embed with the requested server info
  */
-fun Guild.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false): MessageEmbed {
+fun Guild.getInfoEmbed(
+    title: String?,
+    footer: String?,
+    color: Color?,
+    showExactCreationDate: Boolean = false
+): MessageEmbed {
     val createdAgo = PrettyTime().format(this.creationTime.toDate())
     val overviewDescription = SimpleDescriptionBuilder()
         .addField("Name", this.name)

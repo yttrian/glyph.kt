@@ -25,42 +25,58 @@
 package me.ianmooreis.glyph.skills.utils
 
 import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import org.json.JSONObject
 
+/**
+ * A simple wrapper for the Myjson API
+ */
 object Myjson {
-    val apiRootUrl = "https://api.myjson.com/bins/"
+    private const val apiRootUrl = "https://api.myjson.com/bins/"
 
+    /**
+     * Uploads a JSON to Myjson
+     *
+     * @param json the json the upload
+     * @param timeout maximum time to wait for a connection
+     * @param handler a function to asynchronously handle the resulting key
+     */
     fun postJSON(
         json: String,
         timeout: Int = 4000,
-        handler: (key: String?, response: Response, result: Result<String, FuelError>) -> Unit
+        handler: (key: String?) -> Unit
     ) {
         apiRootUrl.httpPost().header("Content-Type" to "application/json").body(json).timeout(timeout)
-            .responseString { _, response, result ->
-                when (result) {
+            .responseString { _, _, result ->
+                val key = when (result) {
                     is Result.Success -> {
-                        val key = JSONObject(result.get()).getString("uri").substringAfterLast('/')
-                        handler(key, response, result)
+                        JSONObject(result.get()).getString("uri").substringAfterLast('/')
                     }
                     is Result.Failure -> {
-                        handler(null, response, result)
+                        null
                     }
                 }
+                handler(key)
             }
     }
 
+    /**
+     * Retrieves a JSON from Myjson
+     *
+     * @param key the bin key
+     * @param timeout maximum time to wait for a connection
+     * @param handler a function to asynchronously handle the result
+     */
     fun getJSON(
         key: String,
         timeout: Int = 4000,
-        handler: (response: Response, result: Result<String, FuelError>) -> Unit
+        handler: (result: Result<String, FuelError>) -> Unit
     ) {
         val url = apiRootUrl + key
-        url.httpGet().timeout(timeout).responseString { _, response, result ->
-            handler(response, result)
+        url.httpGet().timeout(timeout).responseString { _, _, result ->
+            handler(result)
         }
     }
 }

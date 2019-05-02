@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.directors.AuditingDirector
 import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
-import me.ianmooreis.glyph.directors.crucible.CrucibleDirector
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
@@ -36,7 +35,6 @@ import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.skills.creator.ChangeStatusSkill
 import me.ianmooreis.glyph.skills.creator.FarmsSkill
-import me.ianmooreis.glyph.skills.creator.ReloadConfigsSkill
 import me.ianmooreis.glyph.skills.moderation.*
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
@@ -56,8 +54,9 @@ object Glyph : JDABuilder(AccountType.BOT) {
 
     init {
         this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
-            MessagingDirector, AuditingDirector, ServerDirector, CrucibleDirector,
-            QuickviewDirector, StatusDirector, StarboardDirector)
+            MessagingDirector, AuditingDirector, ServerDirector,
+            QuickviewDirector, StatusDirector, StarboardDirector
+        )
     }
 }
 
@@ -65,17 +64,18 @@ object Glyph : JDABuilder(AccountType.BOT) {
  * Where everything begins
  * Registers all the skills and builds the clients with optional sharding
  */
-fun main(args: Array<String>) {
+fun main() {
     SkillDirector.addSkill(
         HelpSkill, StatusSkill, SourceSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,
         ServerConfigSkill,
         PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
         EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
-        ReloadConfigsSkill, ChangeStatusSkill, FarmsSkill,
-        FallbackSkill)
+        ChangeStatusSkill, FarmsSkill,
+        FallbackSkill
+    )
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
-    for (i in 0..(shardTotal - 1)) {
+    for (i in 0 until (shardTotal - 1)) {
         Glyph.useSharding(i, shardTotal).build()
         Thread.sleep(5000)
     }

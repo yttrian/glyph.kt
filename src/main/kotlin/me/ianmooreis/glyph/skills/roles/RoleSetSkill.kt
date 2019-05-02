@@ -36,10 +36,14 @@ import java.util.concurrent.TimeUnit
 /**
  * A skill that allows members to assign selectable roles
  */
-object RoleSetSkill : Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
+object RoleSetSkill :
+    Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to set roles for the specified target(s)
-        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(Permission.MANAGE_ROLES)) {
+        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(
+                Permission.MANAGE_ROLES
+            )
+        ) {
             event.message.reply("You must have Manage Roles permission to set other peoples' roles!")
             return
         }
@@ -47,17 +51,21 @@ object RoleSetSkill : Skill("skill.role.set", guildOnly = true, requiredPermissi
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
             if (targets.size > 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
-                && event.member.roles.count { selectableRoles.contains(it) } >= config.limit) {
+                && event.member.roles.count { selectableRoles.contains(it) } >= config.limit
+            ) {
                 val randomRole = event.member.roles.filter { selectableRoles.contains(it) }.random()
-                event.message.reply("" +
-                    "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
-                    (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else ""))
+                event.message.reply(
+                    "" +
+                        "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
+                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
+                )
             } else {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles
                 if (config.limit == 1) {
                     targets.forEach {
                         try {
-                            event.guild.controller.removeRolesFromMember(it, selectableRoles).reason("Asked to be ${desiredRole.name}").queue()
+                            event.guild.controller.removeRolesFromMember(it, selectableRoles)
+                                .reason("Asked to be ${desiredRole.name}").queue()
                         } catch (e: IllegalArgumentException) {
                             this.log.debug("No roles needed to be removed from $it in ${event.guild}")
                         } catch (e: HierarchyException) {
@@ -68,7 +76,8 @@ object RoleSetSkill : Skill("skill.role.set", guildOnly = true, requiredPermissi
                 //Grant everyone the desired role but report a warning if the role is too high
                 try {
                     targets.forEach { target ->
-                        event.guild.controller.addSingleRoleToMember(target, desiredRole).reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
+                        event.guild.controller.addSingleRoleToMember(target, desiredRole)
+                            .reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
                     }
                     val targetNames = targets.joinToString { it.asPlainMention }
                     event.message.reply("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")

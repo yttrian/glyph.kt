@@ -24,10 +24,7 @@
 
 package me.ianmooreis.glyph.directors.config.server
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import com.google.gson.*
 import me.ianmooreis.glyph.directors.config.ConfigContainer
 import net.dv8tion.jda.core.entities.Guild
 
@@ -52,32 +49,58 @@ data class ServerConfig(
      */
     val auditing: AuditingConfig = AuditingConfig(),
     /**
-     * The auto moderator config
-     */
-    val crucible: AutoModConfig = AutoModConfig(),
-    /**
      * The starboard config
      */
     val starboard: StarboardConfig = StarboardConfig()
 ) : ConfigContainer {
     override fun toJSON(guild: Guild): String {
-        val serializer = GsonBuilder().serializeNulls().create()
+        val serializer = GsonBuilder()
+            .serializeNulls()
+            .setLongSerializationPolicy(LongSerializationPolicy.STRING)
+            .create()
         val config = serializer.toJsonTree(this).asJsonObject
-        val serverDetails = JsonObject()
+        val serverData = JsonObject()
 
         // Let's add some extra useful details about the server for suggestions
+        val info = JsonObject()
+        info.addProperty("name", guild.name)
+        info.addProperty("id", guild.id)
+        info.addProperty("icon", guild.iconUrl)
+        serverData.add("info", info)
+
         val roles = JsonArray()
-        guild.roles.forEach {
+        guild.roles.filterNot { it.isPublicRole || it.isManaged }.forEach {
             val roleData = JsonObject()
-            roleData.addProperty("id", it.idLong)
+            roleData.addProperty("id", it.id)
             roleData.addProperty("name", it.name)
             roleData.addProperty("position", it.position)
+            roleData.addProperty("canInteract", guild.selfMember.canInteract(it))
             roles.add(roleData)
         }
-        serverDetails.add("roles", roles)
+        serverData.add("roles", roles)
+
+        val textChannels = JsonArray()
+        guild.textChannels.forEach {
+            val channelData = JsonObject()
+            channelData.addProperty("id", it.id)
+            channelData.addProperty("name", it.name)
+            channelData.addProperty("nsfw", it.isNSFW)
+            textChannels.add(channelData)
+        }
+        serverData.add("textChannels", textChannels)
+
+        val emojis = JsonArray()
+        guild.emotes.forEach {
+            val emojiData = JsonObject()
+            emojiData.addProperty("id", it.id)
+            emojiData.addProperty("name", it.name)
+            emojiData.addProperty("image", it.imageUrl)
+            emojis.add(emojiData)
+        }
+        serverData.add("emojis", emojis)
 
         // Package it all up and send it out
-        config.add("_details", serverDetails)
+        config.add("_data", serverData)
         return config.toString()
     }
 

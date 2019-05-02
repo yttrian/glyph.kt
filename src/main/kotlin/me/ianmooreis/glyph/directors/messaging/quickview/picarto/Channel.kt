@@ -41,7 +41,8 @@ class Channel(
     val name: String, private val avatar: URL,
     private val viewers: Int, private val followers: Int, private val category: String, private val title: String,
     private val online: Boolean, private val adult: Boolean,
-    private val tags: List<String>) {
+    private val tags: List<String>
+) {
 
     /**
      * Creates an embed with the channel's info

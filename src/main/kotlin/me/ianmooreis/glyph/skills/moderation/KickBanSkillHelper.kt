@@ -44,7 +44,12 @@ object KickBanSkillHelper {
      * @param action the action the user is trying to perform (kick or ban)
      * @param success the call back to run if the targets are found and allowed
      */
-    fun getInstance(event: MessageReceivedEvent, ai: AIResponse, action: String, success: (targets: List<Member>, reason: String, controller: GuildController) -> Unit) {
+    fun getInstance(
+        event: MessageReceivedEvent,
+        ai: AIResponse,
+        action: String,
+        success: (targets: List<Member>, reason: String, controller: GuildController) -> Unit
+    ) {
         val authorMaxRole = maxRolePosition(event.member)
         val selfMaxRole = maxRolePosition(event.guild.selfMember)
         val targets = event.message.cleanMentionedMembers
@@ -56,9 +61,17 @@ object KickBanSkillHelper {
             targets.filterNot { it.hasPermission(Permission.ADMINISTRATOR) }.isEmpty() -> event.message.reply("I will not $action someone with Administrator permissions!")
             targets.filterNot { it.hasPermission(Permission.MANAGE_SERVER) }.isEmpty() -> event.message.reply("I will not $action someone with Manage Server permissions!")
             targets.contains(event.guild.selfMember) -> event.message.reply("I cannot kick myself!")
-            event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= authorMaxRole }.isEmpty() && !event.member.isOwner -> event.message.reply("You cannot $action members of your role or higher!")
-            event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= selfMaxRole }.isEmpty() -> event.message.reply("I cannot $action members of my role or higher!")
-            else -> success(targets, ai.result.getStringParameter("reason", "No reason provided"), event.guild.controller)
+            event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= authorMaxRole }.isEmpty() && !event.member.isOwner -> event.message.reply(
+                "You cannot $action members of your role or higher!"
+            )
+            event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= selfMaxRole }.isEmpty() -> event.message.reply(
+                "I cannot $action members of my role or higher!"
+            )
+            else -> success(
+                targets,
+                ai.result.getStringParameter("reason", "No reason provided"),
+                event.guild.controller
+            )
         }
     }
 

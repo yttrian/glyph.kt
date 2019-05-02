@@ -93,7 +93,8 @@ object ServerDirector : Director() {
     private fun updateServerCount(jda: JDA) {
         val id = jda.selfUser.id
         val count = jda.guilds.count()
-        val countJSON = JSONObject().put("server_count", count).put("shard_id", jda.shardInfo.shardId).put("shard_count", jda.shardInfo.shardTotal)
+        val countJSON = JSONObject().put("server_count", count).put("shard_id", jda.shardInfo.shardId)
+            .put("shard_count", jda.shardInfo.shardTotal)
         sendServerCount("https://discordbots.org/api/bots/$id/stats", countJSON, System.getenv("DISCORDBOTLIST_TOKEN"))
         sendServerCount("https://bots.discord.pw/api/bots/$id/stats", countJSON, System.getenv("DISCORDBOTS_TOKEN"))
     }
@@ -106,17 +107,18 @@ object ServerDirector : Director() {
      * @param token the authentication token to use the api
      */
     private fun sendServerCount(url: String, countJSON: JSONObject, token: String) {
-        url.httpPost().header("Authorization" to token, "Content-Type" to "application/json").body(countJSON.toString()).responseString { _, response, result ->
-            val host = URL(url).host
-            when (result) {
-                is Result.Success -> {
-                    log.debug("Updated $host server count")
-                }
-                is Result.Failure -> {
-                    log.warn("Failed to update $host server count due to ${response.statusCode} error!")
+        url.httpPost().header("Authorization" to token, "Content-Type" to "application/json").body(countJSON.toString())
+            .responseString { _, response, result ->
+                val host = URL(url).host
+                when (result) {
+                    is Result.Success -> {
+                        log.debug("Updated $host server count")
+                    }
+                    is Result.Failure -> {
+                        log.warn("Failed to update $host server count due to ${response.statusCode} error!")
+                    }
                 }
             }
-        }
     }
 
     /**

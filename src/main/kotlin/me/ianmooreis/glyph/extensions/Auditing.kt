@@ -40,14 +40,22 @@ import java.time.Instant
  * @param color the color of the embed
  */
 fun Guild.audit(title: String, description: String, color: Color? = null) {
-    WebhookDirector.send(this,
-        EmbedBuilder()
-            .setTitle(title)
-            .setDescription(description)
-            .setFooter("Auditing", null)
-            .setColor(color)
-            .setTimestamp(Instant.now())
-            .build())
+    val channelID = this.config.auditing.channel
+    if (channelID !== null) {
+        val channel = this.getTextChannelById(channelID)  // channel must belong to server
+        if (channel !== null) {
+            WebhookDirector.send(
+                channel,
+                EmbedBuilder()
+                    .setTitle(title)
+                    .setDescription(description)
+                    .setFooter("Auditing", null)
+                    .setColor(color)
+                    .setTimestamp(Instant.now())
+                    .build()
+            )
+        }
+    }
 }
 
 /**
@@ -58,14 +66,16 @@ fun Guild.audit(title: String, description: String, color: Color? = null) {
  * @param color the color of the embed
  */
 fun SelfUser.log(title: String, description: String, color: Color? = null) {
-    WebhookDirector.send(this, System.getenv("LOGGING_WEBHOOK"),
+    WebhookDirector.send(
+        this, System.getenv("LOGGING_WEBHOOK"),
         EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
             .setFooter("Logging", null)
             .setColor(color)
             .setTimestamp(Instant.now())
-            .build())
+            .build()
+    )
 }
 
 /**

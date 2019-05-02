@@ -38,7 +38,8 @@ import java.time.Instant
  */
 object DoomsdayClockSkill : Skill("skill.doomsday_clock") {
     private val timeRegex = Regex("(IT IS (.*?) TO MIDNIGHT)", RegexOption.IGNORE_CASE)
-    private val reasonRegex = Regex("<div class=\"uabb-infobox-text uabb-text-editor\"><p>(.*)(?:See the|Read the)", RegexOption.IGNORE_CASE)
+    private val reasonRegex =
+        Regex("<div class=\"uabb-infobox-text uabb-text-editor\"><p>(.*)(?:See the|Read the)", RegexOption.IGNORE_CASE)
 
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         "https://thebulletin.org/timeline".httpGet().responseString { _, _, result ->
@@ -47,12 +48,14 @@ object DoomsdayClockSkill : Skill("skill.doomsday_clock") {
                     val content = result.get()
                     val minutesToMidnight = timeRegex.findAll(content).first().groups[1]?.value ?: "Unknown"
                     val reason = reasonRegex.find(content)?.groups?.get(2)?.value
-                    event.message.reply(EmbedBuilder()
-                        .setTitle(minutesToMidnight, "https://thebulletin.org/timeline")
-                        .setDescription(reason)
-                        .setFooter("Doomsday Clock", null)
-                        .setTimestamp(Instant.now())
-                        .build())
+                    event.message.reply(
+                        EmbedBuilder()
+                            .setTitle(minutesToMidnight, "https://thebulletin.org/timeline")
+                            .setDescription(reason)
+                            .setFooter("Doomsday Clock", null)
+                            .setTimestamp(Instant.now())
+                            .build()
+                    )
                 }
                 is Result.Failure -> {
                     event.message.reply("I was unable to check the Doomsday Clock!")

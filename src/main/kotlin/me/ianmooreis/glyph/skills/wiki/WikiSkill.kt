@@ -44,7 +44,7 @@ object WikiSkill : Skill("skill.wiki") {
         val query: String = ai.result.getStringParameter("search_query")
         val config: WikiConfig = event.guild?.config?.wiki ?: ConfigDirector.getDefaultServerConfig().wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki", null)?.trim()
-        val sources: List<String> = if (requestedSource != null) listOf(requestedSource) else config.sources.filterNotNull()
+        val sources: List<String> = if (requestedSource != null) listOf(requestedSource) else (config.sources + "wikipedia")
         val sourcesDisplay = sources.map { if (it.toLowerCase() == "wikipedia") "Wikipedia" else "$it wiki" }
         event.channel.sendTyping().queue()
         sources.forEachIndexed { index, source ->

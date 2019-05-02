@@ -44,7 +44,13 @@ import java.time.Instant
  *
  * @return an embed with the requested user info
  */
-fun User.getInfoEmbed(title: String?, footer: String?, color: Color?, showExactCreationDate: Boolean = false, mutualGuilds: Boolean = false): MessageEmbed {
+fun User.getInfoEmbed(
+    title: String?,
+    footer: String?,
+    color: Color?,
+    showExactCreationDate: Boolean = false,
+    mutualGuilds: Boolean = false
+): MessageEmbed {
     val botTag = if (this.isBot) "(bot)" else ""
     val createdAgo = PrettyTime().format(this.creationTime.toDate())
     val descriptionBuilder: SimpleDescriptionBuilder = SimpleDescriptionBuilder()
@@ -88,7 +94,7 @@ val User.isCreator: Boolean
 fun User.sendDeathPM(message: String, die: () -> Unit) {
     if (!this.isBot) {
         this.openPrivateChannel().queue { pm ->
-            pm.sendMessage(message).queue({ _ ->
+            pm.sendMessage(message).queue({
                 pm.close().queue {
                     die()
                 }

@@ -33,7 +33,7 @@ enum class CustomEmote(
     /**
      * An emote
      */
-    val emote: Emote?
+    private val emote: Emote?
 ) {
     /**
      * An X in a red box

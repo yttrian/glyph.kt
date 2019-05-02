@@ -37,11 +37,16 @@ import java.util.concurrent.TimeUnit
 /**
  * Allows users to briefly say something before it is deleted automatically
  */
-object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), guildOnly = true) {
+object EphemeralSaySkill :
+    Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
         if (durationEntity == null) {
-            event.message.reply("That is an invalid time duration, specify how many seconds you want your message to last.", deleteAfterDelay = 5, deleteAfterUnit = TimeUnit.SECONDS)
+            event.message.reply(
+                "That is an invalid time duration, specify how many seconds you want your message to last.",
+                deleteAfterDelay = 5,
+                deleteAfterUnit = TimeUnit.SECONDS
+            )
             return
         }
 
@@ -52,20 +57,30 @@ object EphemeralSaySkill : Skill("skill.ephemeral_say", requiredPermissionsSelf 
             else -> null
         }
         if (durationUnit == null || durationAmount > 30) {
-            event.message.reply("You can only say something ephemerally for less than 30 seconds!", deleteAfterDelay = 5, deleteAfterUnit = TimeUnit.SECONDS)
+            event.message.reply(
+                "You can only say something ephemerally for less than 30 seconds!",
+                deleteAfterDelay = 5,
+                deleteAfterUnit = TimeUnit.SECONDS
+            )
             return
         } else if (durationAmount <= 0) {
-            event.message.reply("You can only say something ephemerally for a positive amount of time!", deleteAfterDelay = 5, deleteAfterUnit = TimeUnit.SECONDS)
+            event.message.reply(
+                "You can only say something ephemerally for a positive amount of time!",
+                deleteAfterDelay = 5,
+                deleteAfterUnit = TimeUnit.SECONDS
+            )
             return
         }
 
         event.message.delete().reason("Ephemeral Say").queue()
-        event.message.reply(EmbedBuilder()
-            .setAuthor(event.author.name, null, event.author.avatarUrl)
-            .setDescription(ai.result.getStringParameter("message"))
-            .setFooter("Ephemeral Say", null)
-            .setTimestamp(Instant.now().plus(durationAmount, durationUnit.toChronoUnit()))
-            .build(),
-            deleteAfterDelay = durationAmount, deleteAfterUnit = durationUnit)
+        event.message.reply(
+            EmbedBuilder()
+                .setAuthor(event.author.name, null, event.author.avatarUrl)
+                .setDescription(ai.result.getStringParameter("message"))
+                .setFooter("Ephemeral Say", null)
+                .setTimestamp(Instant.now().plus(durationAmount, durationUnit.toChronoUnit()))
+                .build(),
+            deleteAfterDelay = durationAmount, deleteAfterUnit = durationUnit
+        )
     }
 }

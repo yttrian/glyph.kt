@@ -37,7 +37,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.lang.management.ManagementFactory
 import java.time.Instant
-import java.util.Date
+import java.util.*
 
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only
@@ -49,7 +49,10 @@ object StatusSkill : Skill("skill.status", cooldownTime = 5) {
         val discordDescription = SimpleDescriptionBuilder()
             .addField("Ping", "${jda.ping} ms")
             .addField("Guilds", jda.guilds.count())
-            .addField("Shard", "${jda.shardInfo.shardId}${if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""}")
+            .addField(
+                "Shard",
+                "${jda.shardInfo.shardId}${if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""}"
+            )
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
             discordDescription.addField("Messages", MessagingDirector.getTotalMessages())

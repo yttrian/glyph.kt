@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <kotlin.version>1.3.0</kotlin.version>
+        <kotlin.version>1.3.31</kotlin.version>
         <main.class>me.ianmooreis.glyph.GlyphKt</main.class>
     </properties>
 
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.8.1_437</version>
+            <version>3.8.3_462</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -187,7 +187,9 @@
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
-                        <goals> <goal>single</goal> </goals>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
                         <configuration>
                             <archive>
                                 <manifest>

@@ -35,7 +35,12 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 /**
  * A skill that allows privileged members to ban other members
  */
-object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS), requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)) {
+object BanSkill : Skill(
+    "skill.moderation.ban",
+    guildOnly = true,
+    requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS),
+    requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)
+) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
             event.message.delete().reason("Ban request").queue()
@@ -45,9 +50,11 @@ object BanSkill : Skill("skill.moderation.ban", guildOnly = true, requiredPermis
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
-            event.message.reply("${CustomEmote.CHECKMARK} " +
-                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
-                deleteWithEnabled = false)
+            event.message.reply(
+                "${CustomEmote.CHECKMARK} " +
+                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
+                deleteWithEnabled = false
+            )
             if (event.guild.config.auditing.bans) {
                 val auditMessage = SimpleDescriptionBuilder()
                     .addField("Who", if (targetNames.length < 200) targetNames else "${targets.size} people")

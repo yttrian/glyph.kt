@@ -40,8 +40,10 @@ import org.slf4j.simple.SimpleLoggerFactory
  */
 object FurAffinity {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-    private val standardUrlFormat = Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
-    private val cdnUrlFormat = Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
+    private val standardUrlFormat =
+        Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
+    private val cdnUrlFormat =
+        Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
 
     /**
      * Makes any QuickViews for links found in a message
@@ -50,7 +52,12 @@ object FurAffinity {
      */
     fun makeQuickviews(event: MessageReceivedEvent) {
         standardUrlFormat.findAll(event.message.contentClean).map { it.groups[6]!!.value.toInt() }
-            .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull { findSubmissionId(it.groups[4]!!.value.toInt(), it.groups[3]!!.value) })
+            .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull {
+                findSubmissionId(
+                    it.groups[4]!!.value.toInt(),
+                    it.groups[3]!!.value
+                )
+            })
             .map { getSubmission(it) }
             .forEach {
                 if (it != null) {

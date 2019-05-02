@@ -38,7 +38,8 @@ object FarmsSkill : Skill("skill.creator.farms", creatorOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val action = ai.result.getStringParameter("action", "list")
         val farms = event.jda.guilds.filter { it.isBotFarm }
-        val farmsText = if (farms.isNotEmpty()) farms.joinToString("\n") { "${it.name} (${it.botRatio})" } else "No farms."
+        val farmsText =
+            if (farms.isNotEmpty()) farms.joinToString("\n") { "${it.name} (${it.botRatio})" } else "No farms."
         event.channel.sendTyping().queue()
         when (action) {
             "list" -> event.message.reply("**Farms List**\n$farmsText")

@@ -1,5 +1,5 @@
 /*
- * ServerConfigsTablee.kt
+ * ServerConfigsTable.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,27 +24,31 @@
 
 package me.ianmooreis.glyph.directors.config.server
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.or
 
+/**
+ * Database table to store server configs
+ */
+@Suppress("KDocMissingDocumentation")
 object ServerConfigsTable : Table() {
-    val serverId = long("ServerID").primaryKey()
-    val autoModBanUrlNames = bool("AutoModBanUrlNames").default(false)
-    val logChannel = varchar("LogChannel", 32).nullable()
-    val logJoins = bool("LogJoin").default(false)
-    val logLeaves = bool("LogLeave").default(false)
-    val logKicks = bool("LogKick").default(false)
-    val logBans = bool("LogBan").default(false)
-    val logNames = bool("LogNameChange").default(false)
-    val logPurge = bool("LogPurge").default(false)
-    val selectableRolesLimit = integer("SelectableRolesLimit").default(1).check { it.eq(-1).or(it.greaterEq(1)) }
-    val starboardEnabled = bool("StarboardEnabled").default(false)
-    val starboardChannel = varchar("StarboardChannel", 32).nullable()
-    val starboardEmoji = varchar("StarboardEmoji", 32).default("star")
-    val starboardThreshold = integer("StarboardThreshold").default(1).check { it.greaterEq(1) }
-    val starboardAllowSelfStar = bool("StarboardAllowSelfStar").default(false)
-    val quickviewFuraffinityEnabled = bool("QuickviewFuraffinityEnabled").default(true)
-    val quickviewFuraffinityThumbnail = bool("QuickviewFuraffinityThumbnail").default(true)
-    val quickviewPicartoEnabled = bool("QuickviewPicartoEnabled").default(true)
-    val wikiMinQuality = integer("WikiMinQuality").default(50).check { it.between(0, 100) }
+    val serverId: Column<Long> = long("ServerID").primaryKey()
+    val logChannelID: Column<Long?> = long("LogChannelID").nullable()
+    val logJoins: Column<Boolean> = bool("LogJoin").default(false)
+    val logLeaves: Column<Boolean> = bool("LogLeave").default(false)
+    val logKicks: Column<Boolean> = bool("LogKick").default(false)
+    val logBans: Column<Boolean> = bool("LogBan").default(false)
+    val logNames: Column<Boolean> = bool("LogNameChange").default(false)
+    val logPurge: Column<Boolean> = bool("LogPurge").default(false)
+    val selectableRolesLimit: Column<Int> = integer("SelectableRolesLimit").default(1).check { it.eq(-1).or(it.greaterEq(1)) }
+    val starboardEnabled: Column<Boolean> = bool("StarboardEnabled").default(false)
+    val starboardChannelID: Column<Long?> = long("StarboardChannelID").nullable()
+    val starboardEmoji: Column<String> = varchar("StarboardEmoji", 32).default("star")
+    val starboardThreshold: Column<Int> = integer("StarboardThreshold").default(1).check { it.greaterEq(1) }
+    val starboardAllowSelfStar: Column<Boolean> = bool("StarboardAllowSelfStar").default(false)
+    val quickviewFuraffinityEnabled: Column<Boolean> = bool("QuickviewFuraffinityEnabled").default(true)
+    val quickviewFuraffinityThumbnail: Column<Boolean> = bool("QuickviewFuraffinityThumbnail").default(true)
+    val quickviewPicartoEnabled: Column<Boolean> = bool("QuickviewPicartoEnabled").default(true)
+    val wikiMinQuality: Column<Int> = integer("WikiMinQuality").default(50).check { it.between(0, 100) }
 }

@@ -58,8 +58,7 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
         }
 
         val durationAmount = durationEntity.get("amount").asLong
-        val durationUnit = durationEntity.get("unit").asString
-        val duration = when (durationUnit) {
+        val duration = when (durationEntity.get("unit").asString) {
             "wk" -> time.minusWeeks(durationAmount)
             "day" -> time.minusDays(durationAmount)
             "h" -> time.minusHours(durationAmount)
@@ -85,7 +84,8 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             event.message.reply(
                 "${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
                     if (messages.size > 100) "queued for purging!" else "purged!"
-                , deleteAfterDelay = 10)
+                , deleteAfterDelay = 10
+            )
             // If purge auditing is enabled, log it
             if (event.guild.config.auditing.purge) {
                 val reason = ai.result.getStringParameter("reason", "No reason provided")
@@ -101,7 +101,8 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             event.message.delete().reason("Failed purge request").queue()
             event.message.reply(
                 "${CustomEmote.XMARK} There must be at least two messages to purge! Try a longer duration.",
-                deleteAfterDelay = 10)
+                deleteAfterDelay = 10
+            )
         }
     }
 }

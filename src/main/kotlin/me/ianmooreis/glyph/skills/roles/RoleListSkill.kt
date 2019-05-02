@@ -38,18 +38,20 @@ import java.time.Instant
  */
 object RoleListSkill : Skill("skill.role.list", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val selectableRoles = event.guild.config.selectableRoles.roles
+        val selectableRoles = event.guild.config.selectableRoles.roles.mapNotNull { event.guild.getRoleById(it) }
         val limit = event.guild.config.selectableRoles.limit
         if (selectableRoles.isNotEmpty()) {
-            val roles = selectableRoles.mapNotNull { event.guild.getRoleById(it) }
-            val randomRole = roles.random()
+            val randomRole = selectableRoles.random()
             event.message.reply(EmbedBuilder()
                 .setTitle("Available Roles")
-                .setDescription(roles.joinToString("\n") {
+                .setDescription(selectableRoles.joinToString("\n") {
                     val size = it.guild.getMembersWithRoles(it).size
                     "**${it.name}** $size ${if (size == 1) "member" else "members"}"
                 } + if (limit > 0) "\n*You can have up to $limit ${if (limit == 1) "role" else "roles"}*" else "")
-                .setFooter("Roles ${if (randomRole != null) "| Try asking \"Set me as ${randomRole.name}\"" else ""}", null)
+                .setFooter(
+                    "Roles ${if (randomRole != null) "| Try asking \"Set me as ${randomRole.name}\"" else ""}",
+                    null
+                )
                 .setTimestamp(Instant.now())
                 .build())
         } else {

@@ -71,7 +71,12 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
         }
     }
 
-    private fun createRankEmbed(title: String, rankedMembers: List<Member>, requester: Member, description: (Member) -> String): MessageEmbed {
+    private fun createRankEmbed(
+        title: String,
+        rankedMembers: List<Member>,
+        requester: Member,
+        description: (Member) -> String
+    ): MessageEmbed {
         val notable = SimpleDescriptionBuilder()
         val notableMembers = ArrayList<Member>()
         notableMembers.addAll(rankedMembers.take(3))

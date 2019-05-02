@@ -62,6 +62,7 @@ object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = tru
 
         event.message.reply(
             "Attempted to changed presence to ${status.name.toLowerCase()} " +
-                "while ${game.type.toString().toLowerCase()} to ${game.name}! (May be rate limited)")
+                "while ${game.type.toString().toLowerCase()} to ${game.name}! (May be rate limited)"
+        )
     }
 }

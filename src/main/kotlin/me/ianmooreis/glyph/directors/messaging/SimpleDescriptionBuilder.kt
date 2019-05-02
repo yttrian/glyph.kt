@@ -31,7 +31,8 @@ class SimpleDescriptionBuilder(
     /**
      * Whether or not formatting like italics or bold should be used and/or allowed when built
      */
-    private val noFormatting: Boolean = false) {
+    private val noFormatting: Boolean = false
+) {
     private var fields: MutableList<Pair<String?, String>> = mutableListOf()
 
     /**

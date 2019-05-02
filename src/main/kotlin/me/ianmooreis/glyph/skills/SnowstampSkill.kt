@@ -51,12 +51,14 @@ object SnowstampSkill : Skill("skill.snowstamp") {
             .addField("UTC", snowflakeInstant.toString())
             .addField("UNIX", snowflakeInstant.toEpochMilli())
             .build()
-        event.message.reply(EmbedBuilder()
-            .setTitle(snowflakeId.toString())
-            .setDescription(description)
-            .setColor(Color.WHITE)
-            .setFooter("Snowstamp", null)
-            .setTimestamp(snowflakeInstant)
-            .build())
+        event.message.reply(
+            EmbedBuilder()
+                .setTitle(snowflakeId.toString())
+                .setDescription(description)
+                .setColor(Color.WHITE)
+                .setFooter("Snowstamp", null)
+                .setTimestamp(snowflakeInstant)
+                .build()
+        )
     }
 }

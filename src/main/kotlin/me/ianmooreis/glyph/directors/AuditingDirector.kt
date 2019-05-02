@@ -63,7 +63,11 @@ object AuditingDirector : Director() {
      */
     override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
         if (event.guild.config.auditing.purge) {
-            event.guild.audit("Purge", "${event.messageIds.size} messages deleted in ${event.channel.asMention}", Color.YELLOW)
+            event.guild.audit(
+                "Purge",
+                "${event.messageIds.size} messages deleted in ${event.channel.asMention}",
+                Color.YELLOW
+            )
         }
     }
 

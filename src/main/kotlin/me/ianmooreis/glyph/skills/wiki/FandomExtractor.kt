@@ -48,7 +48,10 @@ object FandomExtractor {
     fun getArticle(wiki: String, query: String, minimumQuality: Int): WikiArticle? {
         val searchUrl = "https://${URLEncoder.encode(wiki, "UTF-8")}.wikia.com/" +
             "api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}" +
-            "&limit=1&minArticleQuality=${URLEncoder.encode(minimumQuality.toString(), "UTF-8")}&batch=1&namespaces=0%2C14"
+            "&limit=1&minArticleQuality=${URLEncoder.encode(
+                minimumQuality.toString(),
+                "UTF-8"
+            )}&batch=1&namespaces=0%2C14"
         val (_, _, searchResult) = searchUrl.httpGet().responseString()
         return when (searchResult) {
             is Result.Success -> {

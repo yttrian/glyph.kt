@@ -45,9 +45,7 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.jodah.expiringmap.ExpiringMap
 import java.time.Instant
-import java.util.LinkedList
-import java.util.Queue
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -56,8 +54,14 @@ import java.util.concurrent.TimeUnit
 object RedditSkill : Skill("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
         OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
-        Credentials.userless(System.getenv("REDDIT_CLIENT_ID"), System.getenv("REDDIT_CLIENT_SECRET"), UUID.randomUUID()))
-    private val imageCache: MutableMap<String, Queue<Submission>> = ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
+        Credentials.userless(
+            System.getenv("REDDIT_CLIENT_ID"),
+            System.getenv("REDDIT_CLIENT_SECRET"),
+            UUID.randomUUID()
+        )
+    )
+    private val imageCache: MutableMap<String, Queue<Submission>> =
+        ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
 
     init {
         this.client.logger = NoopHttpLogger()
@@ -84,12 +88,14 @@ object RedditSkill : Skill("skill.reddit") {
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                    event.message.reply(EmbedBuilder()
-                        .setTitle(submission.title, "https://reddit.com${submission.permalink}")
-                        .setImage(submission.url)
-                        .setFooter("r/${submission.subreddit}", null)
-                        .setTimestamp(Instant.now())
-                        .build())
+                    event.message.reply(
+                        EmbedBuilder()
+                            .setTitle(submission.title, "https://reddit.com${submission.permalink}")
+                            .setImage(submission.url)
+                            .setFooter("r/${submission.subreddit}", null)
+                            .setTimestamp(Instant.now())
+                            .build()
+                    )
                 } else {
                     event.message.reply("${CustomEmote.XMARK} I can only show NSFW submissions in a NSFW channel!")
                 }

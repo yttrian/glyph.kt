@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.directors.config
 import me.ianmooreis.glyph.directors.Director
 import me.ianmooreis.glyph.directors.config.server.*
 import me.ianmooreis.glyph.extensions.deleteConfig
-import me.ianmooreis.glyph.extensions.upsert
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import org.jetbrains.exposed.sql.*
@@ -54,7 +53,6 @@ object ConfigDirector : Director() {
         Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
 
         createTables()
-        loadAllConfigs()
     }
 
     /**
@@ -69,35 +67,66 @@ object ConfigDirector : Director() {
     /**
      * Load all the configurations from the database
      */
-    fun loadAllConfigs() {
-        configs.clear()
+    private fun loadConfig(guild: Guild): ServerConfig {
+        val serverId = guild.idLong
+
+        var wikiConfig = WikiConfig()
+        var selectableRolesConfig = SelectableRolesConfig()
+        var quickviewConfig = QuickviewConfig()
+        var auditingConfig = AuditingConfig()
+        var starboardConfig = StarboardConfig()
 
         transaction {
-            sct.selectAll().forEach { r ->
-                val serverId = r[sct.serverId]
 
-                val wikiSources = swst.select {
-                    swst.serverId.eq(serverId)
-                }.map {
-                    it[swst.destination]
-                }
+            val wikiSources = swst.select {
+                swst.serverId.eq(serverId)
+            }.map {
+                it[swst.destination]
+            }
 
-                val selectableRoles = ssrt.select {
-                    ssrt.serverId.eq(serverId)
-                }.map {
-                    it[ssrt.roleId]
-                }
+            val selectableRoles = ssrt.select {
+                ssrt.serverId.eq(serverId)
+            }.map {
+                it[ssrt.roleId]
+            }
 
-                configs[serverId] = ServerConfig(
-                    WikiConfig(wikiSources, r[sct.wikiMinQuality]),
-                    SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit]),
-                    QuickviewConfig(r[sct.quickviewFuraffinityEnabled], r[sct.quickviewFuraffinityThumbnail], r[sct.quickviewPicartoEnabled]),
-                    AuditingConfig(r[sct.logJoins], r[sct.logLeaves], r[sct.logPurge], r[sct.logKicks], r[sct.logBans], r[sct.logNames], r[sct.logChannel]),
-                    AutoModConfig(r[sct.autoModBanUrlNames]),
-                    StarboardConfig(r[sct.starboardEnabled], r[sct.starboardChannel], r[sct.starboardEmoji], r[sct.starboardThreshold], r[sct.starboardAllowSelfStar])
+            sct.select {
+                sct.serverId.eq(serverId)
+            }.forEach { r ->
+                quickviewConfig = QuickviewConfig(
+                    r[sct.quickviewFuraffinityEnabled],
+                    r[sct.quickviewFuraffinityThumbnail],
+                    r[sct.quickviewPicartoEnabled]
                 )
+                auditingConfig = AuditingConfig(
+                    r[sct.logJoins],
+                    r[sct.logLeaves],
+                    r[sct.logPurge],
+                    r[sct.logKicks],
+                    r[sct.logBans],
+                    r[sct.logNames],
+                    r[sct.logChannelID]
+                )
+                starboardConfig = StarboardConfig(
+                    r[sct.starboardEnabled],
+                    r[sct.starboardChannelID],
+                    r[sct.starboardEmoji],
+                    r[sct.starboardThreshold],
+                    r[sct.starboardAllowSelfStar]
+                )
+                wikiConfig = WikiConfig(wikiSources, r[sct.wikiMinQuality])
+                selectableRolesConfig = SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit])
             }
         }
+
+        return ServerConfig(wikiConfig, selectableRolesConfig, quickviewConfig, auditingConfig, starboardConfig)
+    }
+
+    /**
+     * Force reloads a server config
+     */
+    fun reloadServerConfig(guild: Guild) {
+        configs[guild.idLong] = loadConfig(guild)
     }
 
     /**
@@ -121,7 +150,9 @@ object ConfigDirector : Director() {
      * @return the configuration
      */
     fun getServerConfig(guild: Guild): ServerConfig {
-        return configs.getOrDefault(guild.idLong, defaultConfig)
+        return configs.getOrPut(guild.idLong) {
+            loadConfig(guild)
+        }
     }
 
     /**
@@ -130,7 +161,15 @@ object ConfigDirector : Director() {
      * @param guild the guild to check for a custom config
      */
     fun hasCustomConfig(guild: Guild): Boolean {
-        return configs.containsKey(guild.idLong)
+        var exists = false
+
+        transaction {
+            exists = sct.select {
+                sct.serverId.eq(guild.idLong)
+            }.count() > 0
+        }
+
+        return exists
     }
 
     /**
@@ -147,15 +186,18 @@ object ConfigDirector : Director() {
      *
      * @param guild     the guild who's configuration should be updates
      * @param config    the new server config to try to apply
-     * @param onSuccess the callback to run if the update is successful
-     * @param onFailure the callback to run if the update fails
      */
-    fun setServerConfig(guild: Guild, config: ServerConfig, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun setServerConfig(guild: Guild, config: ServerConfig) {
         val sct = ServerConfigsTable
         val serverId = guild.idLong
 
         transaction {
-            sct.upsert(sct.serverId) {
+            // Lazy man's upsert
+            sct.insertIgnore {
+                it[sct.serverId] = serverId
+            }
+
+            sct.update({ sct.serverId.eq(serverId) }) {
                 it[sct.serverId] = serverId
                 it[sct.wikiMinQuality] = config.wiki.minimumQuality
                 it[sct.selectableRolesLimit] = config.selectableRoles.limit
@@ -168,30 +210,34 @@ object ConfigDirector : Director() {
                 it[sct.logKicks] = config.auditing.kicks
                 it[sct.logBans] = config.auditing.bans
                 it[sct.logNames] = config.auditing.names
-                it[sct.logChannel] = config.auditing.webhook
-                it[sct.autoModBanUrlNames] = config.crucible.banURLsInNames
+                it[sct.logChannelID] = config.auditing.channel
                 it[sct.starboardEnabled] = config.starboard.enabled
-                it[sct.starboardChannel] = config.starboard.webhook
+                it[sct.starboardChannelID] = config.starboard.channel
                 it[sct.starboardEmoji] = config.starboard.emoji
                 it[sct.starboardThreshold] = config.starboard.threshold
                 it[sct.starboardAllowSelfStar] = config.starboard.allowSelfStarring
-            }.also {
-                swst.deleteWhere {
-                    swst.serverId.eq(serverId)
-                }
-                swst.batchInsert(config.wiki.sources, true) { wiki ->
-                    this[swst.serverId] = serverId
-                    this[swst.destination] = wiki
-                }
-                ssrt.deleteWhere {
-                    ssrt.serverId.eq(serverId)
-                }
-                ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
-                    this[ssrt.serverId] = serverId
-                    this[ssrt.roleId] = role
-                }
+            }
+
+            // Add in all the wiki sources
+            swst.deleteWhere {
+                swst.serverId.eq(serverId)
+            }
+            swst.batchInsert(config.wiki.sources, true) { wiki ->
+                this[swst.serverId] = serverId
+                this[swst.destination] = wiki
+            }
+
+            // Add in all the roles
+            ssrt.deleteWhere {
+                ssrt.serverId.eq(serverId)
+            }
+            ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
+                this[ssrt.serverId] = serverId
+                this[ssrt.roleId] = role
             }
         }
+
+        configs[serverId] = config
     }
 
     /**

@@ -24,11 +24,17 @@
 
 package me.ianmooreis.glyph.directors.config.server
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 
+/**
+ * Database table to store server configured wiki sources
+ */
+@Suppress("KDocMissingDocumentation")
 object ServerWikiSourcesTable : Table() {
-    val serverId =
-        long("ServerID").references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
-    val destination = varchar("Destination", 100)
+    val serverId: Column<Long> = long("ServerID")
+        .primaryKey(0)
+        .references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val destination: Column<String> = varchar("Destination", 100).primaryKey(1)
 }

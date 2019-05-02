@@ -55,7 +55,7 @@ data class AuditingConfig(
      */
     val names: Boolean = false,
     /**
-     * The Discord webhook to send audits to
+     * The channel to send audits to
      */
-    val webhook: String? = null
+    val channel: Long? = null
 ) : Config

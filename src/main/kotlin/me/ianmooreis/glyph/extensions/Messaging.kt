@@ -40,7 +40,13 @@ import java.util.concurrent.TimeUnit
  * @param deleteAfterUnit the time units the deleteAfterDelay used
  * @param deleteWithEnabled whether or not to delete the response when the invoking message is deleted
  */
-fun Message.reply(content: String? = null, embed: MessageEmbed? = null, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
+fun Message.reply(
+    content: String? = null,
+    embed: MessageEmbed? = null,
+    deleteAfterDelay: Long = 0,
+    deleteAfterUnit: TimeUnit = TimeUnit.SECONDS,
+    deleteWithEnabled: Boolean = true
+) {
     if (content == null && embed == null) {
         return
     }
@@ -66,8 +72,19 @@ fun Message.reply(content: String? = null, embed: MessageEmbed? = null, deleteAf
  * @param deleteAfterUnit the time units the deleteAfterDelay used
  * @param deleteWithEnabled whether or not to delete the response when the invoking message is deleted
  */
-fun Message.reply(embed: MessageEmbed, deleteAfterDelay: Long = 0, deleteAfterUnit: TimeUnit = TimeUnit.SECONDS, deleteWithEnabled: Boolean = true) {
-    this.reply(content = null, embed = embed, deleteAfterDelay = deleteAfterDelay, deleteAfterUnit = deleteAfterUnit, deleteWithEnabled = deleteWithEnabled)
+fun Message.reply(
+    embed: MessageEmbed,
+    deleteAfterDelay: Long = 0,
+    deleteAfterUnit: TimeUnit = TimeUnit.SECONDS,
+    deleteWithEnabled: Boolean = true
+) {
+    this.reply(
+        content = null,
+        embed = embed,
+        deleteAfterDelay = deleteAfterDelay,
+        deleteAfterUnit = deleteAfterUnit,
+        deleteWithEnabled = deleteWithEnabled
+    )
 }
 
 /**

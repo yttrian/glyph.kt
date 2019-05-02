@@ -44,7 +44,11 @@ object RoleSkillHelper {
      * @param ai the ai response
      * @param success the callback to run if the desired role exists and is found
      */
-    fun getInstance(event: MessageReceivedEvent, ai: AIResponse, success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Unit) {
+    fun getInstance(
+        event: MessageReceivedEvent,
+        ai: AIResponse,
+        success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Unit
+    ) {
         //Get the list of target(s) based on the mentions in the messages
         val targets: List<Member> = when {
             event.message.mentionsEveryone() -> event.guild.members

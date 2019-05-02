@@ -45,7 +45,11 @@ object WikipediaExtractor {
      * @param query the search query
      */
     fun getArticle(query: String): WikiArticle? {
-        val queryUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cinfo&titles=${URLEncoder.encode(query, "UTF-8")}&redirects=1&exintro=1&explaintext=1&inprop=url&exchars=500"
+        val queryUrl =
+            "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cinfo&titles=${URLEncoder.encode(
+                query,
+                "UTF-8"
+            )}&redirects=1&exintro=1&explaintext=1&inprop=url&exchars=500"
         val (_, _, result) = queryUrl.httpGet().responseString()
         return when (result) {
             is Result.Success -> {

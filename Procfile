@@ -1,1 +1,1 @@
-worker: java $JAVA_OPTS -cp target/classes:target/dependency/* me.ianmooreis.glyph.GlyphKt
+worker: java -jar target/glyph-1.0-jar-with-dependencies.jar

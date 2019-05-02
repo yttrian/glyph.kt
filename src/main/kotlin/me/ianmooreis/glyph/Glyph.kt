@@ -75,7 +75,7 @@ fun main() {
         FallbackSkill
     )
     val shardTotal = System.getenv("SHARD_TOTAL").toInt()
-    for (i in 0 until (shardTotal - 1)) {
+    for (i in 0 until shardTotal) {
         Glyph.useSharding(i, shardTotal).build()
         Thread.sleep(5000)
     }

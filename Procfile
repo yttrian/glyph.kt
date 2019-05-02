@@ -1,1 +1,1 @@
-worker: java -jar target/glyph-1.0-jar-with-dependencies.jar
+worker: java $JAVA_OPTS -cp target/classes:target/dependency/* GlyphKt

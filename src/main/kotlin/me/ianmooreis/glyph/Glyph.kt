@@ -64,7 +64,7 @@ object Glyph : JDABuilder(AccountType.BOT) {
  * Where everything begins
  * Registers all the skills and builds the clients with optional sharding
  */
-fun main(args: Array<String>) {
+fun main() {
     SkillDirector.addSkill(
         HelpSkill, StatusSkill, SourceSkill,
         RoleSetSkill, RoleUnsetSkill, RoleListSkill,

@@ -63,16 +63,17 @@ object StarboardDirector : Director() {
                         val selfStarPenalty = if (reactedUsers.contains(message.author) && !starboardConfig.allowSelfStarring) 1 else 0
                         // Check if threshold met
                         val thresholdMet = (starboardReactions.count - selfStarPenalty) >= starboardConfig.threshold
+                        // Check if NSFW and if so whether or not it is allowed
+                        val isSafe = (!message.textChannel.isNSFW || starboardChannel.isNSFW)
                         // Prepare message
                         val messageFooter = message.embeds.getOrNull(0)?.footer?.text ?: ""
                         val isStarboard = (message.isWebhookMessage && message.embeds.size > 0 && messageFooter.contains("Starboard"))
-                        val send = { sendToStarboard(message, starboardChannel) }
-                        if (thresholdMet && !isStarboard) {
+                        if (thresholdMet && isSafe && !isStarboard) {
                             // Mark the message as starboarded and send it to the starboard
                             when (event.reactionEmote.emote) {
-                                null -> message.addReaction(event.reactionEmote.name).queue { send() }
-                                else -> message.addReaction(event.reactionEmote.emote).queue { send() }
-                            }
+                                null -> message.addReaction(event.reactionEmote.name)
+                                else -> message.addReaction(event.reactionEmote.emote)
+                            }.queue { sendToStarboard(message, starboardChannel) }
                         }
                     }
                 }
@@ -88,14 +89,11 @@ object StarboardDirector : Director() {
             .setFooter("Starboard | ${message.id} in #${message.textChannel.name}", null)
             .setColor(Color.YELLOW)
             .setTimestamp(message.creationTime)
-        //Add images if not NSFW
-        if (!message.textChannel.isNSFW) {
-            embed.setImage(
-                message.attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
-                ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null
-            )
-                .setThumbnail(if (firstEmbed?.title != null) message.embeds.getOrNull(0)?.thumbnail?.url else null)
-        }
+        //Add images
+        embed.setImage(
+            message.attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
+            ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null
+        ).setThumbnail(if (firstEmbed?.title != null) message.embeds.getOrNull(0)?.thumbnail?.url else null)
         //Add the contents of embeds on the original message to the starboard embed
         message.embeds.forEach { subEmbed ->
             val title = subEmbed.title ?: subEmbed.author?.name ?: ""

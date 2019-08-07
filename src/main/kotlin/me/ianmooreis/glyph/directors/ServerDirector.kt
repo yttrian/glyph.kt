@@ -121,11 +121,6 @@ object ServerDirector : Director() {
             }
     }
 
-    /**
-     * Get a guild embed to show in the global log
-     *
-     * @param guild the guild to get the embed for
-     */
     private fun getGuildEmbed(guild: Guild): EmbedBuilder {
         val description = SimpleDescriptionBuilder()
             .addField("Name", guild.name)

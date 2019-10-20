@@ -26,6 +26,9 @@ package me.ianmooreis.glyph.skills.creator
 
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
+import me.ianmooreis.glyph.extensions.botRatio
+import me.ianmooreis.glyph.extensions.isBotFarm
+import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 /**

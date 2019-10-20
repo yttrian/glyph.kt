@@ -27,6 +27,10 @@ package me.ianmooreis.glyph.skills.roles
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
+import me.ianmooreis.glyph.extensions.asPlainMention
+import me.ianmooreis.glyph.extensions.cleanMentionedMembers
+import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.HierarchyException

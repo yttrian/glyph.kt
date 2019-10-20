@@ -25,6 +25,8 @@ package me.ianmooreis.glyph.directors.messaging
 
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
+import me.ianmooreis.glyph.extensions.contentClean
+import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.ReadyEvent

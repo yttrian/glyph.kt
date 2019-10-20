@@ -65,7 +65,7 @@ object RoleSkillHelper {
         }
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
         if (desiredRole == null) {
-            event.message.reply("That role does not exist!")
+            event.message.reply("Role `$desiredRoleName` does not exist!")
             return
         }
         val selectableRoles = config.roles.mapNotNull { event.guild.getRoleById(it) }

@@ -72,8 +72,8 @@ class AIResult(private val result: QueryResult) {
      * Get the value of a string parameter
      */
     fun getStringParameter(parameterName: String): String? {
-        val value = getField(parameterName)
+        val value = getField(parameterName).stringValue
 
-        return value.stringValue
+        return if (value.isNotEmpty()) value else null
     }
 }

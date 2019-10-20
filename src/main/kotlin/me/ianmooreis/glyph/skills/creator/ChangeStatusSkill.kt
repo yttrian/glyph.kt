@@ -24,10 +24,9 @@
 
 package me.ianmooreis.glyph.skills.creator
 
-import ai.api.model.AIResponse
 import me.ianmooreis.glyph.directors.StatusDirector
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -38,8 +37,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true, cooldownTime = 30) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
-        val name = ai.result.getStringParameter("status", jda.presence.game.name)
-        val streamUrl = ai.result.getStringParameter("streamUrl", jda.presence.game.url)
+        val name = ai.result.getStringParameter("status") ?: jda.presence.game.name
+        val streamUrl = ai.result.getStringParameter("streamUrl") ?: jda.presence.game.url
         val gameType = ai.result.getStringParameter("gameType")
         val statusType = ai.result.getStringParameter("statusType")
 

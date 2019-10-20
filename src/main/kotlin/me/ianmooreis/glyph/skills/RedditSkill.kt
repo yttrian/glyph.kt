@@ -24,12 +24,11 @@
 
 package me.ianmooreis.glyph.skills
 
-import ai.api.model.AIResponse
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -71,11 +70,7 @@ object RedditSkill : Skill("skill.reddit") {
         // Send typing since this can take some time and we want to indicate we are paying attention
         event.channel.sendTyping().queue()
         // Try to get the multireddit name
-        val multiredditName: String? = try {
-            ai.result.getStringParameter("multireddit").replace("\\", "")
-        } catch (e: IllegalStateException) {
-            null
-        }  // Sometimes it doesn't parse the string right
+        val multiredditName: String? = ai.result.getStringParameter("multireddit")
         if (multiredditName == null) {
             event.message.reply("${CustomEmote.XMARK} I did not understand what subreddit you were asking for!")
             return

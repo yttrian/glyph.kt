@@ -24,11 +24,8 @@
 
 package me.ianmooreis.glyph.skills.roles
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
-import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -58,7 +55,7 @@ object RoleSkillHelper {
         }
         //Extract the desired role name and make a list of all available selectable roles
         val config = event.guild.config.selectableRoles
-        val desiredRoleName: String = ai.result.getStringParameter("role").removeSurrounding("\"")
+        val desiredRoleName: String = ai.result.getStringParameter("role")?.removeSurrounding("\"") ?: ""
         if (desiredRoleName.isEmpty()) {
             event.message.reply("I could not find a role name in your message!")
             return

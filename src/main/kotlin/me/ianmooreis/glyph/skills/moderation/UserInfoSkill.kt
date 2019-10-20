@@ -24,11 +24,8 @@
 
 package me.ianmooreis.glyph.skills.moderation
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.findUser
-import me.ianmooreis.glyph.extensions.getInfoEmbed
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
@@ -37,7 +34,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
  */
 object UserInfoSkill : Skill("skill.moderation.userInfo") {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val userName: String? = ai.result.getStringParameter("user", null)
+        val userName: String? = ai.result.getStringParameter("user")
         val user: User? = if (event.channelType.isGuild && userName != null) {
             event.guild.findUser(userName) ?: event.author
         } else {

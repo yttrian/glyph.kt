@@ -24,10 +24,8 @@
 
 package me.ianmooreis.glyph.skills
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.log
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 /**

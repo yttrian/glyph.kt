@@ -23,14 +23,8 @@
 
 package me.ianmooreis.glyph.directors.messaging
 
-import ai.api.AIConfiguration
-import ai.api.AIDataService
-import ai.api.AIServiceContextBuilder
-import ai.api.model.AIRequest
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
-import me.ianmooreis.glyph.extensions.contentClean
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.ReadyEvent
@@ -48,8 +42,6 @@ import java.util.concurrent.TimeUnit
  */
 object MessagingDirector : ListenerAdapter() {
     private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
-
-    private object DialogFlow : AIDataService(AIConfiguration(System.getenv("DIALOGFLOW_TOKEN")))
 
     private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
     private var totalMessages: Int = 0
@@ -127,8 +119,7 @@ object MessagingDirector : ListenerAdapter() {
 
         // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
-        val ctx = AIServiceContextBuilder().setSessionId(sessionId).build()
-        val ai = DialogFlow.request(AIRequest(event.message.contentClean), ctx)
+        val ai = DialogFlow.request(event.message.contentClean, sessionId)
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")

@@ -24,11 +24,8 @@
 
 package me.ianmooreis.glyph.skills.creator
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.botRatio
-import me.ianmooreis.glyph.extensions.isBotFarm
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 /**
@@ -36,7 +33,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent
  */
 object FarmsSkill : Skill("skill.creator.farms", creatorOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val action = ai.result.getStringParameter("action", "list")
+        val action = ai.result.getStringParameter("action") ?: "list"
         val farms = event.jda.guilds.filter { it.isBotFarm }
         val farmsText =
             if (farms.isNotEmpty()) farms.joinToString("\n") { "${it.name} (${it.botRatio})" } else "No farms."

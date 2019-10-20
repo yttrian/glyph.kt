@@ -24,10 +24,9 @@
 
 package me.ianmooreis.glyph.skills
 
-import ai.api.model.AIResponse
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.awt.Color
@@ -41,7 +40,7 @@ object SourceSkill : Skill("skill.source") {
         val name = event.jda.selfUser.name
         val embed = EmbedBuilder()
             .setTitle("$name Source")
-            .setDescription(ai.result.fulfillment.speech.replace("\\n", "\n", true))
+            .setDescription(ai.result.fulfillment.speech)
             .setFooter("$name-Kotlin-${Glyph.version}", null)
             .setTimestamp(Instant.now())
             .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))

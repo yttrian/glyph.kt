@@ -24,12 +24,10 @@
 
 package me.ianmooreis.glyph.skills.configuration
 
-import ai.api.model.AIResponse
 import com.github.kittinunf.result.Result
 import me.ianmooreis.glyph.directors.config.ConfigDirector
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.skills.utils.Myjson
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
@@ -46,7 +44,7 @@ object ServerConfigSkill : Skill(
     requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
 ) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val action = ai.result.getStringParameter("action", null)
+        val action = ai.result.getStringParameter("action")
         val config = event.guild.config
 
         when (action) {
@@ -72,7 +70,7 @@ object ServerConfigSkill : Skill(
                 }
             }
             "set" -> {
-                val key = ai.result.getStringParameter("key", null)
+                val key = ai.result.getStringParameter("key")
 
                 if (key !== null) {
                     Myjson.getJSON(key, 2000) { result ->

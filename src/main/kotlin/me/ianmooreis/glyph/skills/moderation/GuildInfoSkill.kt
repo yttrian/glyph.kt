@@ -24,9 +24,8 @@
 
 package me.ianmooreis.glyph.skills.moderation
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.*
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -35,7 +34,7 @@ import org.ocpsoft.prettytime.PrettyTime
  */
 object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val property: String? = ai.result.getStringParameter("guildProperty", null)
+        val property: String? = ai.result.getStringParameter("guildProperty")
         if (property != null) {
             val guild = event.guild
             event.message.reply(

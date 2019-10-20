@@ -24,12 +24,9 @@
 
 package me.ianmooreis.glyph.skills
 
-import ai.api.model.AIResponse
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.asPlainMention
-import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Member
@@ -44,7 +41,7 @@ import java.time.Instant
 object RankSkill : Skill("skill.rank", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         event.channel.sendTyping().queue()
-        val property: String? = ai.result.getStringParameter("memberProperty", null)
+        val property: String? = ai.result.getStringParameter("memberProperty")
         if (property != null) {
             val members = event.guild.members
             when (property) {

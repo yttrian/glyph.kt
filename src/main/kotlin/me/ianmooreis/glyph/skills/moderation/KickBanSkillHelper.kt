@@ -24,9 +24,7 @@
 
 package me.ianmooreis.glyph.skills.moderation
 
-import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -69,7 +67,7 @@ object KickBanSkillHelper {
             )
             else -> success(
                 targets,
-                ai.result.getStringParameter("reason", "No reason provided"),
+                ai.result.getStringParameter("reason") ?: "No reason provided",
                 event.guild.controller
             )
         }

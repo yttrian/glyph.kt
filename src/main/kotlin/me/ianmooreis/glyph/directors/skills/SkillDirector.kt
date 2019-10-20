@@ -23,8 +23,7 @@
 
 package me.ianmooreis.glyph.directors.skills
 
-import ai.api.model.AIResponse
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -94,7 +93,7 @@ object SkillDirector : ListenerAdapter() {
                 if (result.fulfillment.speech.isEmpty()) {
                     "`$action` is not available yet!"
                 } else {
-                    result.fulfillment.speech.replace("\\n", "\n")
+                    result.fulfillment.speech
                 }
             )
         }

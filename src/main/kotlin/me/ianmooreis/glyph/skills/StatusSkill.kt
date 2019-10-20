@@ -24,13 +24,11 @@
 
 package me.ianmooreis.glyph.skills
 
-import ai.api.model.AIResponse
 import me.ianmooreis.glyph.Glyph
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.isCreator
-import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDAInfo
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -79,7 +77,7 @@ object StatusSkill : Skill("skill.status", cooldownTime = 5) {
         } else {
             embed.setThumbnail(jda.selfUser.avatarUrl)
         }
-        embed.addField("Operating Parameters", ai.result.fulfillment.speech.replace("\\n", "\n", true), true)
+        embed.addField("Operating Parameters", ai.result.fulfillment.speech, true)
         event.message.reply(embed = embed.build())
     }
 }

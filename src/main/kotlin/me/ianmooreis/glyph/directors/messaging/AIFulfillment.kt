@@ -1,10 +1,10 @@
 /*
- * HelpSkill.kt
+ * AIFulfillment.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,25 +22,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills
+package me.ianmooreis.glyph.directors.messaging
 
-import me.ianmooreis.glyph.directors.messaging.AIResponse
-import me.ianmooreis.glyph.directors.skills.Skill
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import java.awt.Color
+import com.google.cloud.dialogflow.v2.QueryResult
 
 /**
- * A skill that shows users a help messgae
+ * A wrapper for the new DialogFlow API v2 fulfillment
  */
-object HelpSkill : Skill("skill.help") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val name = event.jda.selfUser.name
-        val embed = EmbedBuilder()
-            .setTitle("$name Help")
-            .setDescription(ai.result.fulfillment.speech)
-            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
-            .build()
-        event.message.reply(embed = embed)
-    }
+class AIFulfillment(result: QueryResult) {
+    /**
+     * What the agent wants to say
+     */
+    val speech: String = result.fulfillmentText.replace("\\n", "\n", ignoreCase = true).trim()
 }

@@ -24,12 +24,12 @@
 
 package me.ianmooreis.glyph.skills.moderation
 
-import ai.api.model.AIResponse
 import com.google.gson.JsonObject
+import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.*
+import me.ianmooreis.glyph.extensions.toDate
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
@@ -94,7 +94,7 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             )
             // If purge auditing is enabled, log it
             if (event.guild.config.auditing.purge) {
-                val reason = ai.result.getStringParameter("reason", "No reason provided")
+                val reason = ai.result.getStringParameter("reason") ?: "No reason provided"
                 val auditMessage = SimpleDescriptionBuilder()
                     .addField("Total", "${messages.size} messages")
                     .addField("Channel", event.textChannel.asMention)

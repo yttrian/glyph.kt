@@ -41,9 +41,9 @@ object StatusDirector : Director() {
         val types = enumValues<Activity.ActivityType>()
 
         types.flatMap { type ->
-            config.getAsJsonArray(type.name.toLowerCase()).map {
+            config.getAsJsonArray(type.name.toLowerCase())?.map {
                 Activity.of(type, it.asString)
-            }
+            } ?: emptyList()
         }
     }
 

@@ -29,7 +29,7 @@ import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Game
+import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
@@ -38,17 +38,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true, cooldownTime = 30) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
-        val name = ai.result.getStringParameter("status") ?: jda.presence.game.name
-        val streamUrl = ai.result.getStringParameter("streamUrl") ?: jda.presence.game.url
+        val name = ai.result.getStringParameter("status") ?: jda.presence.activity?.name ?: "?"
+        val streamUrl = ai.result.getStringParameter("streamUrl") ?: jda.presence.activity?.url ?: "?"
         val gameType = ai.result.getStringParameter("gameType")
         val statusType = ai.result.getStringParameter("statusType")
 
         val game = when (gameType) {
-            "playing" -> Game.playing(name)
-            "listening" -> Game.listening(name)
-            "watching" -> Game.watching(name)
-            "streaming" -> Game.streaming(name, streamUrl)
-            else -> jda.presence.game
+            "playing" -> Activity.playing(name)
+            "listening" -> Activity.listening(name)
+            "watching" -> Activity.watching(name)
+            "streaming" -> Activity.streaming(name, streamUrl)
+            else -> jda.presence.activity
         }
         val status = when (statusType) {
             "online" -> OnlineStatus.ONLINE
@@ -62,7 +62,7 @@ object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = tru
 
         event.message.reply(
             "Attempted to changed presence to ${status.name.toLowerCase()} " +
-                "while ${game.type.toString().toLowerCase()} to ${game.name}! (May be rate limited)"
+                    "while ${game?.type.toString().toLowerCase()} to ${game?.name}! (May be rate limited)"
         )
     }
 }

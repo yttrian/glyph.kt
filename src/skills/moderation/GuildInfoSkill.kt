@@ -26,10 +26,7 @@ package me.ianmooreis.glyph.skills.moderation
 
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.asPlainMention
-import me.ianmooreis.glyph.extensions.getInfoEmbed
-import me.ianmooreis.glyph.extensions.isBotFarm
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.*
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -46,8 +43,8 @@ object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
                     "name" -> "This guild is **${guild.name}**."
                     "id" -> "The id for ${guild.name} is **${guild.id}**."
                     "region" -> "${guild.name} is located in **${guild.regionRaw}**."
-                    "created" -> "${guild.name} was created **${PrettyTime().format(guild.creationTime.toDate())}** (${guild.creationTime})."
-                    "owner" -> "**${guild.owner.asPlainMention}** is the owner of ${guild.name}."
+                    "created" -> "${guild.name} was created **${PrettyTime().format(guild.timeCreated.toDate())}** (${guild.timeCreated})."
+                    "owner" -> "**${guild.owner?.asPlainMention ?: "?"}** is the owner of ${guild.name}."
                     "members" -> "${guild.name} has **${guild.members.count()}** members."
                     "membersHumans" -> "${guild.name} has **${guild.members.count { !it.user.isBot }}** humans."
                     "membersBots" -> "${guild.name} has **${guild.members.count { it.user.isBot }}** bots."

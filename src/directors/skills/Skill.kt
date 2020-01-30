@@ -32,7 +32,7 @@ import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 /**
@@ -52,7 +52,7 @@ abstract class Skill(
     /**
      * The skill's logger which will show the skill's name in the console when logs are made
      */
-    val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     /**
      * When the skill is triggered
@@ -66,7 +66,7 @@ abstract class Skill(
      */
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
         val permittedUser: Boolean =
-            if (event.channelType.isGuild) event.member.hasPermission(requiredPermissionsUser) else true
+            if (event.channelType.isGuild) event.member!!.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean =
             if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
         val currentCooldown: SkillCooldown? = SkillDirector.getCooldown(event.author, this)

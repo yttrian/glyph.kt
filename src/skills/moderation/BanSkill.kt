@@ -42,17 +42,17 @@ object BanSkill : Skill(
     requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)
 ) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason, controller ->
+        KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
                 member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***") {
-                    controller.ban(member, 7, reason).queue()
+                    event.guild.ban(member, 7, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply(
                 "${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
+                        "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
                 deleteWithEnabled = false
             )
             if (event.guild.config.auditing.bans) {

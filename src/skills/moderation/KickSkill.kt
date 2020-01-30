@@ -42,17 +42,17 @@ object KickSkill : Skill(
     requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)
 ) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason, controller ->
+        KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason ->
             event.message.delete().reason("Kick request").queue()
             targets.forEach { member ->
                 member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been kicked from ${event.guild.name} for \"$reason\"!***") {
-                    controller.kick(member, reason).queue()
+                    event.guild.kick(member, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply(
                 "${CustomEmote.CHECKMARK} " +
-                    "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
+                        "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***",
                 deleteWithEnabled = false
             )
             if (event.guild.config.auditing.kicks) {

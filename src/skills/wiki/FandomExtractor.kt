@@ -28,7 +28,7 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import org.json.JSONObject
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
 import java.net.URL
 import java.net.URLEncoder
 
@@ -36,7 +36,7 @@ import java.net.URLEncoder
  * Grabs articles from Fandom wikis
  */
 object FandomExtractor {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     /**
      * Tries to grab an article from a search on a wiki
@@ -47,11 +47,11 @@ object FandomExtractor {
      */
     fun getArticle(wiki: String, query: String, minimumQuality: Int): WikiArticle? {
         val searchUrl = "https://${URLEncoder.encode(wiki, "UTF-8")}.wikia.com/" +
-            "api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}" +
-            "&limit=1&minArticleQuality=${URLEncoder.encode(
-                minimumQuality.toString(),
-                "UTF-8"
-            )}&batch=1&namespaces=0%2C14"
+                "api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}" +
+                "&limit=1&minArticleQuality=${URLEncoder.encode(
+                    minimumQuality.toString(),
+                    "UTF-8"
+                )}&batch=1&namespaces=0%2C14"
         val (_, _, searchResult) = searchUrl.httpGet().responseString()
         return when (searchResult) {
             is Result.Success -> {

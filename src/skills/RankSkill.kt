@@ -29,6 +29,7 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
@@ -47,8 +48,8 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
         if (property != null) {
             val members = event.guild.members
             when (property) {
-                "join" -> event.message.reply(rankMembersByJoin(members, event.member))
-                "created" -> event.message.reply(rankMembersByCreation(members, event.member))
+                "join" -> event.message.reply(rankMembersByJoin(members, event.member ?: event.guild.selfMember))
+                "created" -> event.message.reply(rankMembersByCreation(members, event.member ?: event.guild.selfMember))
                 else -> event.message.reply("I'm not sure what property `$property` is for members.")
             }
         } else {
@@ -57,16 +58,16 @@ object RankSkill : Skill("skill.rank", guildOnly = true) {
     }
 
     private fun rankMembersByJoin(members: List<Member>, requester: Member): MessageEmbed {
-        val rankedMembers = members.sortedBy { it.joinDate }
+        val rankedMembers = members.sortedBy { it.timeJoined }
         return createRankEmbed("Guild Join Rankings", rankedMembers, requester) {
-            "**${it.asPlainMention}** joined **${PrettyTime().format(it.joinDate.toDate())}** on **${it.joinDate}**"
+            "**${it.asPlainMention}** joined **${PrettyTime().format(it.timeJoined.toDate())}** on **${it.timeJoined}**"
         }
     }
 
     private fun rankMembersByCreation(members: List<Member>, requester: Member): MessageEmbed {
         val rankedMembers = members.sortedBy { it.user.idLong }
         return createRankEmbed("Account Creation Rankings", rankedMembers, requester) {
-            "**${it.asPlainMention}** was created **${PrettyTime().format(it.user.creationTime.toDate())}** on **${it.user.creationTime}**"
+            "**${it.asPlainMention}** was created **${PrettyTime().format(it.user.timeCreated.toDate())}** on **${it.user.timeCreated}**"
         }
     }
 

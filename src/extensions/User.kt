@@ -52,12 +52,12 @@ fun User.getInfoEmbed(
     mutualGuilds: Boolean = false
 ): MessageEmbed {
     val botTag = if (this.isBot) "(bot)" else ""
-    val createdAgo = PrettyTime().format(this.creationTime.toDate())
+    val createdAgo = PrettyTime().format(this.timeCreated.toDate())
     val descriptionBuilder: SimpleDescriptionBuilder = SimpleDescriptionBuilder()
         .addField("User", "${this.asPlainMention} $botTag")
         .addField("ID", this.id)
         .addField("Mention", this.asMention)
-        .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}")
+        .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.timeCreated})" else ""}")
     if (mutualGuilds) {
         descriptionBuilder.addField("Server", "${this.mutualGuilds.size} mutual")
     }

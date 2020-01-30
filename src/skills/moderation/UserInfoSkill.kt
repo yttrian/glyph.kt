@@ -47,6 +47,14 @@ object UserInfoSkill : Skill("skill.moderation.userInfo") {
             event.message.reply("Unable to find the specified user!")
             return
         }
-        event.message.reply(user.getInfoEmbed("User Info", "Moderation", null, showExactCreationDate = true, mutualGuilds = false))
+        event.message.reply(
+            user.getInfoEmbed(
+                "User Info",
+                "Moderation",
+                null,
+                showExactCreationDate = true,
+                mutualGuilds = false
+            )
+        )
     }
 }

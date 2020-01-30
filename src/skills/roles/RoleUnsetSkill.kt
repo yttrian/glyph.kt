@@ -39,7 +39,7 @@ import net.dv8tion.jda.api.exceptions.HierarchyException
 object RoleUnsetSkill : Skill("skill.role.unset", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to remove roles for the specified target(s)
-        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(
+        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member!!.hasPermission(
                 listOf(Permission.MANAGE_ROLES)
             )
         ) {
@@ -50,7 +50,7 @@ object RoleUnsetSkill : Skill("skill.role.unset", guildOnly = true) {
             //Remove the role
             targets.forEach {
                 try {
-                    event.guild.controller.removeRolesFromMember(it, desiredRole)
+                    event.guild.removeRoleFromMember(it, desiredRole)
                         .reason("Asked to not be $desiredRole.Name").queue()
                 } catch (e: HierarchyException) {
                     this.log.debug("Can not remove role ${desiredRole.name} from members in ${event.guild}")

@@ -47,7 +47,7 @@ object StatusSkill : Skill("skill.status", cooldownTime = 5) {
         val jda = event.jda
         val name = jda.selfUser.name
         val discordDescription = SimpleDescriptionBuilder()
-            .addField("Ping", "${jda.ping} ms")
+            .addField("Ping", "${jda.gatewayPing} ms")
             .addField("Guilds", jda.guilds.count())
             .addField(
                 "Shard",

@@ -12,7 +12,8 @@ apply plugin: "kotlin"
 
 group = "me.ianmmoreis"
 version = "1.0"
-sourceCompatibility = "1.8"
+sourceCompatibility = "11"
+targetCompatibility = "11"
 
 sourceSets {
     main.kotlin.srcDirs = main.java.srcDirs = ["src"]
@@ -30,6 +31,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "net.dv8tion:JDA:$jda_version"
+    implementation "club.minnced:discord-webhooks:0.2.0"
     implementation "com.google.cloud:google-cloud-storage:1.98.0"
     implementation "com.google.cloud:google-cloud-dialogflow:0.116.0-alpha"
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"

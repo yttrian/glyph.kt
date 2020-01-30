@@ -41,7 +41,8 @@ object ServerConfigsTable : Table() {
     val logBans: Column<Boolean> = bool("LogBan").default(false)
     val logNames: Column<Boolean> = bool("LogNameChange").default(false)
     val logPurge: Column<Boolean> = bool("LogPurge").default(false)
-    val selectableRolesLimit: Column<Int> = integer("SelectableRolesLimit").default(1).check { it.eq(-1).or(it.greaterEq(1)) }
+    val selectableRolesLimit: Column<Int> =
+        integer("SelectableRolesLimit").default(1).check { it.eq(-1).or(it.greaterEq(1)) }
     val starboardEnabled: Column<Boolean> = bool("StarboardEnabled").default(false)
     val starboardChannelID: Column<Long?> = long("StarboardChannelID").nullable()
     val starboardEmoji: Column<String> = varchar("StarboardEmoji", 32).default("star")

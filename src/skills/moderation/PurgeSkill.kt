@@ -39,11 +39,11 @@ import org.ocpsoft.prettytime.PrettyTime
  */
 object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val time = event.message.creationTime
+        val time = event.message.timeCreated
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
 
         // Check that the user has permission within the channel
-        if (!event.member.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
+        if (!event.member!!.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
             event.message.reply("You need permission to Manage Messages in this channel in order to purge messages!")
             return
         }
@@ -89,7 +89,7 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             // Inform the use of a successful purge request
             event.message.reply(
                 "${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
-                    if (messages.size > 100) "queued for purging!" else "purged!"
+                        if (messages.size > 100) "queued for purging!" else "purged!"
                 , deleteAfterDelay = 10
             )
             // If purge auditing is enabled, log it

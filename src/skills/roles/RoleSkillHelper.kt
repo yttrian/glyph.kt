@@ -54,7 +54,7 @@ object RoleSkillHelper {
             event.message.mentionsEveryone() -> event.guild.members
             //@here -> event.guild.members.filter { it.onlineStatus == OnlineStatus.ONLINE }
             event.message.cleanMentionedMembers.isNotEmpty() -> event.message.cleanMentionedMembers
-            else -> listOf(event.member)
+            else -> listOf(event.member!!)
         }
         //Extract the desired role name and make a list of all available selectable roles
         val config = event.guild.config.selectableRoles

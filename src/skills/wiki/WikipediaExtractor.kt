@@ -29,7 +29,8 @@ import com.github.kittinunf.result.Result
 import org.json.JSONException
 import org.json.JSONObject
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
+
 import java.net.URL
 import java.net.URLEncoder
 
@@ -37,7 +38,7 @@ import java.net.URLEncoder
  * Grabs articles from Wikipedia
  */
 object WikipediaExtractor {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     /**
      * Tries to find an article from a search

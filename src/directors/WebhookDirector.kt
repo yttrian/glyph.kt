@@ -22,12 +22,14 @@
 
 package me.ianmooreis.glyph.directors
 
+import club.minnced.discord.webhook.WebhookClient
+import club.minnced.discord.webhook.WebhookClientBuilder
+import club.minnced.discord.webhook.send.WebhookEmbed
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder
+import club.minnced.discord.webhook.send.WebhookMessageBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
 import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.webhook.WebhookClient
-import net.dv8tion.jda.webhook.WebhookClientBuilder
-import net.dv8tion.jda.webhook.WebhookMessageBuilder
 import net.jodah.expiringmap.ExpirationPolicy
 import net.jodah.expiringmap.ExpiringMap
 import java.util.concurrent.TimeUnit
@@ -36,6 +38,47 @@ import java.util.concurrent.TimeUnit
  * Manages sending webhook messages
  */
 object WebhookDirector : Director() {
+    private const val DEFAULT_VALUE = "?"
+
+    /**
+     * Attempts to convert a MessageEmbed into a WebhookEmbed
+     */
+    private fun MessageEmbed.toWebhookEmbed(): WebhookEmbed {
+        val builder = WebhookEmbedBuilder()
+
+        this.author?.let {
+            val author = WebhookEmbed.EmbedAuthor(it.name ?: DEFAULT_VALUE, it.iconUrl, it.url)
+            builder.setAuthor(author)
+        }
+
+        this.title?.let {
+            val title = WebhookEmbed.EmbedTitle(it, this.url)
+            builder.setTitle(title)
+        }
+
+        this.color?.let { builder.setColor(it.rgb) }
+
+        this.description?.let { builder.setDescription(it) }
+
+        this.image?.let { builder.setImageUrl(it.url) }
+
+        this.thumbnail?.let { builder.setThumbnailUrl(it.url) }
+
+        this.timestamp?.let { builder.setTimestamp(it) }
+
+        this.footer?.let {
+            val footer = WebhookEmbed.EmbedFooter(it.text ?: DEFAULT_VALUE, it.iconUrl)
+            builder.setFooter(footer)
+        }
+
+        this.fields.forEach {
+            val field = WebhookEmbed.EmbedField(it.isInline, it.name ?: DEFAULT_VALUE, it.value ?: DEFAULT_VALUE)
+            builder.addField(field)
+        }
+
+        return builder.build()
+    }
+
     /**
      * Cache webhook clients so we don't continuously recreate them (like when a lot of people leave a server)
      * and can obey rate limits by reusing a client. Though, don't keep them forever because memory.
@@ -57,7 +100,7 @@ object WebhookDirector : Director() {
      */
     fun send(selfUser: SelfUser, webhookUrl: String, embed: MessageEmbed) {
         getWebhookClient(selfUser.name, selfUser.avatarUrl, webhookUrl) { client, base ->
-            client.send(base.addEmbeds(embed).build())
+            client.send(base.addEmbeds(embed.toWebhookEmbed()).build())
         }
     }
 
@@ -71,7 +114,7 @@ object WebhookDirector : Director() {
      */
     fun send(name: String, avatarUrl: String?, webhookUrl: String, embed: MessageEmbed) {
         getWebhookClient(name, avatarUrl, webhookUrl) { client, base ->
-            client.send(base.addEmbeds(embed).build())
+            client.send(base.addEmbeds(embed.toWebhookEmbed()).build())
         }
     }
 
@@ -83,7 +126,7 @@ object WebhookDirector : Director() {
      */
     fun send(channel: TextChannel, embed: MessageEmbed) {
         getWebhookClient(channel) { client, base ->
-            client.send(base.addEmbeds(embed).build())
+            client.send(base.addEmbeds(embed.toWebhookEmbed()).build())
         }
     }
 
@@ -95,17 +138,17 @@ object WebhookDirector : Director() {
 
         // If there's no client cached, make one
         if (existingClient == null) {
-            channel.webhooks.queue { webhooks ->
+            channel.retrieveWebhooks().queue { webhooks ->
                 // If the channel has no webhooks then create one, otherwise steal one
                 if (webhooks.isEmpty()) {
                     channel.createWebhook(selfUser.name).queue { webhook ->
-                        val newClient = WebhookClientBuilder(webhook).build()
+                        val newClient = WebhookClientBuilder(webhook.url).build()
                         cachedClients[key] = newClient
 
                         success(newClient, baseMessage)
                     }
                 } else {
-                    val newClient = WebhookClientBuilder(webhooks.first()).build()
+                    val newClient = WebhookClientBuilder(webhooks.first().url).build()
                     cachedClients[key] = newClient
 
                     success(newClient, baseMessage)

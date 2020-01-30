@@ -58,11 +58,12 @@ object ServerConfigSkill : Skill(
                         event.message.reply(
                             EmbedBuilder()
                                 .setTitle("Glyph Config Editor")
-                                .setDescription("Click the link below to edit your config. " +
-                                    "When done on the editor, click Save and then Copy Key. " +
-                                    "Come back here and tell Glyph to \"load config <key>\" with the key " +
-                                    "you were given.\n" +
-                                    "[Edit Config](https://gl.yttr.org/#$key)"
+                                .setDescription(
+                                    "Click the link below to edit your config. " +
+                                            "When done on the editor, click Save and then Copy Key. " +
+                                            "Come back here and tell Glyph to \"load config <key>\" with the key " +
+                                            "you were given.\n" +
+                                            "[Edit Config](https://gl.yttr.org/#$key)"
                                 )
                                 .build()
                         )

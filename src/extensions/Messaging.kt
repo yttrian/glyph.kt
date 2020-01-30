@@ -117,5 +117,5 @@ val Message.cleanMentionedUsers: List<User>
  * @return a list of messages since the date in the past
  */
 fun TextChannel.getMessagesSince(time: OffsetDateTime): List<Message> {
-    return this.iterableHistory.takeWhile { it.creationTime.isAfter(time) }
+    return this.iterableHistory.takeWhile { it.timeCreated.isAfter(time) }
 }

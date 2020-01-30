@@ -44,7 +44,7 @@ object AuditingDirector : Director() {
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.config.auditing.joins) {
             val embed = event.user.getInfoEmbed("Member Joined", "Auditing", Color.GREEN)
-            event.guild.audit(embed.title, embed.description, embed.color)
+            event.guild.audit(embed.title!!, embed.description!!, embed.color)
         }
     }
 
@@ -54,7 +54,7 @@ object AuditingDirector : Director() {
     override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
         if (event.guild.config.auditing.leaves) {
             val embed = event.user.getInfoEmbed("Member Left", "Auditing", Color.RED)
-            event.guild.audit(embed.title, embed.description, embed.color)
+            event.guild.audit(embed.title!!, embed.description!!, embed.color)
         }
     }
 

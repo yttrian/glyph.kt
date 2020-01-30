@@ -98,13 +98,13 @@ fun Guild.getInfoEmbed(
     color: Color?,
     showExactCreationDate: Boolean = false
 ): MessageEmbed {
-    val createdAgo = PrettyTime().format(this.creationTime.toDate())
+    val createdAgo = PrettyTime().format(this.timeCreated.toDate())
     val overviewDescription = SimpleDescriptionBuilder()
         .addField("Name", this.name)
         .addField("ID", this.id)
         .addField("Region", this.regionRaw)
-        .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.creationTime})" else ""}")
-        .addField("Owner", this.owner.asMention)
+        .addField("Created", "$createdAgo ${if (showExactCreationDate) "(${this.timeCreated})" else ""}")
+        .addField("Owner", this.owner?.asMention ?: "?")
         .build()
     val membersDescription = SimpleDescriptionBuilder()
         .addField("Humans", this.members.count { !it.user.isBot })

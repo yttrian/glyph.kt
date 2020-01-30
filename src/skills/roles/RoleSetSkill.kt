@@ -43,7 +43,7 @@ object RoleSetSkill :
     Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to set roles for the specified target(s)
-        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member.hasPermission(
+        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member!!.hasPermission(
                 Permission.MANAGE_ROLES
             )
         ) {
@@ -53,22 +53,25 @@ object RoleSetSkill :
         RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
-            if (targets.size > 1 && targets.contains(event.member) && !event.member.hasPermission(Permission.MANAGE_ROLES)
-                && event.member.roles.count { selectableRoles.contains(it) } >= config.limit
+            if (targets.size > 1 && targets.contains(event.member) && !event.member!!.hasPermission(Permission.MANAGE_ROLES)
+                && event.member!!.roles.count { selectableRoles.contains(it) } >= config.limit
             ) {
-                val randomRole = event.member.roles.filter { selectableRoles.contains(it) }.random()
+                val randomRole = event.member!!.roles.filter { selectableRoles.contains(it) }.random()
                 event.message.reply(
                     "" +
-                        "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
-                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
+                            "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
+                            (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
                 )
             } else {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles
                 if (config.limit == 1) {
                     targets.forEach {
                         try {
-                            event.guild.controller.removeRolesFromMember(it, selectableRoles)
-                                .reason("Asked to be ${desiredRole.name}").queue()
+                            selectableRoles.forEach { role ->
+                                event.guild.removeRoleFromMember(it, role)
+                                    .reason("Asked to be ${desiredRole.name}")
+                                    .queue()
+                            }
                         } catch (e: IllegalArgumentException) {
                             this.log.debug("No roles needed to be removed from $it in ${event.guild}")
                         } catch (e: HierarchyException) {
@@ -79,7 +82,7 @@ object RoleSetSkill :
                 //Grant everyone the desired role but report a warning if the role is too high
                 try {
                     targets.forEach { target ->
-                        event.guild.controller.addSingleRoleToMember(target, desiredRole)
+                        event.guild.addRoleToMember(target, desiredRole)
                             .reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
                     }
                     val targetNames = targets.joinToString { it.asPlainMention }

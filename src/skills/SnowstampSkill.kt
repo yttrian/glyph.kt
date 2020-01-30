@@ -31,7 +31,7 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.utils.MiscUtil
+import net.dv8tion.jda.api.utils.TimeUtil
 import java.awt.Color
 
 /**
@@ -46,7 +46,7 @@ object SnowstampSkill : Skill("skill.snowstamp") {
             event.message.reply("${CustomEmote.XMARK} `$snowflake` is not a snowflake!")
             return
         }
-        val snowflakeInstant = MiscUtil.getCreationTime(snowflakeId).toInstant()
+        val snowflakeInstant = TimeUtil.getTimeCreated(snowflakeId).toInstant()
         val description = SimpleDescriptionBuilder()
             .addField("UTC", snowflakeInstant.toString())
             .addField("UNIX", snowflakeInstant.toEpochMilli())

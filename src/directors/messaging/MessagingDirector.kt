@@ -28,10 +28,7 @@ import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Emote
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -39,14 +36,15 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.jodah.expiringmap.ExpiringMap
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
+
 import java.util.concurrent.TimeUnit
 
 /**
  * Manages message events including handling incoming messages and dispatching the SkillDirector in addition to the message ledger
  */
 object MessagingDirector : ListenerAdapter() {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
     private var totalMessages: Int = 0
@@ -103,7 +101,7 @@ object MessagingDirector : ListenerAdapter() {
      * When the client is ready, perform any needed tasks
      */
     override fun onReady(event: ReadyEvent) {
-        loadCustomEmotes(event.jda.getGuildById(System.getenv("EMOJI_GUILD")))
+        event.jda.getGuildById(System.getenv("EMOJI_GUILD"))?.let { loadCustomEmotes(it) }
     }
 
     /**
@@ -131,7 +129,7 @@ object MessagingDirector : ListenerAdapter() {
             StatusDirector.setPresence(
                 event.jda,
                 OnlineStatus.DO_NOT_DISTURB,
-                Game.watching("temporary outage at DialogFlow")
+                Activity.watching("temporary outage at DialogFlow")
             )
             return
         }
@@ -149,7 +147,7 @@ object MessagingDirector : ListenerAdapter() {
     override fun onMessageDelete(event: MessageDeleteEvent) {
         val messageId = ledger[event.messageIdLong]
         if (messageId != null) {
-            event.channel.getMessageById(messageId).queue {
+            event.channel.retrieveMessageById(messageId).queue {
                 it.addReaction("❌").queue()
                 it.delete().queueAfter(1, TimeUnit.SECONDS)
                 ledger.remove(it.idLong)

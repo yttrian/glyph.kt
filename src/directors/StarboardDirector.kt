@@ -50,24 +50,26 @@ object StarboardDirector : Director() {
 
         val starboardChannel = event.guild.getTextChannelById(starboardChannelID)  // channel must belong to server
         if (starboardConfig.enabled && emojiName == starboardConfig.emoji && starboardChannel !== null) {
-            event.channel.getMessageById(event.messageId).queue { message ->
+            event.channel.retrieveMessageById(event.messageId).queue { message ->
                 // Check whether the message should be sent to the starboard, with no duplicates and not a starboard of a starboard
                 val starboardReactions = message.reactions.findLast {
                     emojiAlias(it.reactionEmote.name) == starboardConfig.emoji
                 } ?: return@queue
 
                 // We have to make a separate request to actually see who reacted, this is new
-                starboardReactions.users.queue { reactedUsers ->
+                starboardReactions.retrieveUsers().queue { reactedUsers ->
                     if (!reactedUsers.contains(event.jda.selfUser)) {
                         // Prevent self-starring if disallowed
-                        val selfStarPenalty = if (reactedUsers.contains(message.author) && !starboardConfig.allowSelfStarring) 1 else 0
+                        val selfStarPenalty =
+                            if (reactedUsers.contains(message.author) && !starboardConfig.allowSelfStarring) 1 else 0
                         // Check if threshold met
                         val thresholdMet = (starboardReactions.count - selfStarPenalty) >= starboardConfig.threshold
                         // Check if NSFW and if so whether or not it is allowed
                         val isSafe = (!message.textChannel.isNSFW || starboardChannel.isNSFW)
                         // Prepare message
                         val messageFooter = message.embeds.getOrNull(0)?.footer?.text ?: ""
-                        val isStarboard = (message.isWebhookMessage && message.embeds.size > 0 && messageFooter.contains("Starboard"))
+                        val isStarboard =
+                            (message.isWebhookMessage && message.embeds.size > 0 && messageFooter.contains("Starboard"))
                         if (thresholdMet && isSafe && !isStarboard) {
                             // Mark the message as starboarded and send it to the starboard
                             when (event.reactionEmote.emote) {
@@ -88,7 +90,7 @@ object StarboardDirector : Director() {
             .setDescription(message.contentRaw)
             .setFooter("Starboard | ${message.id} in #${message.textChannel.name}", null)
             .setColor(Color.YELLOW)
-            .setTimestamp(message.creationTime)
+            .setTimestamp(message.timeCreated)
         //Add images
         embed.setImage(
             message.attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
@@ -98,7 +100,7 @@ object StarboardDirector : Director() {
         message.embeds.forEach { subEmbed ->
             val title = subEmbed.title ?: subEmbed.author?.name ?: ""
             val value = (subEmbed?.description ?: "") +
-                subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" }
+                    subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" }
             if (value.isNotBlank()) {
                 embed.addField(title, if (value.length < 1024) value else "${value.substring(0..1020)}...", false)
             }

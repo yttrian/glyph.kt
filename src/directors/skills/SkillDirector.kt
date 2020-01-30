@@ -29,13 +29,14 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
+
 
 /**
  * Manages all the available skills
  */
 object SkillDirector : ListenerAdapter() {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val skills: MutableMap<String, Skill> = mutableMapOf()
     private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
 

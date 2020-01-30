@@ -31,13 +31,14 @@ import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
+
 
 /**
  * Handles the creation of QuickViews for picarto.tv links
  */
 object Picarto {
-    private val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
 
     /**

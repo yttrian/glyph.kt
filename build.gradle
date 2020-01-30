@@ -18,6 +18,7 @@ version = "1.0"
 mainClassName = "me.ianmooreis.glyph.GlyphKt"
 
 shadowJar {
+    mergeServiceFiles()
     manifest {
         attributes 'Main-Class': mainClassName
     }

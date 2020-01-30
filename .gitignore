@@ -1,6 +1,5 @@
 /.idea
-.iml
+/.gradle
 /target
 out/
-src/main/resources/i18n/
-src/test/
+.iml

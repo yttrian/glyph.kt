@@ -22,9 +22,9 @@
 
 package me.ianmooreis.glyph.directors
 
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.SelfUser
-import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.SelfUser
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.webhook.WebhookClient
 import net.dv8tion.jda.webhook.WebhookClientBuilder
 import net.dv8tion.jda.webhook.WebhookMessageBuilder

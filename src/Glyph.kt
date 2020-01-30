@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -40,23 +40,29 @@ import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
-import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDABuilder
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.utils.cache.CacheFlag
+import java.util.*
 
 /**
  * The Glyph object to use when building the client
  */
-object Glyph : JDABuilder(AccountType.BOT) {
+object Glyph : DefaultShardManagerBuilder() {
     /**
      * The current version of Glyph
      */
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
 
     init {
-        this.setToken(System.getenv("DISCORD_TOKEN")).addEventListener(
+        this.setToken(System.getenv("DISCORD_TOKEN"))
+        this.addEventListeners(
             MessagingDirector, AuditingDirector, ServerDirector,
             QuickviewDirector, StatusDirector, StarboardDirector
         )
+        this.setDisabledCacheFlags(
+            EnumSet.allOf(CacheFlag::class.java)
+        )
+        this.setGuildSubscriptionsEnabled(false)
     }
 }
 
@@ -74,9 +80,5 @@ fun main() {
         ChangeStatusSkill, FarmsSkill,
         FallbackSkill
     )
-    val shardTotal = System.getenv("SHARD_TOTAL").toInt()
-    for (i in 0 until shardTotal) {
-        Glyph.useSharding(i, shardTotal).build()
-        Thread.sleep(5000)
-    }
+    Glyph.build()
 }

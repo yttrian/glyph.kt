@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.directors.config
 
-import net.dv8tion.jda.core.entities.Guild
+import net.dv8tion.jda.api.entities.Guild
 
 /**
  * A container for holding multiple configs

@@ -31,9 +31,9 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.skills.utils.Myjson
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
  * The skill for getting a server configuration which will be posted to Hastebin in YAML format

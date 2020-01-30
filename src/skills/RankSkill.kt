@@ -29,12 +29,11 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.skills.utils.Hastebin
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.Member
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
 

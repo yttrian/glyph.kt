@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.directors.messaging
 
-import net.dv8tion.jda.core.entities.Emote
+import net.dv8tion.jda.api.entities.Emote
 
 /**
  * Useful custom emotes from the EMOJI_GUILD

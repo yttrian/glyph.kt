@@ -25,9 +25,9 @@
 package me.ianmooreis.glyph.extensions
 
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
-import net.dv8tion.jda.core.MessageBuilder
-import net.dv8tion.jda.core.entities.*
-import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.MessageBuilder
+import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import java.time.OffsetDateTime
 import java.util.concurrent.TimeUnit
 

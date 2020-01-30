@@ -27,8 +27,8 @@ package me.ianmooreis.glyph.directors.config
 import me.ianmooreis.glyph.directors.Director
 import me.ianmooreis.glyph.directors.config.server.*
 import me.ianmooreis.glyph.extensions.deleteConfig
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.URI

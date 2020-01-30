@@ -27,10 +27,10 @@ package me.ianmooreis.glyph.skills.moderation
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.entities.Member
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import net.dv8tion.jda.core.managers.GuildController
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.managers.GuildController
 
 /**
  * Helps run all the checks before allowing a member to kick or ban

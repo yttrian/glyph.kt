@@ -27,8 +27,8 @@ import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.furaffinity.FurAffinity
 import me.ianmooreis.glyph.directors.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.extensions.config
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 /**
  * Handle triggers for quickviews

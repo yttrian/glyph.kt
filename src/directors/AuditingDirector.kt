@@ -27,10 +27,10 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getInfoEmbed
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
-import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent
-import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent
+import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent
+import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent
 import java.awt.Color
 
 /**

@@ -25,10 +25,10 @@
 package me.ianmooreis.glyph.extensions
 
 import me.ianmooreis.glyph.directors.WebhookDirector
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.SelfUser
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.SelfUser
 import java.awt.Color
 import java.time.Instant
 

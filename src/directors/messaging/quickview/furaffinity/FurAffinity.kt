@@ -30,7 +30,7 @@ import com.google.gson.Gson
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.simple.SimpleLoggerFactory

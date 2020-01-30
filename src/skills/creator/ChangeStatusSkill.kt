@@ -28,9 +28,9 @@ import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.OnlineStatus
-import net.dv8tion.jda.core.entities.Game
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.OnlineStatus
+import net.dv8tion.jda.api.entities.Game
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
  * A skill that allows the creator to change the client status

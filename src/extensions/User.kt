@@ -25,10 +25,10 @@
 package me.ianmooreis.glyph.extensions
 
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.Member
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.User
 import org.ocpsoft.prettytime.PrettyTime
 import java.awt.Color
 import java.time.Instant

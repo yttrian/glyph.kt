@@ -24,9 +24,9 @@
 
 package me.ianmooreis.glyph.directors
 
-import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
-import org.slf4j.simple.SimpleLoggerFactory
+import org.slf4j.LoggerFactory
 
 /**
  * The definition of a director, with pre-included properties like a logger
@@ -35,5 +35,5 @@ abstract class Director : ListenerAdapter() {
     /**
      * The directors's logger which will show the director's name in the console when logs are made
      */
-    val log: Logger = SimpleLoggerFactory().getLogger(this.javaClass.simpleName)
+    val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 }

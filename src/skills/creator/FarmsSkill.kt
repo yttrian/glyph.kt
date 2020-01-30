@@ -29,7 +29,7 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.botRatio
 import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
  * A skill that allows the creator to check the status of bot farms and ask the client to leave them

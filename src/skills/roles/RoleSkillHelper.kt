@@ -29,9 +29,9 @@ import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.entities.Member
-import net.dv8tion.jda.core.entities.Role
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
  * Helps find a selectable role a member is asking about

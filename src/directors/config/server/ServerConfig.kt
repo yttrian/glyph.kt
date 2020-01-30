@@ -26,7 +26,7 @@ package me.ianmooreis.glyph.directors.config.server
 
 import com.google.gson.*
 import me.ianmooreis.glyph.directors.config.ConfigContainer
-import net.dv8tion.jda.core.entities.Guild
+import net.dv8tion.jda.api.entities.Guild
 
 /**
  * The holder of all the sub-configurations

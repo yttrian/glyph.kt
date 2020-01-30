@@ -29,9 +29,9 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import net.dv8tion.jda.core.exceptions.HierarchyException
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.exceptions.HierarchyException
 
 /**
  * A skill to allow members to unset a selectable role

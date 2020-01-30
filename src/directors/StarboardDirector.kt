@@ -26,10 +26,10 @@ package me.ianmooreis.glyph.directors
 import com.vdurmont.emoji.EmojiParser
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.config
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.Message
-import net.dv8tion.jda.core.entities.TextChannel
-import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import java.awt.Color
 
 /**

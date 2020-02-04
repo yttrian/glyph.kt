@@ -58,7 +58,7 @@ dependencies {
     implementation "org.ocpsoft.prettytime:prettytime:3.2.7.Final"
     implementation "com.github.kittinunf.fuel:fuel:1.12.1"
     implementation "com.vdurmont:emoji-java:4.0.0"
-    implementation "net.jodah:expiringmap:0.5.8"
+    implementation "net.jodah:expiringmap:0.5.9"
     implementation "commons-codec:commons-codec:1.11"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
 }

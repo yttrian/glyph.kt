@@ -63,7 +63,7 @@ object ServerConfigSkill : Skill(
                                             "When done on the editor, click Save and then Copy Key. " +
                                             "Come back here and tell Glyph to \"load config <key>\" with the key " +
                                             "you were given.\n" +
-                                            "[Edit Config](https://gl.yttr.org/#$key)"
+                                            "[Edit Config](https://gl.yttr.org/config#$key)"
                                 )
                                 .build()
                         )

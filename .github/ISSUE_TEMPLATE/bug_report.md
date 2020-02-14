@@ -24,7 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Glyph Version**
-Ask Glyph "status" and write down the number at the bottom that's in the format Glyph-Kotln-vXXX
+Ask Glyph "status" and write down the number at the bottom that's in the format Glyph-Kotlin-vXXX
 
 **Additional context**
 Add any other context about the problem here.

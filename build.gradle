@@ -53,7 +53,7 @@ dependencies {
     implementation "com.google.cloud:google-cloud-dialogflow:1.0.0"
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
-    implementation "org.postgresql:postgresql:42.2.11"
+    implementation "org.postgresql:postgresql:42.2.12"
     implementation "net.dean.jraw:JRAW:1.0.0"
     implementation "org.ocpsoft.prettytime:prettytime:4.0.4.Final"
     implementation "com.github.kittinunf.fuel:fuel:1.12.1"

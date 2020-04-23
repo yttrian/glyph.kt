@@ -25,6 +25,7 @@
 package me.ianmooreis.glyph
 
 import me.ianmooreis.glyph.directors.AuditingDirector
+import me.ianmooreis.glyph.directors.DatabaseDirector
 import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
@@ -64,6 +65,13 @@ object Glyph {
      * The current version of Glyph
      */
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
+
+    private val databaseDirector = DatabaseDirector {
+        databaseConnectionUrl = System.getenv("DATABASE_URL")
+        redisConnectionUrl = System.getenv("REDIS_URL")
+    }
+
+    private val redisPool = databaseDirector.redisPool
 
     private val builder = DefaultShardManagerBuilder.createLight(null).apply {
         val token = System.getenv("DISCORD_TOKEN")

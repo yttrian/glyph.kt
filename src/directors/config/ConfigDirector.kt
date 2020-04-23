@@ -25,23 +25,32 @@
 package me.ianmooreis.glyph.directors.config
 
 import me.ianmooreis.glyph.directors.Director
-import me.ianmooreis.glyph.directors.config.server.*
+import me.ianmooreis.glyph.directors.config.server.AuditingConfig
+import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
+import me.ianmooreis.glyph.directors.config.server.SelectableRolesConfig
+import me.ianmooreis.glyph.directors.config.server.ServerConfig
+import me.ianmooreis.glyph.directors.config.server.ServerConfigsTable
+import me.ianmooreis.glyph.directors.config.server.ServerSelectableRolesTable
+import me.ianmooreis.glyph.directors.config.server.ServerWikiSourcesTable
+import me.ianmooreis.glyph.directors.config.server.StarboardConfig
+import me.ianmooreis.glyph.directors.config.server.WikiConfig
 import me.ianmooreis.glyph.extensions.deleteConfig
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteIgnoreWhere
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.net.URI
+import org.jetbrains.exposed.sql.update
 
 /**
  * Manages the configuration database
  */
 object ConfigDirector : Director() {
     private val configs = mutableMapOf<Long, ServerConfig>()
-    private val dbUri = URI(System.getenv("DATABASE_URL"))
-    private val username = dbUri.userInfo.split(":")[0]
-    private val password = dbUri.userInfo.split(":")[1]
-    private val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
     private val defaultConfig = ServerConfig()
 
     // Some shorthand for long table names
@@ -50,8 +59,6 @@ object ConfigDirector : Director() {
     private val ssrt = ServerSelectableRolesTable
 
     init {
-        Database.connect(dbUrl, driver = "org.postgresql.Driver", user = username, password = password)
-
         createTables()
     }
 

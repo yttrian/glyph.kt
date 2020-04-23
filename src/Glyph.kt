@@ -53,8 +53,8 @@ import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
-import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 
 /**
  * The Glyph object to use when building the client
@@ -65,7 +65,7 @@ object Glyph {
      */
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
 
-    private val builder = JDABuilder.createLight(null).apply {
+    private val builder = DefaultShardManagerBuilder.createLight(null).apply {
         val token = System.getenv("DISCORD_TOKEN")
 
         setToken(token)

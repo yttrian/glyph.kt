@@ -1,12 +1,15 @@
+[![GitHub](https://img.shields.io/github/license/glyph-discord/glyph.kt)](https://github.com/glyph-discord/glyph.kt/blob/master/LICENSE)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/glyph-discord/glyph.kt/Java%20CI/master)](https://github.com/glyph-discord/glyph.kt/actions)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/60f13f47ba0d427a84ea713b0f8897a8)](https://app.codacy.com/app/IanMooreIsMe/glyph-kotlin?utm_source=github.com&utm_medium=referral&utm_content=glyph-discord/glyph-kotlin&utm_campaign=Badge_Grade_Settings)
+[![Discord Bots](https://discordbots.org/api/widget/status/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
+[![Discord Bots](https://discordbots.org/api/widget/servers/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
+
 # glyph-kotlin
 The Kotlin rewrite of the Glyph Discord bot
 
 Glyph is an experimental Discord bot that makes use of [DialogFlow](https://dialogflow.com/) to attempt to understand and process natural language requests as opposed to a traditional command based bot.
 
-To learn more about how to use Glyph, check out the documentation [here](https://glyph-discord.readthedocs.io/en/latest/welcome.html).
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/60f13f47ba0d427a84ea713b0f8897a8)](https://app.codacy.com/app/IanMooreIsMe/glyph-kotlin?utm_source=github.com&utm_medium=referral&utm_content=glyph-discord/glyph-kotlin&utm_campaign=Badge_Grade_Settings)
-[![Discord Bots](https://discordbots.org/api/widget/status/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032) [![Discord Bots](https://discordbots.org/api/widget/servers/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
+To learn more about how to use Glyph, check out the documentation [here](https://gl.yttr.org/).
 
 ## Self Hosting
 

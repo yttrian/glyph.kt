@@ -20,7 +20,7 @@ mainClassName = "me.ianmooreis.glyph.GlyphKt"
 shadowJar {
     mergeServiceFiles()
     manifest {
-        attributes 'Main-Class': mainClassName
+        attributes "Main-Class": mainClassName
     }
 }
 

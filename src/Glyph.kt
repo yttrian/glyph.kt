@@ -31,10 +31,24 @@ import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
-import me.ianmooreis.glyph.skills.*
+import me.ianmooreis.glyph.skills.DoomsdayClockSkill
+import me.ianmooreis.glyph.skills.EphemeralSaySkill
+import me.ianmooreis.glyph.skills.FallbackSkill
+import me.ianmooreis.glyph.skills.FeedbackSkill
+import me.ianmooreis.glyph.skills.HelpSkill
+import me.ianmooreis.glyph.skills.RankSkill
+import me.ianmooreis.glyph.skills.RedditSkill
+import me.ianmooreis.glyph.skills.SnowstampSkill
+import me.ianmooreis.glyph.skills.SourceSkill
+import me.ianmooreis.glyph.skills.StatusSkill
+import me.ianmooreis.glyph.skills.TimeSkill
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.skills.creator.ChangeStatusSkill
-import me.ianmooreis.glyph.skills.moderation.*
+import me.ianmooreis.glyph.skills.moderation.BanSkill
+import me.ianmooreis.glyph.skills.moderation.GuildInfoSkill
+import me.ianmooreis.glyph.skills.moderation.KickSkill
+import me.ianmooreis.glyph.skills.moderation.PurgeSkill
+import me.ianmooreis.glyph.skills.moderation.UserInfoSkill
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
@@ -56,7 +70,10 @@ object Glyph {
 
         setToken(token)
 
-        setEnabledIntents(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS)
+        setEnabledIntents(
+            GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS,
+            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS
+        )
 
         addEventListeners(
             MessagingDirector, AuditingDirector, ServerDirector,

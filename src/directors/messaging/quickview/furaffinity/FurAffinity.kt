@@ -40,6 +40,10 @@ import org.slf4j.LoggerFactory
  * Handles the creation of QuickViews for furaffinity.net links
  */
 object FurAffinity {
+    /**
+     * A server hosting an instance of FAExport
+     */
+    private const val API_HOST: String = "https://faexport.spangle.org.uk"
     private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val standardUrlFormat =
         Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
@@ -65,14 +69,14 @@ object FurAffinity {
                     val allowThumbnail = if (!event.channelType.isGuild && !it.rating.nsfw) true else
                         event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw)
                     event.message.reply(it.getEmbed(allowThumbnail))
-                    log.info("Created FurAffinity QuickView in ${event.guild} for submission ${it.link}")
+                    log.info("Created FurAffinity QuickView for submission ${it.link}")
                 }
             }
     }
 
     private fun findSubmissionId(cdnId: Int, user: String, maxPages: Int = 1): Int? {
         for (page in 1..maxPages) {
-            val (_, _, result) = "https://faexport.boothale.net/user/$user/gallery.json?full=1&page=1".httpGet().responseString()
+            val (_, _, result) = "$API_HOST/user/$user/gallery.json?full=1&page=1".httpGet().responseString()
             val submissions = JSONArray(result.get())
             if (result is Result.Success) {
                 for (i in 0.until(submissions.length() - 1)) {
@@ -88,7 +92,7 @@ object FurAffinity {
     }
 
     private fun getSubmission(id: Int): Submission? { //TODO: Figure out how not to do it blocking, because async had errors
-        val (_, _, result) = "https://faexport.boothale.net/submission/$id.json".httpGet().responseString()
+        val (_, _, result) = "$API_HOST/submission/$id.json".httpGet().responseString()
         return when (result) {
             is Result.Success -> {
                 Gson().fromJson(result.get(), Submission::class.java)

@@ -26,7 +26,10 @@ package me.ianmooreis.glyph.skills.moderation
 
 import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.*
+import me.ianmooreis.glyph.extensions.asPlainMention
+import me.ianmooreis.glyph.extensions.getInfoEmbed
+import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.extensions.toDate
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -52,7 +55,7 @@ object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
                     "channelsText" -> "${guild.name} has **${guild.textChannels.size}** text channels."
                     "channelsVoice" -> "${guild.name} has **${guild.voiceChannels.size}** voice channels."
                     "roles" -> "${guild.name} has **${guild.roles.size}** roles."
-                    "farm" -> if (guild.isBotFarm) "**Yes**, ${guild.name} is a bot farm!" else "**No**, ${guild.name} is not a bot farm."
+                    "farm" -> "Servers are no longer checked for bot farming."
                     else -> "I'm not sure what property `$property` is for a guild."
                 }
             )

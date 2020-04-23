@@ -24,11 +24,7 @@ package me.ianmooreis.glyph.directors
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.extensions.botRatio
-import me.ianmooreis.glyph.extensions.isBotFarm
 import me.ianmooreis.glyph.extensions.log
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -51,9 +47,6 @@ object ServerDirector : Director() {
      */
     override fun onReady(event: ReadyEvent) {
         updateServerCount(event.jda)
-        GlobalScope.launch {
-            antiBotFarm(event.jda.guilds)
-        }
     }
 
     /**
@@ -72,19 +65,6 @@ object ServerDirector : Director() {
         updateServerCount(event.jda)
         event.jda.selfUser.log(getGuildEmbed(event.guild).setTitle("Guild Left").setColor(Color.RED).build())
         log.info("Left ${event.guild}")
-    }
-
-    /**
-     * Automatically leave any guilds considered to be a bot farm
-     *
-     * @param guilds the list of guilds to check
-     */
-    private fun antiBotFarm(guilds: List<Guild>) {
-        guilds.filter { it.isBotFarm }.forEach { guild ->
-            guild.leave().queue {
-                log.info("Left bot farm $guild! Guild had bot ratio of ${guild.botRatio}")
-            }
-        }
     }
 
     /**
@@ -125,8 +105,7 @@ object ServerDirector : Director() {
         val description = SimpleDescriptionBuilder()
             .addField("Name", guild.name)
             .addField("ID", guild.id)
-            .addField("Members", "${guild.members.size} (${guild.members.count { it.user.isBot }} bots)")
-            .addField("Farm", "${guild.isBotFarm} (${"%.2f".format(guild.botRatio)})")
+            .addField("Members", guild.memberCount)
             .build()
         return EmbedBuilder()
             .setDescription(description)

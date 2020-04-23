@@ -34,35 +34,50 @@ import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.skills.*
 import me.ianmooreis.glyph.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.skills.creator.ChangeStatusSkill
-import me.ianmooreis.glyph.skills.creator.FarmsSkill
 import me.ianmooreis.glyph.skills.moderation.*
 import me.ianmooreis.glyph.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
-import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
-import net.dv8tion.jda.api.utils.cache.CacheFlag
-import java.util.*
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.requests.GatewayIntent
 
 /**
  * The Glyph object to use when building the client
  */
-object Glyph : DefaultShardManagerBuilder() {
+object Glyph {
     /**
      * The current version of Glyph
      */
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
 
-    init {
-        this.setToken(System.getenv("DISCORD_TOKEN"))
-        this.addEventListeners(
+    private val builder = JDABuilder.createLight(null).apply {
+        val token = System.getenv("DISCORD_TOKEN")
+
+        setToken(token)
+
+        setEnabledIntents(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS)
+
+        addEventListeners(
             MessagingDirector, AuditingDirector, ServerDirector,
             QuickviewDirector, StatusDirector, StarboardDirector
         )
-        this.setDisabledCacheFlags(
-            EnumSet.allOf(CacheFlag::class.java)
+    }
+
+    /**
+     * Build the bot and run
+     */
+    fun run() {
+        SkillDirector.addSkill(
+            HelpSkill, StatusSkill, SourceSkill,
+            RoleSetSkill, RoleUnsetSkill, RoleListSkill,
+            ServerConfigSkill,
+            PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
+            EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
+            ChangeStatusSkill,
+            FallbackSkill
         )
-        this.setGuildSubscriptionsEnabled(false)
+        builder.build()
     }
 }
 
@@ -70,15 +85,4 @@ object Glyph : DefaultShardManagerBuilder() {
  * Where everything begins
  * Registers all the skills and builds the clients with optional sharding
  */
-fun main() {
-    SkillDirector.addSkill(
-        HelpSkill, StatusSkill, SourceSkill,
-        RoleSetSkill, RoleUnsetSkill, RoleListSkill,
-        ServerConfigSkill,
-        PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
-        EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
-        ChangeStatusSkill, FarmsSkill,
-        FallbackSkill
-    )
-    Glyph.build()
-}
+fun main(): Unit = Glyph.run()

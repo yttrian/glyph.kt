@@ -50,22 +50,6 @@ fun Guild.deleteConfig() {
 }
 
 /**
- * Whether or not the guild is considered a bot farm
- */
-val Guild.isBotFarm: Boolean
-    get() = (botRatio > .8 && members.count() > 10 && !ConfigDirector.hasCustomConfig(this))
-
-/**
- * The ratio of bots to humans as a percentage
- */
-val Guild.botRatio: Float
-    get() {
-        val members = this.members.count()
-        val bots = this.members.count { it.user.isBot }
-        return (bots.toFloat() / members.toFloat())
-    }
-
-/**
  * Attempt to find a user in a guild by their effective name, username, nickname, and/or id
  *
  * @param search the value to use to try and find a user

@@ -39,15 +39,15 @@ import java.util.concurrent.TimeUnit
  * The definition of a skill with a trigger word, cooldown times, required permissions, and usage limits
  */
 abstract class Skill(
-    /**
-     * The trigger world (a DialogFlow action) to use to refer to the skill
-     */
-    val trigger: String,
-    private val cooldownTime: Long = 2, private val cooldownUnit: TimeUnit = TimeUnit.SECONDS,
-    private val guildOnly: Boolean = false,
-    private val requiredPermissionsUser: Collection<Permission> = emptyList(),
-    private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
-    private val creatorOnly: Boolean = false
+        /**
+         * The trigger world (a DialogFlow action) to use to refer to the skill
+         */
+        val trigger: String,
+        private val cooldownTime: Long = 2, private val cooldownUnit: TimeUnit = TimeUnit.SECONDS,
+        private val guildOnly: Boolean = false,
+        private val requiredPermissionsUser: Collection<Permission> = emptyList(),
+        private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
+        private val creatorOnly: Boolean = false
 ) {
     /**
      * The skill's logger which will show the skill's name in the console when logs are made
@@ -65,17 +65,15 @@ abstract class Skill(
      * Trigger the skill but do some checks first before truly triggering it
      */
     fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
-        val permittedUser: Boolean =
-            if (event.channelType.isGuild) event.member!!.hasPermission(requiredPermissionsUser) else true
-        val permittedSelf: Boolean =
-            if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
+        val permittedUser: Boolean = if (event.channelType.isGuild) event.member!!.hasPermission(requiredPermissionsUser) else true
+        val permittedSelf: Boolean = if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
         val currentCooldown: SkillCooldown? = SkillDirector.getCooldown(event.author, this)
         when {
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
                     event.message.reply(
-                        "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
-                        deleteAfterDelay = currentCooldown.remainingSeconds
+                            "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
+                            deleteAfterDelay = currentCooldown.remainingSeconds
                     )
                     log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, cooled")
                     currentCooldown.warned = true
@@ -84,19 +82,15 @@ abstract class Skill(
                 }
             (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
             !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
-                prettyPrintPermissionName(
-                    it
-                )
+                prettyPrintPermissionName(it)
             }})")
             !permittedUser -> event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
-                prettyPrintPermissionName(
-                    it
-                )
+                prettyPrintPermissionName(it)
             }})")
             creatorOnly && !event.author.isCreator -> event.message.addReaction("❓").queue() //Pretend the skill does not exist
             else -> {
                 this.onTrigger(event, ai)
-                log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}")
+                log.info("Received \"${event.message.contentClean}\" from ${ai.sessionID}")
                 SkillDirector.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
             }
         }

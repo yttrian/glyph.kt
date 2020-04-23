@@ -59,12 +59,12 @@ object DialogFlow {
     /**
      * Request an AIResponse for a message from the agent
      */
-    fun request(message: String, sesssionId: String): AIResponse {
+    fun request(message: String, sessionId: String): AIResponse {
         val textInput = TextInput.newBuilder().setText(message).setLanguageCode("en-US") // TODO: Not hardcode language
         val queryInput = QueryInput.newBuilder().setText(textInput).build()
-        val session = SessionName.of(projectId, sesssionId)
+        val session = SessionName.of(projectId, sessionId)
         val response = agent.detectIntent(session, queryInput)
 
-        return AIResponse(response)
+        return AIResponse(response, sessionId)
     }
 }

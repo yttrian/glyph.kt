@@ -29,13 +29,21 @@ import com.google.cloud.dialogflow.v2.DetectIntentResponse
 /**
  * A wrapper for the new DialogFlow API v2 responses
  */
-class AIResponse(response: DetectIntentResponse) {
+class AIResponse(
+        response: DetectIntentResponse,
+        /**
+         * The session id used when sending the message
+         */
+        val sessionID: String
+) {
     /**
      * If an error occurred while detecting the intent
      */
     val isError: Boolean = !response.hasQueryResult()
+
     /**
      * The result from DialogFlow
      */
     val result: AIResult = AIResult(response.queryResult)
+
 }

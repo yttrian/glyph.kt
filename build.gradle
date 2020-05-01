@@ -50,7 +50,7 @@ dependencies {
     implementation "net.dv8tion:JDA:$jda_version"
     implementation "club.minnced:discord-webhooks:0.3.0"
     implementation "com.google.cloud:google-cloud-storage:1.106.0"
-    implementation "com.google.cloud:google-cloud-dialogflow:1.0.0"
+    implementation "com.google.cloud:google-cloud-dialogflow:2.0.0"
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
     implementation "org.postgresql:postgresql:42.2.12"

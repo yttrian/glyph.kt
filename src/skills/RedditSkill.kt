@@ -26,7 +26,7 @@ package me.ianmooreis.glyph.skills
 
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
-import me.ianmooreis.glyph.directors.messaging.AIResponse
+import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
@@ -45,7 +45,9 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.jodah.expiringmap.ExpiringMap
 import java.time.Instant
-import java.util.*
+import java.util.LinkedList
+import java.util.Queue
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 /**

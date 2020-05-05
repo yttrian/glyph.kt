@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2019 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,16 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging
-
-import com.google.cloud.dialogflow.v2.QueryResult
+package me.ianmooreis.glyph.ai
 
 /**
- * A wrapper for the new DialogFlow API v2 fulfillment
+ * Fulfillment data directly from the agent
  */
-class AIFulfillment(result: QueryResult) {
+interface AIFulfillment {
     /**
      * What the agent wants to say
      */
-    val speech: String = result.fulfillmentText.replace("\\n", "\n", ignoreCase = true).trim()
+    val speech: String
 }

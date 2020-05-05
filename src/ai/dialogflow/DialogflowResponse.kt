@@ -1,10 +1,10 @@
 /*
- * FeedbackSkill.kt
+ * AIResponse.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,20 +22,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills
+package me.ianmooreis.glyph.ai.dialogflow
 
+import com.google.cloud.dialogflow.v2.DetectIntentResponse
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.log
-import me.ianmooreis.glyph.extensions.reply
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
- * A skill that allows users to send anonymous feedback via the global log webhook
+ * A wrapper for the new DialogFlow API v2 responses
  */
-object FeedbackSkill : Skill("skill.feedback", cooldownTime = 90) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        event.jda.selfUser.log("Feedback", "```${ai.result.getStringParameter("feedback")}```")
-        event.message.reply(ai.result.fulfillment.speech)
-    }
+class DialogflowResponse(response: DetectIntentResponse, override val sessionID: String) : AIResponse {
+    /**
+     * If an error occurred while detecting the intent
+     */
+    override val isError: Boolean = !response.hasQueryResult()
+
+    /**
+     * The result from DialogFlow
+     */
+    override val result: DialogflowResult = DialogflowResult(response.queryResult)
 }

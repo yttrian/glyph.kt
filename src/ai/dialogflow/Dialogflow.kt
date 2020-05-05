@@ -1,10 +1,10 @@
 /*
- * DialogFlow.kt
+ * Dialogflow.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2019 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,49 +22,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging
+package me.ianmooreis.glyph.ai.dialogflow
 
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
-import com.google.cloud.dialogflow.v2.*
+import com.google.cloud.dialogflow.v2.QueryInput
+import com.google.cloud.dialogflow.v2.SessionName
+import com.google.cloud.dialogflow.v2.SessionsClient
+import com.google.cloud.dialogflow.v2.SessionsSettings
+import com.google.cloud.dialogflow.v2.TextInput
+import me.ianmooreis.glyph.ai.AIAgent
+import me.ianmooreis.glyph.ai.AIResponse
+import java.io.ByteArrayInputStream
 
 /**
  * Wrapper for the new DialogFlow API v2
  */
-object DialogFlow {
-    private val credentials = getCredentials()
-    private val agent = createClient()
-    private val projectId = getProjectId()
-
-    private fun getCredentials(): GoogleCredentials {
-        val credentialStream = System.getenv("DIALOGFLOW_CREDENTIALS").byteInputStream()
-
-        return GoogleCredentials.fromStream(credentialStream)
+class Dialogflow(credentialStream: ByteArrayInputStream, configure: Config.() -> Unit = {}) : AIAgent {
+    /**
+     * HOCON-like config for the Dialogflow agent
+     */
+    class Config {
+        /**
+         * The language code used during requests
+         */
+        var languageCode: String = "en-US"  // TODO: Not hardcode language
     }
 
-    private fun createClient(): SessionsClient {
+    private val config = Config().also(configure)
+    private val credentials: GoogleCredentials = GoogleCredentials.fromStream(credentialStream)
+    private val agent: SessionsClient by lazy {
         val sessionSettings = SessionsSettings.newBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
             .build()
 
-        return SessionsClient.create(sessionSettings)
+        SessionsClient.create(sessionSettings)
     }
-
-    private fun getProjectId(): String {
-        return (credentials as ServiceAccountCredentials).projectId
-    }
-
+    private val projectId = (credentials as ServiceAccountCredentials).projectId
 
     /**
      * Request an AIResponse for a message from the agent
      */
-    fun request(message: String, sessionId: String): AIResponse {
-        val textInput = TextInput.newBuilder().setText(message).setLanguageCode("en-US") // TODO: Not hardcode language
+    override fun request(message: String, sessionId: String): AIResponse {
+        val textInput = TextInput.newBuilder().setText(message).setLanguageCode(config.languageCode)
         val queryInput = QueryInput.newBuilder().setText(textInput).build()
         val session = SessionName.of(projectId, sessionId)
         val response = agent.detectIntent(session, queryInput)
 
-        return AIResponse(response, sessionId)
+        return DialogflowResponse(response, sessionId)
     }
 }

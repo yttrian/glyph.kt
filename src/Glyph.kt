@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph
 
+import me.ianmooreis.glyph.ai.AIAgent
+import me.ianmooreis.glyph.ai.dialogflow.Dialogflow
 import me.ianmooreis.glyph.directors.AuditingDirector
 import me.ianmooreis.glyph.directors.DatabaseDirector
 import me.ianmooreis.glyph.directors.ServerDirector
@@ -66,6 +68,8 @@ object Glyph {
      */
     val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
 
+    private val aiAgent: AIAgent = Dialogflow(System.getenv("DIALOGFLOW_CREDENTIALS").byteInputStream())
+
     private val databaseDirector = DatabaseDirector {
         databaseConnectionUrl = System.getenv("DATABASE_URL")
         redisConnectionUrl = System.getenv("REDIS_URL")
@@ -84,7 +88,7 @@ object Glyph {
         )
 
         addEventListeners(
-            MessagingDirector, AuditingDirector, ServerDirector,
+            MessagingDirector(aiAgent), AuditingDirector, ServerDirector,
             QuickviewDirector, StatusDirector, StarboardDirector
         )
     }

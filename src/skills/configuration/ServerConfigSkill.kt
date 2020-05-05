@@ -25,8 +25,8 @@
 package me.ianmooreis.glyph.skills.configuration
 
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.messaging.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply

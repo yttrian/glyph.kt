@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2019 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,29 +22,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging
+package me.ianmooreis.glyph.ai.dialogflow
 
 import com.google.cloud.dialogflow.v2.QueryResult
 import com.google.gson.JsonObject
 import com.google.protobuf.Value
+import me.ianmooreis.glyph.ai.AIResult
 
 /**
- *
  * A wrapper for the new DialogFlow API v2 results
  */
-class AIResult(private val result: QueryResult) {
+class DialogflowResult(private val result: QueryResult) : AIResult {
     /**
      * The action (skill) that the agent detected
      */
-    val action: String = result.action
+    override val action: String = result.action
+
     /**
      * Whether or not the action is expecting an immediate follow-up
      */
-    val isActionIncomplete: Boolean = false // TODO: Find value
+    override val isActionIncomplete: Boolean = false // TODO: Find value
+
     /**
      * DialogFlow side fulfillment results (like messages to say)
      */
-    val fulfillment: AIFulfillment = AIFulfillment(result)
+    override val fulfillment = DialogflowFulfillment(result)
 
     private fun getField(key: String): Value {
         return result.parameters.getFieldsOrDefault(key, Value.getDefaultInstance())
@@ -53,7 +55,7 @@ class AIResult(private val result: QueryResult) {
     /**
      * Get the value of a string parameter
      */
-    fun getComplexParameter(parameterName: String): JsonObject? {
+    override fun getComplexParameter(parameterName: String): JsonObject? {
         val struct = getField(parameterName).structValue
         val json = JsonObject()
 
@@ -71,7 +73,7 @@ class AIResult(private val result: QueryResult) {
     /**
      * Get the value of a string parameter
      */
-    fun getStringParameter(parameterName: String): String? {
+    override fun getStringParameter(parameterName: String): String? {
         val value = getField(parameterName).stringValue
 
         return if (value.isNotEmpty()) value else null

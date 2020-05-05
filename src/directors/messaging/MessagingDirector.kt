@@ -23,12 +23,17 @@
 
 package me.ianmooreis.glyph.directors.messaging
 
+import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.Emote
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -37,13 +42,12 @@ import net.jodah.expiringmap.ExpiringMap
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.util.concurrent.TimeUnit
 
 /**
  * Manages message events including handling incoming messages and dispatching the SkillDirector in addition to the message ledger
  */
-object MessagingDirector : ListenerAdapter() {
+class MessagingDirector(private val aiAgent: AIAgent) : ListenerAdapter() {
     private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
@@ -122,7 +126,7 @@ object MessagingDirector : ListenerAdapter() {
 
         // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
-        val ai = DialogFlow.request(event.message.contentClean, sessionId)
+        val ai = aiAgent.request(event.message.contentClean, sessionId)
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
             event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")

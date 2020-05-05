@@ -25,7 +25,7 @@
 package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.Glyph
-import me.ianmooreis.glyph.directors.messaging.AIResponse
+import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.lang.management.ManagementFactory
 import java.time.Instant
-import java.util.*
+import java.util.Date
 
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only

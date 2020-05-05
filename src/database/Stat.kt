@@ -1,10 +1,10 @@
 /*
- * Director.kt
+ * StatisticKeys.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,18 +22,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors
-
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+package me.ianmooreis.glyph.database
 
 /**
- * The definition of a director, with pre-included properties like a logger
+ * Key names for standardizing statistics storage (likely in Redis)
  */
-abstract class Director : ListenerAdapter() {
+enum class Stat(
     /**
-     * The directors's logger which will show the director's name in the console when logs are made
+     * The database key for the statistic
      */
-    val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+    val key: String
+) {
+    /**
+     * The total number of messages processed by the bot
+     */
+    MESSAGE_COUNT("Glyph:Messages:Count")
 }

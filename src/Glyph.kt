@@ -26,8 +26,8 @@ package me.ianmooreis.glyph
 
 import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.ai.dialogflow.Dialogflow
+import me.ianmooreis.glyph.database.DatabaseDirector
 import me.ianmooreis.glyph.directors.AuditingDirector
-import me.ianmooreis.glyph.directors.DatabaseDirector
 import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector

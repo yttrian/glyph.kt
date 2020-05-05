@@ -23,6 +23,7 @@
 
 package me.ianmooreis.glyph.directors
 
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config

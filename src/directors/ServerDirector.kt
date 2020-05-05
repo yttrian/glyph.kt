@@ -24,6 +24,7 @@ package me.ianmooreis.glyph.directors
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.extensions.log
 import net.dv8tion.jda.api.EmbedBuilder

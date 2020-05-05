@@ -26,6 +26,7 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
+import me.ianmooreis.glyph.database.Stat
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.isCreator
@@ -56,7 +57,7 @@ class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cool
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
             redisPool.resource.use {
-                discordDescription.addField("Messages", it.get("Glyph:Messaging:Count") ?: "?")
+                discordDescription.addField("Messages", it.get(Stat.MESSAGE_COUNT.key) ?: "?")
             }
         }
         val embed = EmbedBuilder()

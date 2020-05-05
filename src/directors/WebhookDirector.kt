@@ -27,6 +27,7 @@ import club.minnced.discord.webhook.WebhookClientBuilder
 import club.minnced.discord.webhook.send.WebhookEmbed
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
+import me.ianmooreis.glyph.Director
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
 import net.dv8tion.jda.api.entities.TextChannel

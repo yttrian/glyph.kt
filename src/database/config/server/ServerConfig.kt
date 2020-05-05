@@ -24,7 +24,11 @@
 
 package me.ianmooreis.glyph.directors.config.server
 
-import com.google.gson.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.LongSerializationPolicy
 import me.ianmooreis.glyph.directors.config.ConfigContainer
 import net.dv8tion.jda.api.entities.Guild
 

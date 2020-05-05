@@ -24,6 +24,7 @@
 package me.ianmooreis.glyph.directors.messaging
 
 import me.ianmooreis.glyph.ai.AIAgent
+import me.ianmooreis.glyph.database.Stat
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
@@ -144,7 +145,7 @@ class MessagingDirector(private val redisPool: JedisPool, private val aiAgent: A
 
         // Increment the total message count for curiosity's sake
         redisPool.resource.use {
-            it.incr("Glyph:Messaging:Count")
+            it.incr(Stat.MESSAGE_COUNT.key)
         }
     }
 

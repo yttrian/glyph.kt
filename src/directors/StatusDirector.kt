@@ -24,11 +24,12 @@
 package me.ianmooreis.glyph.directors
 
 import com.google.gson.JsonParser
+import me.ianmooreis.glyph.Director
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.ReadyEvent
-import java.util.*
+import java.util.Timer
 import kotlin.concurrent.schedule
 
 /**

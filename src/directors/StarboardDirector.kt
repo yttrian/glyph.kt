@@ -24,6 +24,7 @@
 package me.ianmooreis.glyph.directors
 
 import com.vdurmont.emoji.EmojiParser
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.config
 import net.dv8tion.jda.api.EmbedBuilder

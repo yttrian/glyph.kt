@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.directors.config
 
-import me.ianmooreis.glyph.directors.Director
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.directors.config.server.AuditingConfig
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import me.ianmooreis.glyph.directors.config.server.SelectableRolesConfig

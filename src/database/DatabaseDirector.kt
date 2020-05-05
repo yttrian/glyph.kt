@@ -22,8 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors
+package me.ianmooreis.glyph.database
 
+import me.ianmooreis.glyph.Director
 import org.jetbrains.exposed.sql.Database
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig

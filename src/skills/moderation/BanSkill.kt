@@ -25,7 +25,6 @@
 package me.ianmooreis.glyph.skills.moderation
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
@@ -49,14 +48,13 @@ object BanSkill : Skill(
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
-                member.user.sendDeathPM("***${CustomEmote.GRIMACE} You have been banned from ${event.guild.name} for \"$reason\"!***") {
+                member.user.sendDeathPM("***You have been banned from ${event.guild.name} for \"$reason\"!***") {
                     event.guild.ban(member, 7, reason).queue()
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
             event.message.reply(
-                "${CustomEmote.CHECKMARK} " +
-                        "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
+                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
                 deleteWithEnabled = false
             )
             if (event.guild.config.auditing.bans) {

@@ -25,7 +25,6 @@
 package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
@@ -43,7 +42,7 @@ object SnowstampSkill : Skill("skill.snowstamp") {
         val snowflakeId = try {
             snowflake.toLong()
         } catch (e: NumberFormatException) {
-            event.message.reply("${CustomEmote.XMARK} `$snowflake` is not a snowflake!")
+            event.message.reply("`$snowflake` is not a snowflake!")
             return
         }
         val snowflakeInstant = TimeUtil.getTimeCreated(snowflakeId).toInstant()

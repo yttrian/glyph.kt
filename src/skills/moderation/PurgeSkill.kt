@@ -26,7 +26,6 @@ package me.ianmooreis.glyph.skills.moderation
 
 import com.google.gson.JsonObject
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.audit
@@ -63,7 +62,7 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
 
         // Warn the user if we can't determine what time duration they want
         if (durationEntity == null) {
-            event.message.reply("${CustomEmote.XMARK} That is an invalid time duration, try being less vague with abbreviations.")
+            event.message.reply("That is an invalid time duration, try being less vague with abbreviations.")
             return
         }
 
@@ -78,10 +77,10 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             else -> null
         }
         if (duration === null || duration.isBefore(time.minusDays(14))) {
-            event.message.reply("${CustomEmote.XMARK} Discord only allows me to purge up to 14 days!")
+            event.message.reply("Discord only allows me to purge up to 14 days!")
             return
         } else if (duration.isAfter(time)) {
-            event.message.reply("${CustomEmote.XMARK} I cannot purge messages from the future!")
+            event.message.reply("I cannot purge messages from the future!")
             return
         }
 
@@ -92,8 +91,8 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             event.textChannel.purgeMessages(messages)
             // Inform the use of a successful purge request
             event.message.reply(
-                "${CustomEmote.CHECKMARK} ${messages.size} messages since $prettyDuration " +
-                        if (messages.size > 100) "queued for purging!" else "purged!"
+                "${messages.size} messages since $prettyDuration " +
+                    if (messages.size > 100) "queued for purging!" else "purged!"
                 , deleteAfterDelay = 10
             )
             // If purge auditing is enabled, log it
@@ -110,7 +109,7 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
         } else {
             event.message.delete().reason("Failed purge request").queue()
             event.message.reply(
-                "${CustomEmote.XMARK} There must be at least two messages to purge! Try a longer duration.",
+                "There must be at least two messages to purge! Try a longer duration.",
                 deleteAfterDelay = 10
             )
         }

@@ -26,7 +26,6 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.isCreator
@@ -55,7 +54,7 @@ object StatusSkill : Skill("skill.status", cooldownTime = 5) {
             )
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
-            discordDescription.addField("Messages", MessagingDirector.getTotalMessages())
+            discordDescription.addField("Messages", "?")  // FIXME: Implement new message count method
         }
         val embed = EmbedBuilder()
             .setTitle("$name Status")

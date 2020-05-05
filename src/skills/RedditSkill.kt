@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.skills
 import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.reply
 import net.dean.jraw.ApiException
@@ -75,7 +74,7 @@ object RedditSkill : Skill("skill.reddit") {
         // Try to get the multireddit name
         val multiredditName: String? = ai.result.getStringParameter("multireddit")
         if (multiredditName == null) {
-            event.message.reply("${CustomEmote.XMARK} I did not understand what subreddit you were asking for!")
+            event.message.reply("I did not understand what subreddit you were asking for!")
             return
         }
         // If we have a multireddit name, try getting the reference to it otherwise report the failure
@@ -95,19 +94,19 @@ object RedditSkill : Skill("skill.reddit") {
                             .build()
                     )
                 } else {
-                    event.message.reply("${CustomEmote.XMARK} I can only show NSFW submissions in a NSFW channel!")
+                    event.message.reply("I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                event.message.reply("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
-            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Network error)")
+            event.message.reply("I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            event.message.reply("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: JsonDataException) {
-            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            event.message.reply("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            event.message.reply("${CustomEmote.XMARK} I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            event.message.reply("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
     }
 

@@ -25,7 +25,6 @@
 package me.ianmooreis.glyph.skills.roles
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
@@ -58,9 +57,8 @@ object RoleSetSkill :
             ) {
                 val randomRole = event.member!!.roles.filter { selectableRoles.contains(it) }.random()
                 event.message.reply(
-                    "" +
-                            "${CustomEmote.XMARK} You can only have ${config.limit} roles in this server! " +
-                            (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
+                    "You can only have ${config.limit} roles in this server! " +
+                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
                 )
             } else {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles
@@ -88,7 +86,7 @@ object RoleSetSkill :
                     val targetNames = targets.joinToString { it.asPlainMention }
                     event.message.reply("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
                 } catch (e: HierarchyException) {
-                    event.message.reply("${CustomEmote.XMARK} I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
+                    event.message.reply("I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
                 }
             }
         }

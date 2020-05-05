@@ -25,7 +25,6 @@
 package me.ianmooreis.glyph.skills.roles
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
@@ -70,7 +69,7 @@ object RoleSkillHelper {
         }
         val selectableRoles = config.roles.mapNotNull { event.guild.getRoleById(it) }
         if (selectableRoles.isEmpty()) {
-            event.message.reply("${CustomEmote.XMARK} There are no selectable roles configured for this server!")
+            event.message.reply("There are no selectable roles configured for this server!")
             return
         }
         if (selectableRoles.contains(desiredRole)) {

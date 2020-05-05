@@ -25,7 +25,6 @@
 package me.ianmooreis.glyph.directors.skills
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.messaging.CustomEmote
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
 import me.ianmooreis.glyph.extensions.reply
@@ -72,22 +71,23 @@ abstract class Skill(
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
                     event.message.reply(
-                            "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
-                            deleteAfterDelay = currentCooldown.remainingSeconds
+                        "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
+                        deleteAfterDelay = currentCooldown.remainingSeconds
                     )
                     log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, cooled")
                     currentCooldown.warned = true
                 } else {
                     event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown
                 }
-            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> event.message.reply("${CustomEmote.XMARK} You can only do that in a server!")
-            !permittedSelf -> event.message.reply("${CustomEmote.XMARK} I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
+            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> event.message.reply("You can only do that in a server!")
+            !permittedSelf -> event.message.reply("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
                 prettyPrintPermissionName(it)
             }})")
-            !permittedUser -> event.message.reply("${CustomEmote.XMARK} You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
+            !permittedUser -> event.message.reply("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
                 prettyPrintPermissionName(it)
             }})")
-            creatorOnly && !event.author.isCreator -> event.message.addReaction("❓").queue() //Pretend the skill does not exist
+            creatorOnly && !event.author.isCreator -> event.message.addReaction("❓")
+                .queue() //Pretend the skill does not exist
             else -> {
                 this.onTrigger(event, ai)
                 log.info("Received \"${event.message.contentClean}\" from ${ai.sessionID}")

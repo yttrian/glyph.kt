@@ -24,9 +24,12 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.directors.messaging.MessagingDirector
 import net.dv8tion.jda.api.MessageBuilder
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import java.time.OffsetDateTime
 import java.util.concurrent.TimeUnit
@@ -56,11 +59,11 @@ fun Message.reply(
             if (deleteAfterDelay > 0) {
                 it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
             } else if (deleteWithEnabled) {
-                MessagingDirector.amendLedger(this.idLong, it.idLong)
+                //MessagingDirector.amendLedger(this.idLong, it.idLong)
             }
         }
     } catch (e: InsufficientPermissionException) {
-        MessagingDirector.logSendFailure(this.textChannel)
+        //MessagingDirector.logSendFailure(this.textChannel)
     }
 }
 

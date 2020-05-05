@@ -42,12 +42,13 @@ import net.jodah.expiringmap.ExpiringMap
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import redis.clients.jedis.JedisPool
 import java.util.concurrent.TimeUnit
 
 /**
  * Manages message events including handling incoming messages and dispatching the SkillDirector in addition to the message ledger
  */
-class MessagingDirector(private val aiAgent: AIAgent) : ListenerAdapter() {
+class MessagingDirector(private val redisPool: JedisPool, private val aiAgent: AIAgent) : ListenerAdapter() {
     private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
@@ -142,7 +143,9 @@ class MessagingDirector(private val aiAgent: AIAgent) : ListenerAdapter() {
         SkillDirector.trigger(event, ai)
 
         // Increment the total message count for curiosity's sake
-        totalMessages++
+        redisPool.resource.use {
+            it.incr("Glyph:Messaging:Count")
+        }
     }
 
     /**

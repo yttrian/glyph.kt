@@ -88,7 +88,7 @@ object Glyph {
         )
 
         addEventListeners(
-            MessagingDirector(aiAgent), AuditingDirector, ServerDirector,
+            MessagingDirector(redisPool, aiAgent), AuditingDirector, ServerDirector,
             QuickviewDirector, StatusDirector, StarboardDirector
         )
     }
@@ -98,7 +98,7 @@ object Glyph {
      */
     fun run() {
         SkillDirector.addSkill(
-            HelpSkill, StatusSkill, SourceSkill,
+            HelpSkill, StatusSkill(redisPool), SourceSkill,
             RoleSetSkill, RoleUnsetSkill, RoleListSkill,
             ServerConfigSkill,
             PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,

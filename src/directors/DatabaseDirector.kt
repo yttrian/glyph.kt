@@ -51,6 +51,11 @@ class DatabaseDirector(configure: Config.() -> Unit) : Director() {
          * A url that describes how to connect to the Redis instance
          */
         var redisConnectionUrl: String = "localhost"
+
+        /**
+         * The maximum total connections allowed in the Redis pool
+         */
+        var redisMaxTotal: Int = 10
     }
 
     private val config = Config().also(configure)
@@ -71,7 +76,9 @@ class DatabaseDirector(configure: Config.() -> Unit) : Director() {
      * The Redis client, to be used for interacting with Redis
      */
     val redisPool: JedisPool by lazy {
-        val poolConfig = JedisPoolConfig()
-        JedisPool(poolConfig, config.redisConnectionUrl)
+        val poolConfig = JedisPoolConfig().apply {
+            maxTotal = config.redisMaxTotal
+        }
+        JedisPool(poolConfig, URI(config.redisConnectionUrl))
     }
 }

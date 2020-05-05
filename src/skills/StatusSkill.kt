@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDAInfo
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
+import redis.clients.jedis.JedisPool
 import java.lang.management.ManagementFactory
 import java.time.Instant
 import java.util.Date
@@ -41,7 +42,7 @@ import java.util.Date
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only
  */
-object StatusSkill : Skill("skill.status", cooldownTime = 5) {
+class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cooldownTime = 5) {
     override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val jda = event.jda
         val name = jda.selfUser.name
@@ -54,7 +55,9 @@ object StatusSkill : Skill("skill.status", cooldownTime = 5) {
             )
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
-            discordDescription.addField("Messages", "?")  // FIXME: Implement new message count method
+            redisPool.resource.use {
+                discordDescription.addField("Messages", it.get("Glyph:Messaging:Count") ?: "?")
+            }
         }
         val embed = EmbedBuilder()
             .setTitle("$name Status")

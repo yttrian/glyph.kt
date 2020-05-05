@@ -27,7 +27,8 @@ package me.ianmooreis.glyph.skills.creator
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -35,8 +36,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 /**
  * A skill that allows the creator to change the client status
  */
-object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true, cooldownTime = 30) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true, cooldownTime = 30) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val jda = event.jda
         val name = ai.result.getStringParameter("status") ?: jda.presence.activity?.name ?: "?"
         val streamUrl = ai.result.getStringParameter("streamUrl") ?: jda.presence.activity?.url ?: "?"
@@ -60,9 +61,9 @@ object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = tru
 
         StatusDirector.setPresence(jda, status, game)
 
-        event.message.reply(
+        return FormalResponse(
             "Attempted to changed presence to ${status.name.toLowerCase()} " +
-                    "while ${game?.type.toString().toLowerCase()} to ${game?.name}! (May be rate limited)"
+                "while ${game?.type.toString().toLowerCase()} to ${game?.name}! (May be rate limited)"
         )
     }
 }

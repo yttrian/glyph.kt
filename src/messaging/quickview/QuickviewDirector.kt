@@ -21,12 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging.quickview
+package me.ianmooreis.glyph.messaging.quickview
 
 import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.messaging.quickview.furaffinity.FurAffinity
-import me.ianmooreis.glyph.directors.messaging.quickview.picarto.Picarto
 import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinity
+import me.ianmooreis.glyph.messaging.quickview.picarto.Picarto
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 

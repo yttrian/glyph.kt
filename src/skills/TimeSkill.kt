@@ -26,7 +26,8 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.text.SimpleDateFormat
@@ -37,12 +38,13 @@ import java.util.TimeZone
 /**
  * A skill that attempts to show the time in other timezones
  */
-object TimeSkill : Skill("skill.time") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class TimeSkill : Skill("skill.time") {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val df = SimpleDateFormat("**HH:mm:ss** 'on' EEEE, MMMM dd, yyyy")
         df.timeZone = TimeZone.getTimeZone(ai.result.getStringParameter("timezone"))
-        event.message.reply(
-            EmbedBuilder()
+
+        return FormalResponse(
+            embed = EmbedBuilder()
                 .setTitle(df.timeZone.displayName)
                 .setDescription(df.format(Date()))
                 .setFooter("Time", null)

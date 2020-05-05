@@ -24,11 +24,13 @@
 
 package me.ianmooreis.glyph.skills
 
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.result.Result
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.utils.io.core.use
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant
@@ -36,30 +38,29 @@ import java.time.Instant
 /**
  * A skill that allows users to see the current Doomsday Clock status
  */
-object DoomsdayClockSkill : Skill("skill.doomsday_clock") {
+class DoomsdayClockSkill : Skill("skill.doomsday_clock") {
     private val timeRegex = Regex("(IT IS (.*?) TO MIDNIGHT)", RegexOption.IGNORE_CASE)
     private val reasonRegex =
         Regex("<div class=\"uabb-infobox-text uabb-text-editor\"><p>(.*)(?:See the|Read the)", RegexOption.IGNORE_CASE)
 
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
-        "https://thebulletin.org/timeline".httpGet().responseString { _, _, result ->
-            when (result) {
-                is Result.Success -> {
-                    val content = result.get()
-                    val minutesToMidnight = timeRegex.findAll(content).first().groups[1]?.value ?: "Unknown"
-                    val reason = reasonRegex.find(content)?.groups?.get(2)?.value
-                    event.message.reply(
-                        EmbedBuilder()
-                            .setTitle(minutesToMidnight, "https://thebulletin.org/timeline")
-                            .setDescription(reason)
-                            .setFooter("Doomsday Clock", null)
-                            .setTimestamp(Instant.now())
-                            .build()
-                    )
-                }
-                is Result.Failure -> {
-                    event.message.reply("I was unable to check the Doomsday Clock!")
-                }
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
+        return HttpClient().use { client ->
+            try {
+                val content = client.get<String>("https://thebulletin.org/timeline")
+
+                val minutesToMidnight = timeRegex.findAll(content).first().groups[1]?.value ?: "Unknown"
+                val reason = reasonRegex.find(content)?.groups?.get(2)?.value
+
+                FormalResponse(
+                    embed = EmbedBuilder()
+                        .setTitle(minutesToMidnight, "https://thebulletin.org/timeline")
+                        .setDescription(reason)
+                        .setFooter("Doomsday Clock", null)
+                        .setTimestamp(Instant.now())
+                        .build()
+                )
+            } catch (cause: Throwable) {
+                FormalResponse("I was unable to check the Doomsday Clock!")
             }
         }
     }

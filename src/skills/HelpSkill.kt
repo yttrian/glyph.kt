@@ -26,7 +26,8 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.awt.Color
@@ -34,14 +35,15 @@ import java.awt.Color
 /**
  * A skill that shows users a help messgae
  */
-object HelpSkill : Skill("skill.help") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class HelpSkill : Skill("skill.help") {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val name = event.jda.selfUser.name
         val embed = EmbedBuilder()
             .setTitle("$name Help")
             .setDescription(ai.result.fulfillment.speech)
             .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
             .build()
-        event.message.reply(embed = embed)
+
+        return FormalResponse(embed = embed)
     }
 }

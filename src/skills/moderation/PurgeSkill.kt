@@ -33,6 +33,8 @@ import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.getMessagesSince
 import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
@@ -41,29 +43,25 @@ import org.ocpsoft.prettytime.PrettyTime
  * A skill that allows privileged members to purge messages within a duration to the past
  */
 object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val time = event.message.timeCreated
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")
 
         // Check that the user has permission within the channel
         if (!event.member!!.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            event.message.reply("You need permission to Manage Messages in this channel in order to purge messages!")
-            return
+            return FormalResponse("You need permission to Manage Messages in this channel in order to purge messages!")
         }
 
         // Check that we have permission in the channel specifically, not the server as a whole
         if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            event.message.reply("I need permission to Manage Messages in this channel in order to purge messages!")
-            return
+            return FormalResponse("I need permission to Manage Messages in this channel in order to purge messages!")
         } else if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_HISTORY)) {
-            event.message.reply("I need permission to Read Message History in this channel in order to purge messages!")
-            return
+            return FormalResponse("I need permission to Read Message History in this channel in order to purge messages!")
         }
 
         // Warn the user if we can't determine what time duration they want
         if (durationEntity == null) {
-            event.message.reply("That is an invalid time duration, try being less vague with abbreviations.")
-            return
+            return FormalResponse("That is an invalid time duration, try being less vague with abbreviations.")
         }
 
         val durationAmount = durationEntity.get("amount").asLong
@@ -77,11 +75,9 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             else -> null
         }
         if (duration === null || duration.isBefore(time.minusDays(14))) {
-            event.message.reply("Discord only allows me to purge up to 14 days!")
-            return
+            return FormalResponse("Discord only allows me to purge up to 14 days!")
         } else if (duration.isAfter(time)) {
-            event.message.reply("I cannot purge messages from the future!")
-            return
+            return FormalResponse("I cannot purge messages from the future!")
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())

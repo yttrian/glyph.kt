@@ -28,7 +28,8 @@ import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -52,7 +53,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A skill that attempts to show users an image from a subreddit
  */
-object RedditSkill : Skill("skill.reddit") {
+class RedditSkill : Skill("skill.reddit") {
     private val client: RedditClient = OAuthHelper.automatic(
         OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
         Credentials.userless(
@@ -68,15 +69,12 @@ object RedditSkill : Skill("skill.reddit") {
         this.client.logger = NoopHttpLogger()
     }
 
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         // Send typing since this can take some time and we want to indicate we are paying attention
         event.channel.sendTyping().queue()
         // Try to get the multireddit name
-        val multiredditName: String? = ai.result.getStringParameter("multireddit")
-        if (multiredditName == null) {
-            event.message.reply("I did not understand what subreddit you were asking for!")
-            return
-        }
+        val multiredditName: String = ai.result.getStringParameter("multireddit")
+            ?: return FormalResponse("I did not understand what subreddit you were asking for!")
         // If we have a multireddit name, try getting the reference to it otherwise report the failure
         try {
             val subreddit: SubredditReference = client.subreddit(multiredditName)
@@ -85,8 +83,8 @@ object RedditSkill : Skill("skill.reddit") {
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                    event.message.reply(
-                        EmbedBuilder()
+                    return FormalResponse(
+                        embed = EmbedBuilder()
                             .setTitle(submission.title, "https://reddit.com${submission.permalink}")
                             .setImage(submission.url)
                             .setFooter("r/${submission.subreddit}", null)
@@ -94,19 +92,19 @@ object RedditSkill : Skill("skill.reddit") {
                             .build()
                     )
                 } else {
-                    event.message.reply("I can only show NSFW submissions in a NSFW channel!")
+                    return FormalResponse("I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                event.message.reply("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                return FormalResponse("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
-            event.message.reply("I was unable to grab an image from `$multiredditName`! (Network error)")
+            return FormalResponse("I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            event.message.reply("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            return FormalResponse("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: JsonDataException) {
-            event.message.reply("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return FormalResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            event.message.reply("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return FormalResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
     }
 

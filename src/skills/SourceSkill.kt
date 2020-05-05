@@ -27,7 +27,8 @@ package me.ianmooreis.glyph.skills
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.awt.Color
@@ -36,8 +37,8 @@ import java.time.Instant
 /**
  * A skill that allows users to see the license and link to the source code
  */
-object SourceSkill : Skill("skill.source") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class SourceSkill : Skill("skill.source") {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val name = event.jda.selfUser.name
         val embed = EmbedBuilder()
             .setTitle("$name Source")
@@ -46,6 +47,7 @@ object SourceSkill : Skill("skill.source") {
             .setTimestamp(Instant.now())
             .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
             .build()
-        event.message.reply(embed = embed)
+
+        return FormalResponse(embed = embed)
     }
 }

@@ -23,19 +23,22 @@
 
 package me.ianmooreis.glyph.directors.skills
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Manages all the available skills
  */
-object SkillDirector : ListenerAdapter() {
+object SkillDirector : CoroutineScope {
     private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val skills: MutableMap<String, Skill> = mutableMapOf()
     private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
@@ -84,14 +87,14 @@ object SkillDirector : ListenerAdapter() {
      * @param event the message event
      * @param ai    the DialogFlow response
      */
-    fun trigger(event: MessageReceivedEvent, ai: AIResponse) {
+    suspend fun trigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val result = ai.result
         val action = result.action
         val skill: Skill? = skills[action]
-        if (skill != null && !ai.result.isActionIncomplete) {
+        return if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
-            event.message.reply(
+            FormalResponse(
                 if (result.fulfillment.speech.isEmpty()) {
                     "`$action` is not available yet!"
                 } else {
@@ -100,5 +103,8 @@ object SkillDirector : ListenerAdapter() {
             )
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + SupervisorJob()
 }
 

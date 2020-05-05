@@ -28,8 +28,9 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
-import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
@@ -41,19 +42,25 @@ import java.time.Instant
 /**
  * A skill that allows members to see bragging rights such as join order or account age
  */
-object RankSkill : Skill("skill.rank", guildOnly = true) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class RankSkill : Skill("skill.rank", guildOnly = true) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         event.channel.sendTyping().queue()
         val property: String? = ai.result.getStringParameter("memberProperty")
-        if (property != null) {
+
+        return if (property != null) {
             val members = event.guild.members
             when (property) {
-                "join" -> event.message.reply(rankMembersByJoin(members, event.member ?: event.guild.selfMember))
-                "created" -> event.message.reply(rankMembersByCreation(members, event.member ?: event.guild.selfMember))
-                else -> event.message.reply("I'm not sure what property `$property` is for members.")
+                "join" -> FormalResponse(embed = rankMembersByJoin(members, event.member ?: event.guild.selfMember))
+                "created" -> FormalResponse(
+                    embed = rankMembersByCreation(
+                        members,
+                        event.member ?: event.guild.selfMember
+                    )
+                )
+                else -> FormalResponse("I'm not sure what property `$property` is for members.")
             }
         } else {
-            event.message.reply("I'm not sure what the property you want to rank members by is.")
+            FormalResponse("I'm not sure what the property you want to rank members by is.")
         }
     }
 

@@ -22,13 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging.quickview.furaffinity
+package me.ianmooreis.glyph.messaging.quickview.furaffinity
 
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.net.URL
-import java.util.*
+import java.util.Date
 
 /**
  * A FurAffinity submission

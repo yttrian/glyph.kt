@@ -1,10 +1,10 @@
 /*
- * FeedbackSkill.kt
+ * StatisticKeys.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,21 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills
-
-import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.log
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+package me.ianmooreis.glyph.database
 
 /**
- * A skill that allows users to send anonymous feedback via the global log webhook
+ * Key names for standardizing statistics storage (likely in Redis)
  */
-class FeedbackSkill : Skill("skill.feedback", cooldownTime = 90) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        event.jda.selfUser.log("Feedback", "```${ai.result.getStringParameter("feedback")}```")
-        return FormalResponse(ai.result.fulfillment.speech)
-    }
+enum class Key(
+    /**
+     * The database key for the statistic
+     */
+    val value: String
+) {
+    /**
+     * The total number of messages processed by the bot
+     */
+    MESSAGE_COUNT("Glyph:Messages:Count"),
+
+    /**
+     * Prefix for delete with data keys
+     */
+    DELETE_WITH_PREFIX("Glyph:DeleteWith:")
 }

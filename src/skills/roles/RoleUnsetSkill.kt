@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.exceptions.HierarchyException
  * A skill to allow members to unset a selectable role
  */
 object RoleUnsetSkill : Skill("skill.role.unset", guildOnly = true) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to remove roles for the specified target(s)
         if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member!!.hasPermission(
                 listOf(Permission.MANAGE_ROLES)

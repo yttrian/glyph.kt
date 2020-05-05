@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging.quickview.picarto
+package me.ianmooreis.glyph.messaging.quickview.picarto
 
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder

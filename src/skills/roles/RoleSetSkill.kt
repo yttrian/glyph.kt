@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
  */
 object RoleSetSkill :
     Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         //Check if the user is allowed to set roles for the specified target(s)
         if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member!!.hasPermission(
                 Permission.MANAGE_ROLES

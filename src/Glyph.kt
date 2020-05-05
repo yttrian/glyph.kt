@@ -31,9 +31,9 @@ import me.ianmooreis.glyph.directors.AuditingDirector
 import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
-import me.ianmooreis.glyph.directors.messaging.MessagingDirector
-import me.ianmooreis.glyph.directors.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
+import me.ianmooreis.glyph.messaging.MessagingDirector
+import me.ianmooreis.glyph.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.skills.DoomsdayClockSkill
 import me.ianmooreis.glyph.skills.EphemeralSaySkill
 import me.ianmooreis.glyph.skills.FallbackSkill
@@ -58,6 +58,7 @@ import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import redis.clients.jedis.JedisPool
 
 /**
  * The Glyph object to use when building the client
@@ -75,37 +76,53 @@ object Glyph {
         redisConnectionUrl = System.getenv("REDIS_URL")
     }
 
-    private val redisPool = databaseDirector.redisPool
-
-    private val builder = DefaultShardManagerBuilder.createLight(null).apply {
-        val token = System.getenv("DISCORD_TOKEN")
-
-        setToken(token)
-
-        setEnabledIntents(
-            GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS,
-            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS
-        )
-
-        addEventListeners(
-            MessagingDirector(redisPool, aiAgent), AuditingDirector, ServerDirector,
-            QuickviewDirector, StatusDirector, StarboardDirector
-        )
-    }
+    private val redisPool: JedisPool = databaseDirector.redisPool
 
     /**
      * Build the bot and run
      */
     fun run() {
         SkillDirector.addSkill(
-            HelpSkill, StatusSkill(redisPool), SourceSkill,
-            RoleSetSkill, RoleUnsetSkill, RoleListSkill,
+            HelpSkill(),
+            StatusSkill(redisPool),
+            SourceSkill(),
+            RoleSetSkill,
+            RoleUnsetSkill,
+            RoleListSkill,
             ServerConfigSkill,
-            PurgeSkill, UserInfoSkill, GuildInfoSkill, KickSkill, BanSkill, RankSkill,
-            EphemeralSaySkill, RedditSkill, WikiSkill, TimeSkill, FeedbackSkill, DoomsdayClockSkill, SnowstampSkill,
+            PurgeSkill,
+            UserInfoSkill,
+            GuildInfoSkill,
+            KickSkill,
+            BanSkill,
+            RankSkill(),
+            EphemeralSaySkill(),
+            RedditSkill(),
+            WikiSkill,
+            TimeSkill(),
+            FeedbackSkill(),
+            DoomsdayClockSkill(),
+            SnowstampSkill(),
             ChangeStatusSkill,
-            FallbackSkill
+            FallbackSkill()
         )
+
+        val builder = DefaultShardManagerBuilder.createLight(null).also {
+            val token = System.getenv("DISCORD_TOKEN")
+
+            it.setToken(token)
+
+            it.setEnabledIntents(
+                GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS,
+                GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS
+            )
+
+            it.addEventListeners(
+                MessagingDirector(aiAgent, redisPool), AuditingDirector, ServerDirector,
+                QuickviewDirector, StatusDirector, StarboardDirector
+            )
+        }
+
         builder.build()
     }
 }

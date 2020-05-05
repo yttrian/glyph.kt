@@ -26,11 +26,12 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.database.Stat
+import me.ianmooreis.glyph.database.Key
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.isCreator
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.FormalResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDAInfo
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -44,7 +45,7 @@ import java.util.Date
  * A skill that shows users the current status of the client, with extra info for the creator only
  */
 class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cooldownTime = 5) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val jda = event.jda
         val name = jda.selfUser.name
         val discordDescription = SimpleDescriptionBuilder()
@@ -57,7 +58,7 @@ class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cool
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
             redisPool.resource.use {
-                discordDescription.addField("Messages", it.get(Stat.MESSAGE_COUNT.key) ?: "?")
+                discordDescription.addField("Messages", it.get(Key.MESSAGE_COUNT.value) ?: "?")
             }
         }
         val embed = EmbedBuilder()
@@ -83,6 +84,7 @@ class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cool
             embed.setThumbnail(jda.selfUser.avatarUrl)
         }
         embed.addField("Operating Parameters", ai.result.fulfillment.speech, true)
-        event.message.reply(embed = embed.build())
+
+        return FormalResponse(embed = embed.build())
     }
 }

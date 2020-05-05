@@ -36,7 +36,7 @@ import java.time.Instant
  * A skill that allows members to list all selectable roles
  */
 object RoleListSkill : Skill("skill.role.list", guildOnly = true) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val selectableRoles = event.guild.config.selectableRoles.roles.mapNotNull { event.guild.getRoleById(it) }
         val limit = event.guild.config.selectableRoles.limit
         if (selectableRoles.isNotEmpty()) {

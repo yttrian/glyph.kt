@@ -45,7 +45,7 @@ object ServerConfigSkill : Skill(
     requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
     requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
 ) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val action = ai.result.getStringParameter("action")
         val config = event.guild.config
 

@@ -1,10 +1,10 @@
 /*
- * SubmissionRating.kt
+ * Resonse.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,33 +22,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging.quickview.furaffinity
+package me.ianmooreis.glyph.messaging
 
-import java.awt.Color
-
-/**
- * The submission rating (maturity level) of a FurAffinity submission
- */
-enum class SubmissionRating(
-    /**
-     * The color of the rating (based on the colors used on furaffinity.net)
-     */
-    val color: Color,
-    /**
-     * Whether or not the rating is considered a NSFW rating
-     */
-    val nsfw: Boolean
-) {
-    /**
-     * Suitable for all-ages
-     */
-    General(Color.GREEN, false),
-    /**
-     * Gore, violence or tasteful/artistic nudity or mature themes.
-     */
-    Mature(Color.BLUE, true),
-    /**
-     * Explicit or imagery otherwise geared towards adult audiences.
-     */
-    Adult(Color.RED, true)
-}
+interface Response

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.messaging.quickview.furaffinity
+package me.ianmooreis.glyph.messaging.quickview.furaffinity
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result

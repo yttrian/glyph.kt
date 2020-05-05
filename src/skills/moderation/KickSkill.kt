@@ -44,7 +44,7 @@ object KickSkill : Skill(
     requiredPermissionsSelf = listOf(Permission.KICK_MEMBERS),
     requiredPermissionsUser = listOf(Permission.KICK_MEMBERS)
 ) {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         KickBanSkillHelper.getInstance(event, ai, "kick") { targets, reason ->
             event.message.delete().reason("Kick request").queue()
             targets.forEach { member ->

@@ -39,7 +39,7 @@ import java.time.Instant
  * A skill that allows users to search for stuff across multiple wikis
  */
 object WikiSkill : Skill("skill.wiki") {
-    override fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
         val query: String = ai.result.getStringParameter("search_query") ?: ""
         val config: WikiConfig = event.guild.config.wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki")

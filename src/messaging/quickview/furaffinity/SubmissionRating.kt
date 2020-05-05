@@ -1,10 +1,10 @@
 /*
- * StatisticKeys.kt
+ * SubmissionRating.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2018 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,19 +22,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.database
+package me.ianmooreis.glyph.messaging.quickview.furaffinity
+
+import java.awt.Color
 
 /**
- * Key names for standardizing statistics storage (likely in Redis)
+ * The submission rating (maturity level) of a FurAffinity submission
  */
-enum class Stat(
+enum class SubmissionRating(
     /**
-     * The database key for the statistic
+     * The color of the rating (based on the colors used on furaffinity.net)
      */
-    val key: String
+    val color: Color,
+    /**
+     * Whether or not the rating is considered a NSFW rating
+     */
+    val nsfw: Boolean
 ) {
     /**
-     * The total number of messages processed by the bot
+     * Suitable for all-ages
      */
-    MESSAGE_COUNT("Glyph:Messages:Count")
+    General(Color.GREEN, false),
+    /**
+     * Gore, violence or tasteful/artistic nudity or mature themes.
+     */
+    Mature(Color.BLUE, true),
+    /**
+     * Explicit or imagery otherwise geared towards adult audiences.
+     */
+    Adult(Color.RED, true)
 }

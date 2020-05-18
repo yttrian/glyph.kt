@@ -1,5 +1,5 @@
 /*
- * NoResponse.kt
+ * PermanentResponse.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,6 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.messaging
+package me.ianmooreis.glyph.messaging.response
 
-object NoResponse : Response
+import net.dv8tion.jda.api.entities.MessageEmbed
+
+/**
+ * A message that will not be automatically deleted
+ */
+data class PermanentResponse(
+    /**
+     * The message content
+     */
+    val content: String? = null,
+    /**
+     * The message embed
+     */
+    val embed: MessageEmbed? = null
+) : Response

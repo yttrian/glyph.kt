@@ -27,8 +27,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
@@ -94,7 +94,7 @@ object SkillDirector : CoroutineScope {
         return if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
-            FormalResponse(
+            VolatileResponse(
                 if (result.fulfillment.speech.isEmpty()) {
                     "`$action` is not available yet!"
                 } else {

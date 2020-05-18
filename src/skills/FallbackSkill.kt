@@ -26,9 +26,9 @@ package me.ianmooreis.glyph.skills
 
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.NoResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.NoResponse
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 
@@ -40,7 +40,7 @@ class FallbackSkill : Skill("fallback.primary", cooldownTime = 0) {
         try {
             event.message.addReaction("❓").queue()
         } catch (e: InsufficientPermissionException) {
-            return FormalResponse(ai.result.fulfillment.speech)
+            return VolatileResponse(ai.result.fulfillment.speech)
         }
 
         return NoResponse

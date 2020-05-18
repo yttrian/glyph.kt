@@ -22,6 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.messaging
+package me.ianmooreis.glyph.messaging.response
 
+/**
+ * A way Glyph can respond to a message
+ */
 interface Response

@@ -24,11 +24,16 @@
 package me.ianmooreis.glyph.messaging
 
 import kotlinx.coroutines.launch
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.database.Key
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
+import me.ianmooreis.glyph.messaging.response.EphemeralResponse
+import me.ianmooreis.glyph.messaging.response.PermanentResponse
+import me.ianmooreis.glyph.messaging.response.ReactionResponse
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
@@ -38,11 +43,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.jodah.expiringmap.ExpiringMap
 import org.apache.commons.codec.digest.DigestUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import redis.clients.jedis.JedisPool
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -54,7 +55,7 @@ class MessagingDirector(
     private val aiAgent: AIAgent,
     private val redisPool: JedisPool,
     configure: Config.() -> Unit = {}
-) : ListenerAdapter() {
+) : Director() {
     /**
      * HOCON-like config for the messaging director
      */
@@ -62,13 +63,11 @@ class MessagingDirector(
         /**
          * How long associated messages should be remembered for DeleteWith functionality
          */
-        var deleteWithExpiration: Duration = Duration.ofDays(14)
+        var volatileTrackingExpiration: Duration = Duration.ofDays(14)
     }
 
     private val config = Config().also(configure)
-    private val deleteWithExpirationSeconds = config.deleteWithExpiration.toSeconds().toInt()
-    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
-    private val ledger: MutableMap<Long, Long> = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).build()
+    private val volatileTrackingExpirationSeconds = config.volatileTrackingExpiration.toSeconds().toInt()
 
     /**
      * Add a message to the ledger
@@ -76,8 +75,8 @@ class MessagingDirector(
      * @param invokerId  the message id the invoked the response message
      * @param responseId the message id of the response message to the invoking message
      */
-    private fun amendLedger(invokerId: String, responseId: String): Unit = redisPool.resource.use {
-        it.setex(Key.DELETE_WITH_PREFIX.value + invokerId, deleteWithExpirationSeconds, responseId)
+    private fun trackVolatile(invokerId: String, responseId: String): Unit = redisPool.resource.use {
+        it.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
     }
 
     /**
@@ -85,7 +84,7 @@ class MessagingDirector(
      *
      * @param channel the channel where the message failed to send
      */
-    fun logSendFailure(channel: TextChannel) {
+    private fun logSendFailure(channel: TextChannel) {
         if (channel.type.isGuild) {
             log.warn("Failed to send message in $channel of ${channel.guild}!")
         } else {
@@ -97,24 +96,17 @@ class MessagingDirector(
      * When a new message is seen anywhere
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        val message: Message = event.message
+        if (event.isIgnorable) return
 
-        // Ignore self, other bots, and webhooks
-        if (event.author.isBot or (event.author == event.jda.selfUser) or event.isWebhookMessage) return
-        // Require a mention in a server, but not in a PM
-        if ((!message.isMentioned(event.jda.selfUser) or (message.contentStripped.trim() == message.contentClean)) and event.message.channelType.isGuild) return
-        // Ignore empty messages
-        if (event.message.contentClean.isEmpty()) {
-            event.message.reply("You have to say something!")
-            return
-        }
+        val message: Message = event.message
 
         // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
         val ai = aiAgent.request(event.message.contentClean, sessionId)
+
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
-            event.message.reply("It appears DialogFlow is currently unavailable, please try again later!")
+            message.reply("It appears DialogFlow is currently unavailable, please try again later!")
             StatusDirector.setPresence(
                 event.jda,
                 OnlineStatus.DO_NOT_DISTURB,
@@ -126,13 +118,10 @@ class MessagingDirector(
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
         SkillDirector.launch {
             when (val response = SkillDirector.trigger(event, ai)) {
-                is FormalResponse -> message.reply(
-                    response.content,
-                    response.embed,
-                    response.deleteAfterDelay,
-                    response.deleteAfterUnit,
-                    response.deleteWithEnabled
-                )
+                is EphemeralResponse -> message.reply(response.content, response.embed, ttl = response.ttl)
+                is VolatileResponse -> message.reply(response.content, response.embed, volatile = true)
+                is PermanentResponse -> message.reply(response.content, response.embed, volatile = false)
+                is ReactionResponse -> message.addReaction(response.emoji)
             }
 
             // Increment the total message count for curiosity's sake
@@ -143,13 +132,11 @@ class MessagingDirector(
     }
 
     /**
-     * When a message is deleted anywhere
+     * When a message is deleted anywhere, remove the invoking message if considered volatile
      */
     override fun onMessageDelete(event: MessageDeleteEvent): Unit = redisPool.resource.use { redis ->
-        val key = Key.DELETE_WITH_PREFIX.value + event.messageId
-        val responseId: String? = redis.get(key)
-
-        if (responseId != null) {
+        val key = Key.VOLATILE_MESSAGE_PREFIX.value + event.messageId
+        redis.get(key)?.let { responseId ->
             redis.del(key)
             event.channel.retrieveMessageById(responseId).queue {
                 it.addReaction("❌").queue()
@@ -158,60 +145,36 @@ class MessagingDirector(
         }
     }
 
-    /**
-     * Reply to a message
-     *
-     * @param content the reply body
-     * @param embed an embed to include in the message
-     * @param deleteAfterDelay how long to wait before automatically deleting the message (if ever)
-     * @param deleteAfterUnit the time units the deleteAfterDelay used
-     * @param deleteWithEnabled whether or not to delete the response when the invoking message is deleted
-     */
-    fun Message.reply(
+    private val MessageReceivedEvent.isIgnorable
+        get() = this.author.isBot ||  // ignore other bots
+            (this.author == this.jda.selfUser) ||  // ignore self
+            this.isWebhookMessage ||  // ignore webhooks
+            (this.isFromGuild && !message.isMentioned(this.jda.selfUser)) ||  // require mention except in DMs
+            message.contentClean.isEmpty()  // ignore empty messages
+    // ((!message.isMentioned(this.jda.selfUser) || (message.contentStripped.trim() == message.contentClean)) && this.channelType.isGuild)
+
+    private fun Message.reply(
         content: String? = null,
         embed: MessageEmbed? = null,
-        deleteAfterDelay: Long = 0,
-        deleteAfterUnit: TimeUnit = TimeUnit.SECONDS,
-        deleteWithEnabled: Boolean = true
+        ttl: Duration? = null,
+        volatile: Boolean = true
     ) {
-        if (content == null && embed == null) {
-            return
-        }
+        // require some content
+        if (content == null && embed == null) return
+        // build the message
         val message = MessageBuilder().setContent(content?.trim()).setEmbed(embed).build()
+        // try to send the message
         try {
             this.channel.sendMessage(message).queue {
-                if (deleteAfterDelay > 0) {
-                    it.delete().queueAfter(deleteAfterDelay, deleteAfterUnit)
-                } else if (deleteWithEnabled) {
-                    amendLedger(this.id, it.id)
+                if (ttl != null) {
+                    it.delete().queueAfter(ttl.seconds, TimeUnit.SECONDS)
+                } else if (volatile) {
+                    trackVolatile(this.id, it.id)
                 }
             }
         } catch (e: InsufficientPermissionException) {
             logSendFailure(this.textChannel)
         }
-    }
-
-    /**
-     * Reply to a message with an embed
-     *
-     * @param embed the embed to send
-     * @param deleteAfterDelay how long to wait before automatically deleting the message (if ever)
-     * @param deleteAfterUnit the time units the deleteAfterDelay used
-     * @param deleteWithEnabled whether or not to delete the response when the invoking message is deleted
-     */
-    fun Message.reply(
-        embed: MessageEmbed,
-        deleteAfterDelay: Long = 0,
-        deleteAfterUnit: TimeUnit = TimeUnit.SECONDS,
-        deleteWithEnabled: Boolean = true
-    ) {
-        this.reply(
-            content = null,
-            embed = embed,
-            deleteAfterDelay = deleteAfterDelay,
-            deleteAfterUnit = deleteAfterUnit,
-            deleteWithEnabled = deleteWithEnabled
-        )
     }
 }
 

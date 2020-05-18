@@ -103,7 +103,7 @@ object Glyph {
             FeedbackSkill(),
             DoomsdayClockSkill(),
             SnowstampSkill(),
-            ChangeStatusSkill,
+            ChangeStatusSkill(),
             FallbackSkill()
         )
 

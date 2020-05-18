@@ -1,10 +1,10 @@
 /*
- * FeedbackSkill.kt
+ * EphemeralResponse.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,21 +22,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.skills
+package me.ianmooreis.glyph.messaging.response
 
-import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.log
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.entities.MessageEmbed
+import java.time.Duration
 
 /**
- * A skill that allows users to send anonymous feedback via the global log webhook
+ * A response that only lasts a limited about of time
  */
-class FeedbackSkill : Skill("skill.feedback", cooldownTime = 90) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        event.jda.selfUser.log("Feedback", "```${ai.result.getStringParameter("feedback")}```")
-        return VolatileResponse(ai.result.fulfillment.speech)
-    }
-}
+data class EphemeralResponse(
+    /**
+     * The message content
+     */
+    val content: String? = null,
+    /**
+     * The message embed
+     */
+    val embed: MessageEmbed? = null,
+    /**
+     * The time to live for the message before being deleted
+     */
+    val ttl: Duration
+) : Response

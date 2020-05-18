@@ -29,8 +29,8 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.extensions.toDate
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -59,9 +59,16 @@ object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
                 "farm" -> "Servers are no longer checked for bot farming."
                 else -> "I'm not sure what property `$property` is for a guild."
             }
-            FormalResponse(content)
+            VolatileResponse(content)
         } else {
-            FormalResponse(embed = event.guild.getInfoEmbed("Guild Info", "Moderation", null, true))
+            VolatileResponse(
+                embed = event.guild.getInfoEmbed(
+                    "Guild Info",
+                    "Moderation",
+                    null,
+                    true
+                )
+            )
         }
     }
 }

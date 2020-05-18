@@ -1,5 +1,5 @@
 /*
- * StatisticKeys.kt
+ * ReactionResponse.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,24 +22,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.database
+package me.ianmooreis.glyph.messaging.response
 
-/**
- * Key names for standardizing statistics storage (likely in Redis)
- */
-enum class Key(
-    /**
-     * The database key for the statistic
-     */
-    val value: String
-) {
-    /**
-     * The total number of messages processed by the bot
-     */
-    MESSAGE_COUNT("Glyph:Messages:Count"),
-
-    /**
-     * Prefix for volatile message data keys
-     */
-    VOLATILE_MESSAGE_PREFIX("Glyph:Message:Volatile:")
-}
+data class ReactionResponse(val emoji: String) : Response

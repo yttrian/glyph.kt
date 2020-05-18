@@ -28,8 +28,8 @@ import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -74,7 +74,7 @@ class RedditSkill : Skill("skill.reddit") {
         event.channel.sendTyping().queue()
         // Try to get the multireddit name
         val multiredditName: String = ai.result.getStringParameter("multireddit")
-            ?: return FormalResponse("I did not understand what subreddit you were asking for!")
+            ?: return VolatileResponse("I did not understand what subreddit you were asking for!")
         // If we have a multireddit name, try getting the reference to it otherwise report the failure
         try {
             val subreddit: SubredditReference = client.subreddit(multiredditName)
@@ -83,7 +83,7 @@ class RedditSkill : Skill("skill.reddit") {
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                    return FormalResponse(
+                    return VolatileResponse(
                         embed = EmbedBuilder()
                             .setTitle(submission.title, "https://reddit.com${submission.permalink}")
                             .setImage(submission.url)
@@ -92,19 +92,19 @@ class RedditSkill : Skill("skill.reddit") {
                             .build()
                     )
                 } else {
-                    return FormalResponse("I can only show NSFW submissions in a NSFW channel!")
+                    return VolatileResponse("I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                return FormalResponse("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
-            return FormalResponse("I was unable to grab an image from `$multiredditName`! (Network error)")
+            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            return FormalResponse("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: JsonDataException) {
-            return FormalResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            return FormalResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
     }
 

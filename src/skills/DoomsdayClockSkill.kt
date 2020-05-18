@@ -29,8 +29,8 @@ import io.ktor.client.request.get
 import io.ktor.utils.io.core.use
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant
@@ -51,7 +51,7 @@ class DoomsdayClockSkill : Skill("skill.doomsday_clock") {
                 val minutesToMidnight = timeRegex.findAll(content).first().groups[1]?.value ?: "Unknown"
                 val reason = reasonRegex.find(content)?.groups?.get(2)?.value
 
-                FormalResponse(
+                VolatileResponse(
                     embed = EmbedBuilder()
                         .setTitle(minutesToMidnight, "https://thebulletin.org/timeline")
                         .setDescription(reason)
@@ -60,7 +60,7 @@ class DoomsdayClockSkill : Skill("skill.doomsday_clock") {
                         .build()
                 )
             } catch (cause: Throwable) {
-                FormalResponse("I was unable to check the Doomsday Clock!")
+                VolatileResponse("I was unable to check the Doomsday Clock!")
             }
         }
     }

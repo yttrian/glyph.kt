@@ -27,9 +27,9 @@ package me.ianmooreis.glyph.directors.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.NoResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.NoResponse
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
@@ -77,18 +77,20 @@ abstract class Skill(
                 if (!currentCooldown.warned) {
                     log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, cooled")
                     currentCooldown.warned = true
-                    return FormalResponse(
+                    return VolatileResponse(
                         "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
                         deleteAfterDelay = currentCooldown.remainingSeconds
                     )
                 } else {
                     event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown
                 }
-            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> return FormalResponse("You can only do that in a server!")
-            !permittedSelf -> return FormalResponse("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
+            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> return VolatileResponse(
+                "You can only do that in a server!"
+            )
+            !permittedSelf -> return VolatileResponse("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
                 prettyPrintPermissionName(it)
             }})")
-            !permittedUser -> return FormalResponse("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
+            !permittedUser -> return VolatileResponse("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
                 prettyPrintPermissionName(it)
             }})")
             creatorOnly && !event.author.isCreator -> event.message.addReaction("❓")

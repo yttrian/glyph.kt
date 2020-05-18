@@ -29,8 +29,8 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.toDate
-import me.ianmooreis.glyph.messaging.FormalResponse
-import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
@@ -50,17 +50,22 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
         return if (property != null) {
             val members = event.guild.members
             when (property) {
-                "join" -> FormalResponse(embed = rankMembersByJoin(members, event.member ?: event.guild.selfMember))
-                "created" -> FormalResponse(
+                "join" -> VolatileResponse(
+                    embed = rankMembersByJoin(
+                        members,
+                        event.member ?: event.guild.selfMember
+                    )
+                )
+                "created" -> VolatileResponse(
                     embed = rankMembersByCreation(
                         members,
                         event.member ?: event.guild.selfMember
                     )
                 )
-                else -> FormalResponse("I'm not sure what property `$property` is for members.")
+                else -> VolatileResponse("I'm not sure what property `$property` is for members.")
             }
         } else {
-            FormalResponse("I'm not sure what the property you want to rank members by is.")
+            VolatileResponse("I'm not sure what the property you want to rank members by is.")
         }
     }
 

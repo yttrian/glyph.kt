@@ -27,6 +27,7 @@ package me.ianmooreis.glyph.directors.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
+import me.ianmooreis.glyph.messaging.response.EphemeralResponse
 import me.ianmooreis.glyph.messaging.response.NoResponse
 import me.ianmooreis.glyph.messaging.response.Response
 import me.ianmooreis.glyph.messaging.response.VolatileResponse
@@ -34,6 +35,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /**
@@ -77,9 +79,9 @@ abstract class Skill(
                 if (!currentCooldown.warned) {
                     log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, cooled")
                     currentCooldown.warned = true
-                    return VolatileResponse(
+                    return EphemeralResponse(
                         "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
-                        deleteAfterDelay = currentCooldown.remainingSeconds
+                        ttl = Duration.ofSeconds(currentCooldown.remainingSeconds)
                     )
                 } else {
                     event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown

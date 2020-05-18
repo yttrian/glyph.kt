@@ -30,21 +30,22 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.sendDeathPM
+import me.ianmooreis.glyph.messaging.response.PermanentResponse
+import me.ianmooreis.glyph.messaging.response.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
  * A skill that allows privileged members to ban other members
  */
-object BanSkill : Skill(
+class BanSkill : Skill(
     "skill.moderation.ban",
     guildOnly = true,
     requiredPermissionsSelf = listOf(Permission.BAN_MEMBERS),
     requiredPermissionsUser = listOf(Permission.BAN_MEMBERS)
 ) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
         KickBanSkillHelper.getInstance(event, ai, "ban") { targets, reason ->
             event.message.delete().reason("Ban request").queue()
             targets.forEach { member ->
@@ -53,10 +54,6 @@ object BanSkill : Skill(
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
-            event.message.reply(
-                "***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***",
-                deleteWithEnabled = false
-            )
             if (event.guild.config.auditing.bans) {
                 val auditMessage = SimpleDescriptionBuilder()
                     .addField("Who", if (targetNames.length < 200) targetNames else "${targets.size} people")
@@ -65,6 +62,7 @@ object BanSkill : Skill(
                     .build()
                 event.guild.audit("Members Banned", auditMessage)
             }
+
+            PermanentResponse("***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} banned!***")
         }
-    }
 }

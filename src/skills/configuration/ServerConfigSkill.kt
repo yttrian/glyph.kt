@@ -30,6 +30,7 @@ import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.response.Response
 import me.ianmooreis.glyph.skills.utils.Myjson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
@@ -38,14 +39,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 /**
  * The skill for getting a server configuration which will be posted to Hastebin in YAML format
  */
-object ServerConfigSkill : Skill(
+class ServerConfigSkill : Skill(
     "skill.config.server",
     cooldownTime = 15,
     guildOnly = true,
     requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
     requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
 ) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val action = ai.result.getStringParameter("action")
         val config = event.guild.config
 

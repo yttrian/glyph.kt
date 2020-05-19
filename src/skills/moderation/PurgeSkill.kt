@@ -48,7 +48,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * A skill that allows privileged members to purge messages within a duration to the past
  */
-object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
+class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val time = event.message.timeCreated
         val durationEntity: JsonObject? = ai.result.getComplexParameter("duration")

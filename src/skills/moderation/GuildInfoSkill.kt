@@ -37,7 +37,7 @@ import org.ocpsoft.prettytime.PrettyTime
 /**
  * A skill that allows users to ask for different info about a guild
  */
-object GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
+class GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val property: String? = ai.result.getStringParameter("guildProperty")
 

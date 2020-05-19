@@ -28,7 +28,8 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.config.server.WikiConfig
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -38,8 +39,8 @@ import java.time.Instant
 /**
  * A skill that allows users to search for stuff across multiple wikis
  */
-object WikiSkill : Skill("skill.wiki") {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class WikiSkill : Skill("skill.wiki") {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val query: String = ai.result.getStringParameter("search_query") ?: ""
         val config: WikiConfig = event.guild.config.wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki")
@@ -54,11 +55,17 @@ object WikiSkill : Skill("skill.wiki") {
                 FandomExtractor.getArticle(source, query, config.minimumQuality)
             }
             if (article != null) {
-                event.message.reply(getResultEmbed(article.title, article.url, article.intro, sourcesDisplay[index]))
-                return
+                return VolatileResponse(
+                    embed = getResultEmbed(
+                        article.title,
+                        article.url,
+                        article.intro,
+                        sourcesDisplay[index]
+                    )
+                )
             }
         }
-        event.message.reply("No results found for `$query` on ${sourcesDisplay.joinToString()}!")
+        return VolatileResponse("No results found for `$query` on ${sourcesDisplay.joinToString()}!")
     }
 
     private fun getResultEmbed(title: String, url: URL, description: String, wiki: String): MessageEmbed {

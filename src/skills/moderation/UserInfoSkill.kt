@@ -26,7 +26,7 @@ package me.ianmooreis.glyph.skills.moderation
 
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.extensions.findUser
+import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.messaging.response.Response
 import me.ianmooreis.glyph.messaging.response.VolatileResponse
@@ -36,17 +36,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 /**
  * A skill that allows users to get an info embed about other or themselves
  */
-object UserInfoSkill : Skill("skill.moderation.userInfo") {
+class UserInfoSkill : Skill("skill.moderation.userInfo") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        val userName: String? = ai.result.getStringParameter("user")
-        val user: User? = if (event.channelType.isGuild && userName != null) {
-            event.guild.findUser(userName) ?: event.author
-        } else {
-            event.author
-        }
-        if (user == null) {
-            return VolatileResponse("Unable to find the specified user!")
-        }
+        // val userName: String? = ai.result.getStringParameter("user")
+        val user: User = event.message.cleanMentionedMembers.firstOrNull()?.user ?: event.author
         return VolatileResponse(
             embed = user.getInfoEmbed(
                 "User Info",

@@ -60,10 +60,7 @@ abstract class Skill(
     /**
      * When the skill is triggered
      */
-    open suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        this.log.warn("This skill does nothing!")
-        return NoResponse
-    }
+    abstract suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response
 
     /**
      * Trigger the skill but do some checks first before truly triggering it

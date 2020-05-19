@@ -27,7 +27,8 @@ package me.ianmooreis.glyph.skills.roles
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant
@@ -35,26 +36,30 @@ import java.time.Instant
 /**
  * A skill that allows members to list all selectable roles
  */
-object RoleListSkill : Skill("skill.role.list", guildOnly = true) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class RoleListSkill : Skill("skill.role.list", guildOnly = true) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val selectableRoles = event.guild.config.selectableRoles.roles.mapNotNull { event.guild.getRoleById(it) }
         val limit = event.guild.config.selectableRoles.limit
-        if (selectableRoles.isNotEmpty()) {
+
+        return if (selectableRoles.isNotEmpty()) {
             val randomRole = selectableRoles.random()
-            event.message.reply(EmbedBuilder()
-                .setTitle("Available Roles")
-                .setDescription(selectableRoles.joinToString("\n") {
-                    val size = it.guild.getMembersWithRoles(it).size
-                    "**${it.name}** $size ${if (size == 1) "member" else "members"}"
-                } + if (limit > 0) "\n*You can have up to $limit ${if (limit == 1) "role" else "roles"}*" else "")
-                .setFooter(
-                    "Roles ${if (randomRole != null) "| Try asking \"Set me as ${randomRole.name}\"" else ""}",
-                    null
-                )
-                .setTimestamp(Instant.now())
-                .build())
+            val description = StringBuilder()
+
+            selectableRoles.forEach {
+                description.appendln(it.asMention)
+            }
+            if (limit > 0) description.append("*You can have up to $limit ${if (limit == 1) "role" else "roles"}*")
+
+            VolatileResponse(
+                embed = EmbedBuilder()
+                    .setTitle("Available Roles")
+                    .setDescription(description)
+                    .setFooter("Roles | Try asking \"Set me as ${randomRole.name}\"}")
+                    .setTimestamp(Instant.now())
+                    .build()
+            )
         } else {
-            event.message.reply("There are no selectable roles configured!")
+            VolatileResponse("There are no selectable roles configured!")
         }
     }
 }

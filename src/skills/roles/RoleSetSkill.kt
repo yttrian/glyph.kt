@@ -29,7 +29,8 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.HierarchyException
@@ -38,25 +39,30 @@ import java.util.concurrent.TimeUnit
 /**
  * A skill that allows members to assign selectable roles
  */
-object RoleSetSkill :
-    Skill("skill.role.set", guildOnly = true, requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse) {
+class RoleSetSkill : Skill(
+    "skill.role.set",
+    guildOnly = true,
+    requiredPermissionsSelf = listOf(Permission.MANAGE_ROLES)
+) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
+        val message = event.message
+
         //Check if the user is allowed to set roles for the specified target(s)
-        if ((event.message.cleanMentionedMembers.isNotEmpty() || event.message.mentionsEveryone()) && !event.member!!.hasPermission(
+        if ((message.cleanMentionedMembers.isNotEmpty() || message.mentionsEveryone()) && !event.member!!.hasPermission(
                 Permission.MANAGE_ROLES
             )
         ) {
-            event.message.reply("You must have Manage Roles permission to set other peoples' roles!")
-            return
+            return VolatileResponse("You must have Manage Roles permission to set other peoples' roles!")
         }
-        RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
+
+        return RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
             if (targets.size > 1 && targets.contains(event.member) && !event.member!!.hasPermission(Permission.MANAGE_ROLES)
                 && event.member!!.roles.count { selectableRoles.contains(it) } >= config.limit
             ) {
                 val randomRole = event.member!!.roles.filter { selectableRoles.contains(it) }.random()
-                event.message.reply(
+                VolatileResponse(
                     "You can only have ${config.limit} roles in this server! " +
                         (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
                 )
@@ -84,9 +90,9 @@ object RoleSetSkill :
                             .reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
                     }
                     val targetNames = targets.joinToString { it.asPlainMention }
-                    event.message.reply("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
+                    VolatileResponse("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
                 } catch (e: HierarchyException) {
-                    event.message.reply("I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
+                    VolatileResponse("I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
                 }
             }
         }

@@ -27,7 +27,8 @@ package me.ianmooreis.glyph.skills.roles
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -46,8 +47,8 @@ object RoleSkillHelper {
     fun getInstance(
         event: MessageReceivedEvent,
         ai: AIResponse,
-        success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Unit
-    ) {
+        success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Response
+    ): Response {
         //Get the list of target(s) based on the mentions in the messages
         val targets: List<Member> = when {
             event.message.mentionsEveryone() -> event.guild.members
@@ -55,27 +56,25 @@ object RoleSkillHelper {
             event.message.cleanMentionedMembers.isNotEmpty() -> event.message.cleanMentionedMembers
             else -> listOf(event.member!!)
         }
+
         //Extract the desired role name and make a list of all available selectable roles
         val config = event.guild.config.selectableRoles
         val desiredRoleName: String = ai.result.getStringParameter("role")?.removeSurrounding("\"") ?: ""
         if (desiredRoleName.isEmpty()) {
-            event.message.reply("I could not find a role name in your message!")
-            return
+            return VolatileResponse("I could not find a role name in your message!")
         }
+
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
-        if (desiredRole == null) {
-            event.message.reply("Role `$desiredRoleName` does not exist!")
-            return
-        }
+            ?: return VolatileResponse("Role `$desiredRoleName` does not exist!")
         val selectableRoles = config.roles.mapNotNull { event.guild.getRoleById(it) }
         if (selectableRoles.isEmpty()) {
-            event.message.reply("There are no selectable roles configured for this server!")
-            return
+            return VolatileResponse("There are no selectable roles configured for this server!")
         }
-        if (selectableRoles.contains(desiredRole)) {
+
+        return if (selectableRoles.contains(desiredRole)) {
             success(desiredRole, selectableRoles, targets)
         } else {
-            event.message.reply("Sorry, `$desiredRoleName` is not a selectable role!")
+            VolatileResponse("Sorry, `$desiredRoleName` is not a selectable role!")
         }
     }
 }

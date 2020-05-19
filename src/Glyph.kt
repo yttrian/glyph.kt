@@ -28,9 +28,10 @@ import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.ai.dialogflow.Dialogflow
 import me.ianmooreis.glyph.database.DatabaseDirector
 import me.ianmooreis.glyph.directors.AuditingDirector
-import me.ianmooreis.glyph.directors.ServerDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
+import me.ianmooreis.glyph.directors.servers.BotList
+import me.ianmooreis.glyph.directors.servers.ServerDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.messaging.MessagingDirector
 import me.ianmooreis.glyph.messaging.quickview.QuickviewDirector
@@ -117,9 +118,24 @@ object Glyph {
                 GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS
             )
 
+            val serverDirector = ServerDirector { id ->
+                val discordBotList = BotList(
+                    "Discord Bot List",
+                    "https://top.gg/api/bots/$id/stats",
+                    System.getenv("DISCORDBOTLIST_TOKEN")
+                )
+                val discordBots = BotList(
+                    "Discord Bots",
+                    "https://bots.discord.pw/api/bots/$id/stats",
+                    System.getenv("DISCORDBOTS_TOKEN")
+                )
+
+                botList(discordBotList, discordBots)
+            }
+
             it.addEventListeners(
-                MessagingDirector(aiAgent, redisPool), AuditingDirector, ServerDirector,
-                QuickviewDirector, StatusDirector, StarboardDirector
+                MessagingDirector(aiAgent, redisPool), AuditingDirector,
+                serverDirector, QuickviewDirector, StatusDirector, StarboardDirector
             )
         }
 

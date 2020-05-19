@@ -24,54 +24,68 @@
 
 package me.ianmooreis.glyph.skills.wiki
 
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.result.Result
-import org.json.JSONObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.net.URL
-import java.net.URLEncoder
+import io.ktor.client.features.ResponseException
+import io.ktor.client.request.get
+import io.ktor.http.URLBuilder
+import io.ktor.http.encodeURLPath
+import io.ktor.http.takeFrom
 
 /**
  * Grabs articles from Fandom wikis
  */
-object FandomExtractor {
-    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+class FandomExtractor(
+    /**
+     * The Fandom wiki to search
+     */
+    val wiki: String,
+    /**
+     * The minimum acceptable article quality
+     */
+    val minimumQuality: Int
+) : WikiExtractor() {
+    private val apiBase = "https://${wiki.encodeURLPath()}.fandom.com/api/v1"
 
     /**
      * Tries to grab an article from a search on a wiki
      *
-     * @param wiki the wiki to search
      * @param query the search query
-     * @param minimumQuality the minimum article quality to accept
      */
-    fun getArticle(wiki: String, query: String, minimumQuality: Int): WikiArticle? {
-        val searchUrl = "https://${URLEncoder.encode(wiki, "UTF-8")}.wikia.com/" +
-                "api/v1/Search/List?query=${URLEncoder.encode(query, "UTF-8")}" +
-                "&limit=1&minArticleQuality=${URLEncoder.encode(
-                    minimumQuality.toString(),
-                    "UTF-8"
-                )}&batch=1&namespaces=0%2C14"
-        val (_, _, searchResult) = searchUrl.httpGet().responseString()
-        return when (searchResult) {
-            is Result.Success -> {
-                val page = JSONObject(searchResult.get()).getJSONArray("items").getJSONObject(0)
-                val pageUrl = "http://$wiki.wikia.com/api/v1/Articles/AsSimpleJson?id=${page.getInt("id")}"
-                val (_, pageResponse, pageResult) = pageUrl.httpGet().responseString()
-                val snippet = if (pageResponse.statusCode == 200) {
-                    JSONObject(pageResult.get()).getJSONArray("sections").getJSONObject(0)
-                        .getJSONArray("content").getJSONObject(0)
-                        .getString("text")
-                } else {
-                    page.getString("snippet")
-                }
+    override suspend fun getArticle(query: String): WikiArticle? {
+        val searchUrl = URLBuilder("$apiBase/Search/List").apply {
+            parameters.apply {
+                append("limit", "1")
+                append("minArticleQuality", minimumQuality.toString())
+                append("batch", "1")
+                append("namespaces", "0%2C14")
+            }
+        }.build()
 
-                WikiArticle(page.getString("title"), snippet, URL(page.getString("url")))
+        data class FandomSearchItem(val id: String)
+        data class FandomSearchResult(val items: List<FandomSearchItem>)
+        data class FandomContent(val text: String)
+        data class FandomSections(val content: List<FandomContent>)
+        data class FandomPage(
+            val title: String,
+            val url: String,
+            val snippet: String,
+            val sections: List<FandomSections>
+        )
+
+        return try {
+            val searchResult = client.get<FandomSearchResult>(searchUrl)
+
+            searchResult.items.firstOrNull()?.let {
+                val pageUrl = URLBuilder().takeFrom("$apiBase/Articles/AsSimpleJson").apply {
+                    parameters.append("id", it.id)
+                }.build()
+
+                val pageResult = client.get<FandomPage>(pageUrl)
+                val snippet = pageResult.sections.firstOrNull()?.content?.firstOrNull()?.text ?: pageResult.snippet
+
+                WikiArticle(pageResult.title, snippet, pageResult.url)
             }
-            is Result.Failure -> {
-                log.info("Failed to find page for query $query!")
-                null
-            }
+        } catch (e: ResponseException) {
+            null
         }
     }
 }

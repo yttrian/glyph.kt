@@ -1,10 +1,10 @@
 /*
- * WikiArticle.kt
+ * WikiExtractor.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,20 +24,24 @@
 
 package me.ianmooreis.glyph.skills.wiki
 
+import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JsonFeature
+
 /**
- * A wiki article
+ * Handle extracting articles from a specific wiki
  */
-data class WikiArticle(
+abstract class WikiExtractor {
     /**
-     * The title of the article
+     * HTTP client for making API requests
      */
-    val title: String,
+    val client: HttpClient = HttpClient {
+        install(JsonFeature)
+    }
+
     /**
-     * The short intro text of the article
+     * Tries to find an article from a search
+     *
+     * @param query the search query
      */
-    val intro: String,
-    /**
-     * The url linking to the article
-     */
-    val url: String
-)
+    abstract suspend fun getArticle(query: String): WikiArticle?
+}

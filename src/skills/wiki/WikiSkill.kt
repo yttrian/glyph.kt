@@ -33,7 +33,6 @@ import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import java.net.URL
 import java.time.Instant
 
 /**
@@ -50,9 +49,9 @@ class WikiSkill : Skill("skill.wiki") {
         event.channel.sendTyping().queue()
         sources.forEachIndexed { index, source ->
             val article: WikiArticle? = if (source.toLowerCase() == "wikipedia") {
-                WikipediaExtractor.getArticle(query)
+                WikipediaExtractor().getArticle(query)
             } else {
-                FandomExtractor.getArticle(source, query, config.minimumQuality)
+                FandomExtractor(source, config.minimumQuality).getArticle(query)
             }
             if (article != null) {
                 return VolatileResponse(
@@ -68,9 +67,9 @@ class WikiSkill : Skill("skill.wiki") {
         return VolatileResponse("No results found for `$query` on ${sourcesDisplay.joinToString()}!")
     }
 
-    private fun getResultEmbed(title: String, url: URL, description: String, wiki: String): MessageEmbed {
+    private fun getResultEmbed(title: String, url: String, description: String, wiki: String): MessageEmbed {
         return EmbedBuilder()
-            .setTitle(title, url.toString())
+            .setTitle(title, url)
             .setDescription(description)
             .setFooter(wiki, null)
             .setTimestamp(Instant.now())

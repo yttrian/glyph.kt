@@ -57,6 +57,7 @@ dependencies {
     implementation "net.dean.jraw:JRAW:1.0.0"
     implementation "org.ocpsoft.prettytime:prettytime:4.0.4.Final"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
+    implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
     implementation "com.vdurmont:emoji-java:4.0.0"
     implementation "net.jodah:expiringmap:0.5.9"
     implementation "commons-codec:commons-codec:1.14"

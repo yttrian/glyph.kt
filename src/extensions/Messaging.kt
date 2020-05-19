@@ -26,9 +26,7 @@ package me.ianmooreis.glyph.extensions
 
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
-import java.time.OffsetDateTime
 
 /**
  * Removes the @mention prefix from a content stripped message and trims any extra whitespace
@@ -51,14 +49,3 @@ val Message.cleanMentionedMembers: List<Member>
  */
 val Message.cleanMentionedUsers: List<User>
     get() = this.mentionedUsers.filter { it != this.jda.selfUser }
-
-/**
- * Retrieves all messages since a date in the past from the iterable history
- *
- * @param time a time in the past
- *
- * @return a list of messages since the date in the past
- */
-fun TextChannel.getMessagesSince(time: OffsetDateTime): List<Message> {
-    return this.iterableHistory.takeWhile { it.timeCreated.isAfter(time) }
-}

@@ -30,14 +30,20 @@ import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.getMessagesSince
-import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.extensions.toDate
+import me.ianmooreis.glyph.messaging.response.EphemeralResponse
 import me.ianmooreis.glyph.messaging.response.Response
 import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.ocpsoft.prettytime.PrettyTime
+import java.time.Duration
+import java.time.OffsetDateTime
+import java.util.concurrent.CompletableFuture
 
 /**
  * A skill that allows privileged members to purge messages within a duration to the past
@@ -81,33 +87,43 @@ object PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())
-        val messages = event.textChannel.getMessagesSince(duration)
-        if (messages.size > 2) {
+        event.textChannel.takeMessagesSince(duration).thenAcceptAsync {
             // JDA now handles chunking for bulk deletion, so we'll let it deal with that
-            event.textChannel.purgeMessages(messages)
-            // Inform the use of a successful purge request
-            event.message.reply(
-                "${messages.size} messages since $prettyDuration " +
-                    if (messages.size > 100) "queued for purging!" else "purged!"
-                , deleteAfterDelay = 10
-            )
-            // If purge auditing is enabled, log it
-            if (event.guild.config.auditing.purge) {
-                val reason = ai.result.getStringParameter("reason") ?: "No reason provided"
-                val auditMessage = SimpleDescriptionBuilder()
-                    .addField("Total", "${messages.size} messages")
-                    .addField("Channel", event.textChannel.asMention)
-                    .addField("Blame", event.author.asMention)
-                    .addField("Reason", reason)
-                    .build()
-                event.guild.audit("Messages Purged", auditMessage)
-            }
-        } else {
-            event.message.delete().reason("Failed purge request").queue()
-            event.message.reply(
-                "There must be at least two messages to purge! Try a longer duration.",
-                deleteAfterDelay = 10
-            )
+            event.textChannel.purgeMessages(it)
         }
+
+        // If purge auditing is enabled, log it
+        if (event.guild.config.auditing.purge) {
+            event.jda.addEventListener(object : ListenerAdapter() {
+                val blame = event.author.asMention
+                val channel = event.textChannel.asMention
+                val reason = ai.result.getStringParameter("reason") ?: "No reason provided"
+
+                override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
+                    val total = event.messageIds.size
+
+                    val auditMessage = SimpleDescriptionBuilder()
+                        .addField("Total", "$total messages")
+                        .addField("Channel", channel)
+                        .addField("Blame", blame)
+                        .addField("Reason", reason)
+                        .build()
+
+                    event.guild.audit("Messages Purged", auditMessage)
+
+                    event.jda.removeEventListener(this)
+                }
+            })
+        }
+
+        // Inform the user of a successful purge request
+        return EphemeralResponse(
+            "Purging messages since $prettyDuration! (this may take a while depending on duration)",
+            ttl = Duration.ofSeconds(10)
+        )
+    }
+
+    private fun TextChannel.takeMessagesSince(time: OffsetDateTime): CompletableFuture<List<Message>> {
+        return this.iterableHistory.takeWhileAsync { it.timeCreated.isAfter(time) }
     }
 }

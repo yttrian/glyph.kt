@@ -23,28 +23,33 @@
 
 package me.ianmooreis.glyph.messaging.quickview
 
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinity
-import me.ianmooreis.glyph.messaging.quickview.picarto.Picarto
+import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinityGenerator
+import me.ianmooreis.glyph.messaging.quickview.picarto.PicartoGenerator
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 /**
  * Handle triggers for quickviews
  */
-object QuickviewDirector : ListenerAdapter() {
+class QuickviewDirector : Director() {
+    private val generators = setOf(PicartoGenerator(), FurAffinityGenerator())
+
     /**
      * Check for quickviews when a message is received
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
         val config = if (event.channelType.isGuild) event.guild.config else ConfigDirector.getDefaultServerConfig()
 
-        if (config.quickview.furaffinityEnabled) {
-            FurAffinity.makeQuickviews(event)
-        }
-        if (config.quickview.picartoEnabled) {
-            Picarto.makeQuickviews(event)
+        launch {
+            generators.forEach {
+                it.generate(event, config.quickview).collect {
+                    TODO("Reply with a volatile response")
+                }
+            }
         }
     }
 }

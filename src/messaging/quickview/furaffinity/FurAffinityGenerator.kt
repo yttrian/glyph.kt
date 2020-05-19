@@ -27,23 +27,25 @@ package me.ianmooreis.glyph.messaging.quickview.furaffinity
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
+import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.reply
+import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-
 /**
  * Handles the creation of QuickViews for furaffinity.net links
  */
-object FurAffinity {
-    /**
-     * A server hosting an instance of FAExport
-     */
-    private const val API_HOST: String = "https://faexport.spangle.org.uk"
+class FurAffinityGenerator : QuickviewGenerator() {
+    companion object {
+        private const val API_HOST: String = "https://faexport.spangle.org.uk"
+    }
+
     private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val standardUrlFormat =
         Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
@@ -72,6 +74,11 @@ object FurAffinity {
                     log.info("Created FurAffinity QuickView for submission ${it.link}")
                 }
             }
+    }
+
+    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): List<MessageEmbed> {
+        val content = event.message.contentClean
+        TODO("Not yet implemented")
     }
 
     private fun findSubmissionId(cdnId: Int, user: String, maxPages: Int = 1): Int? {

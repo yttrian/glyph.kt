@@ -23,23 +23,17 @@
 
 package me.ianmooreis.glyph.directors.skills
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.messaging.response.Response
 import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Manages all the available skills
  */
-object SkillDirector : CoroutineScope {
-    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+object SkillDirector : Director() {
     private val skills: MutableMap<String, Skill> = mutableMapOf()
     private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
 
@@ -103,8 +97,5 @@ object SkillDirector : CoroutineScope {
             )
         }
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + SupervisorJob()
 }
 

@@ -1,5 +1,5 @@
 /*
- * FormalResponse.kt
+ * Response.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,9 +22,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.messaging.response
+package me.ianmooreis.glyph.messaging
 
 import net.dv8tion.jda.api.entities.MessageEmbed
+import java.time.Duration
+
+/**
+ * A way Glyph can respond to a message
+ */
+sealed class Response
+
+/**
+ * A response that only lasts a limited about of time
+ */
+data class EphemeralResponse(
+    /**
+     * The message content
+     */
+    val content: String? = null,
+    /**
+     * The message embed
+     */
+    val embed: MessageEmbed? = null,
+    /**
+     * The time to live for the message before being deleted
+     */
+    val ttl: Duration
+) : Response()
 
 /**
  * A message that will delete itself when the triggering message is also deleted
@@ -38,4 +62,33 @@ data class VolatileResponse(
      * The message embed
      */
     val embed: MessageEmbed? = null
-) : Response
+) : Response()
+
+/**
+ * A message that will not be automatically deleted
+ */
+data class PermanentResponse(
+    /**
+     * The message content
+     */
+    val content: String? = null,
+    /**
+     * The message embed
+     */
+    val embed: MessageEmbed? = null
+) : Response()
+
+/**
+ * Emoji react in response to a message
+ */
+data class ReactionResponse(
+    /**
+     * The emoji to react with
+     */
+    val emoji: String
+) : Response()
+
+/**
+ * Do not respond to a message
+ */
+object NoResponse : Response()

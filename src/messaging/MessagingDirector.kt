@@ -30,10 +30,6 @@ import me.ianmooreis.glyph.database.Key
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
-import me.ianmooreis.glyph.messaging.response.EphemeralResponse
-import me.ianmooreis.glyph.messaging.response.PermanentResponse
-import me.ianmooreis.glyph.messaging.response.ReactionResponse
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity

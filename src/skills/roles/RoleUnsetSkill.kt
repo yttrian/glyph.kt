@@ -28,8 +28,8 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
+import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.HierarchyException

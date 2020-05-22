@@ -28,8 +28,8 @@ import com.squareup.moshi.JsonDataException
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
+import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException

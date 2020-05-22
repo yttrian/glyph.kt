@@ -26,8 +26,8 @@ package me.ianmooreis.glyph.skills.moderation
 
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
+import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -62,7 +62,9 @@ object KickBanSkillHelper {
                 .isEmpty() -> VolatileResponse("I will not $action someone with Administrator permissions!")
             targets.filterNot { it.hasPermission(Permission.MANAGE_SERVER) }
                 .isEmpty() -> VolatileResponse("I will not $action someone with Manage Server permissions!")
-            targets.contains(event.guild.selfMember) -> VolatileResponse("I cannot kick myself!")
+            targets.contains(event.guild.selfMember) -> VolatileResponse(
+                "I cannot kick myself!"
+            )
             event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= authorMaxRole }
                 .isEmpty() && !event.member!!.isOwner -> VolatileResponse(
                 "You cannot $action members of your role or higher!"

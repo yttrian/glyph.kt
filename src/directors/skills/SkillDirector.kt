@@ -25,8 +25,8 @@ package me.ianmooreis.glyph.directors.skills
 
 import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
+import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 

@@ -27,10 +27,10 @@ package me.ianmooreis.glyph.directors.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
-import me.ianmooreis.glyph.messaging.response.EphemeralResponse
-import me.ianmooreis.glyph.messaging.response.NoResponse
-import me.ianmooreis.glyph.messaging.response.Response
-import me.ianmooreis.glyph.messaging.response.VolatileResponse
+import me.ianmooreis.glyph.messaging.EphemeralResponse
+import me.ianmooreis.glyph.messaging.NoResponse
+import me.ianmooreis.glyph.messaging.Response
+import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger

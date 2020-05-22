@@ -30,7 +30,7 @@ import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.reply
-import me.ianmooreis.glyph.messaging.response.Response
+import me.ianmooreis.glyph.messaging.Response
 import me.ianmooreis.glyph.skills.utils.Myjson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission

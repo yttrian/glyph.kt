@@ -31,7 +31,7 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.sendDeathPM
-import me.ianmooreis.glyph.messaging.response.PermanentResponse
+import me.ianmooreis.glyph.messaging.PermanentResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 

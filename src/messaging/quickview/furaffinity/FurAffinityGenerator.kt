@@ -24,19 +24,20 @@
 
 package me.ianmooreis.glyph.messaging.quickview.furaffinity
 
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.result.Result
-import com.google.gson.Gson
+import com.google.common.math.IntMath
+import io.ktor.client.request.get
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
-import me.ianmooreis.glyph.extensions.reply
 import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.json.JSONArray
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import java.math.RoundingMode
 
 /**
  * Handles the creation of QuickViews for furaffinity.net links
@@ -44,70 +45,59 @@ import org.slf4j.LoggerFactory
 class FurAffinityGenerator : QuickviewGenerator() {
     companion object {
         private const val API_HOST: String = "https://faexport.spangle.org.uk"
+        private const val GALLERY_LISTING_SIZE: Int = 72
     }
 
-    private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
     private val standardUrlFormat =
         Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
     private val cdnUrlFormat =
         Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
 
-    /**
-     * Makes any QuickViews for links found in a message
-     *
-     * @param event the message event
-     */
-    fun makeQuickviews(event: MessageReceivedEvent) {
-        standardUrlFormat.findAll(event.message.contentClean).map { it.groups[6]!!.value.toInt() }
-            .plus(cdnUrlFormat.findAll(event.message.contentClean).mapNotNull {
-                findSubmissionId(
-                    it.groups[4]!!.value.toInt(),
-                    it.groups[3]!!.value
-                )
-            })
-            .map { getSubmission(it) }
-            .forEach {
-                if (it != null) {
-                    val allowThumbnail = if (!event.channelType.isGuild && !it.rating.nsfw) true else
-                        event.guild.config.quickview.furaffinityThumbnails && ((event.textChannel.isNSFW && it.rating.nsfw) || !it.rating.nsfw)
-                    event.message.reply(it.getEmbed(allowThumbnail))
-                    log.info("Created FurAffinity QuickView for submission ${it.link}")
-                }
-            }
-    }
-
-    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): List<MessageEmbed> {
+    @ExperimentalCoroutinesApi
+    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> {
         val content = event.message.contentClean
-        TODO("Not yet implemented")
-    }
 
-    private fun findSubmissionId(cdnId: Int, user: String, maxPages: Int = 1): Int? {
-        for (page in 1..maxPages) {
-            val (_, _, result) = "$API_HOST/user/$user/gallery.json?full=1&page=1".httpGet().responseString()
-            val submissions = JSONArray(result.get())
-            if (result is Result.Success) {
-                for (i in 0.until(submissions.length() - 1)) {
-                    val submission = submissions.getJSONObject(i)
-                    if (submission.getString("thumbnail").contains(cdnId.toString())) {
-                        return submission.getInt("id")
-                    }
-                }
+        val standardSubmissionIds: Flow<Int> =
+            standardUrlFormat.findAll(content).asFlow().mapNotNull { it.groups[6]?.value?.toInt() }
+        val cdnSubmissionIds: Flow<Int> = cdnUrlFormat.findAll(content).asFlow().mapNotNull {
+            val cdnId = it.groups[4]?.value?.toInt()
+            val username = it.groups[3]?.value
+
+            if (cdnId != null && username != null) findSubmissionId(cdnId, username) else null
+        }
+        val submissionIds = merge(standardSubmissionIds, cdnSubmissionIds)
+
+        return submissionIds.mapNotNull {
+            getSubmission(it)?.run {
+                // allow only SFW thumbnails in DMs, and all in enabled servers but only show NSFW in NSFW channels
+                val allowThumbnail = (!event.isFromGuild && !rating.nsfw) ||
+                    (event.guild.config.quickview.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
+
+                getEmbed(allowThumbnail)
             }
         }
-        log.error("Failed to find FurAffinity image source with CDN ID $cdnId by $user in $maxPages page!")
+    }
+
+    private suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
+        val cdnIdString = cdnId.toString()
+
+        data class UserPage(val submissions: Int)
+
+        val submissionCount = client.get<UserPage>("$API_HOST/user/$user.json").submissions
+        val maxPages = IntMath.divide(submissionCount, GALLERY_LISTING_SIZE, RoundingMode.CEILING)
+
+        data class SubmissionExcerpt(val id: Int, val thumbnail: String)
+        data class SubmissionListing(val submissions: List<SubmissionExcerpt>)
+
+        for (page in 1..maxPages) {
+            val listing = client.get<SubmissionListing>("$API_HOST/user/$user/gallery.json?full=1&page=1")
+            listing.submissions.find { it.thumbnail.contains(cdnIdString) }?.let {
+                return it.id
+            }
+        }
+
         return null
     }
 
-    private fun getSubmission(id: Int): Submission? { //TODO: Figure out how not to do it blocking, because async had errors
-        val (_, _, result) = "$API_HOST/submission/$id.json".httpGet().responseString()
-        return when (result) {
-            is Result.Success -> {
-                Gson().fromJson(result.get(), Submission::class.java)
-            }
-            is Result.Failure -> {
-                log.warn("Failed to get submission $id from FAExport!")
-                return null
-            }
-        }
-    }
+    private suspend fun getSubmission(id: Int): Submission? = client.get("$API_HOST/submission/$id.json")
 }

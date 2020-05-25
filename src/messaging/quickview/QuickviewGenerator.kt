@@ -30,11 +30,12 @@ import kotlinx.coroutines.flow.Flow
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import java.io.Closeable
 
 /**
  * Handle extract data from websites to build relevant QuickViews
  */
-abstract class QuickviewGenerator {
+abstract class QuickviewGenerator : Closeable {
     /**
      * HTTP client for making API requests
      */
@@ -45,5 +46,10 @@ abstract class QuickviewGenerator {
     /**
      * Generate QuickView embeds for any links found in the message
      */
-    abstract suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed?>
+    abstract suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed>
+
+    /**
+     * Closes the client used by the generator
+     */
+    override fun close(): Unit = client.close()
 }

@@ -33,7 +33,7 @@ import java.util.Date
 /**
  * A FurAffinity submission
  */
-class Submission(
+data class Submission(
     private val title: String, private val name: String, private val profile: URL,
     /**
      * The direct link to the submission

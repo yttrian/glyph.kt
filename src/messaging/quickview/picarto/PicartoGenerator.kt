@@ -29,7 +29,7 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
@@ -42,10 +42,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 class PicartoGenerator : QuickviewGenerator() {
     private val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
 
-    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed?> {
+    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> {
         return if (config.picartoEnabled) {
             urlFormat.findAll(event.message.contentClean).asFlow()
-                .map { getChannel(it.groups[5]?.value)?.getEmbed() }
+                .mapNotNull { getChannel(it.groups[5]?.value)?.getEmbed() }
         } else emptyFlow()
     }
 

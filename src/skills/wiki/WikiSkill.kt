@@ -54,7 +54,8 @@ class WikiSkill : Skill("skill.wiki") {
                 return Response.Volatile(
                     EmbedBuilder()
                         .setTitle(article.title, article.url)
-                        .setDescription(article.intro)
+                        .setDescription(article.abstract)
+                        .setThumbnail(article.thumbnail)
                         .setFooter(sourceDisplay(source), null)
                         .setTimestamp(Instant.now())
                         .build()

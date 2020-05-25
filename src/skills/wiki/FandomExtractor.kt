@@ -45,47 +45,101 @@ class FandomExtractor(
 ) : WikiExtractor() {
     private val apiBase = "https://${wiki.encodeURLPath()}.fandom.com/api/v1"
 
+    companion object {
+        /**
+         * http://community.wikia.com/wiki/Help:Namespaces
+         */
+        const val NAMESPACES: String = "0,14"
+
+        /**
+         * The maximum length Fandom allows asking for
+         */
+        const val MAX_ABSTRACT_LENGTH: String = "500"
+
+        /**
+         * Represents an item from a Fandom search
+         */
+        data class SearchResult(
+            /**
+             * Identity of search result
+             */
+            val id: String
+        )
+
+        /**
+         * Represents a Fandom search result listing
+         */
+        data class SearchListing(
+            /**
+             * Search result items
+             */
+            val items: List<SearchResult>
+        )
+
+        /**
+         * Represents a Fandom page
+         */
+        data class Page(
+            /**
+             * Title of the page
+             */
+            val title: String,
+            /**
+             * URL of the page
+             */
+            val url: String,
+            /**
+             * Abstract of the page
+             */
+            val abstract: String,
+            /**
+             * URL of the thumbnail for the page
+             */
+            val thumbnail: String
+        )
+
+        /**
+         * Represents the result of a details listing
+         */
+        data class DetailsListing(
+            /**
+             * Detail result items
+             */
+            val items: Map<String, Page>
+        )
+    }
+
     /**
      * Tries to grab an article from a search on a wiki
      *
      * @param query the search query
      */
-    override suspend fun getArticle(query: String): WikiArticle? {
+    override suspend fun getArticle(query: String): WikiArticle? = try {
         val searchUrl = URLBuilder("$apiBase/Search/List").apply {
             parameters.apply {
+                append("query", query)
                 append("limit", "1")
                 append("minArticleQuality", minimumQuality.toString())
                 append("batch", "1")
-                append("namespaces", "0%2C14")
+                append("namespaces", NAMESPACES)
             }
         }.build()
 
-        data class FandomSearchItem(val id: String)
-        data class FandomSearchResult(val items: List<FandomSearchItem>)
-        data class FandomContent(val text: String)
-        data class FandomSections(val content: List<FandomContent>)
-        data class FandomPage(
-            val title: String,
-            val url: String,
-            val snippet: String,
-            val sections: List<FandomSections>
-        )
+        val searchResult = client.get<SearchListing>(searchUrl)
 
-        return try {
-            val searchResult = client.get<FandomSearchResult>(searchUrl)
+        searchResult.items.firstOrNull()?.let {
+            val pageUrl = URLBuilder().takeFrom("$apiBase/Articles/Details").apply {
+                parameters.apply {
+                    append("ids", it.id)
+                    append("abstract", MAX_ABSTRACT_LENGTH)
+                }
+            }.build()
 
-            searchResult.items.firstOrNull()?.let {
-                val pageUrl = URLBuilder().takeFrom("$apiBase/Articles/AsSimpleJson").apply {
-                    parameters.append("id", it.id)
-                }.build()
+            val page = client.get<DetailsListing>(pageUrl).items[it.id]
 
-                val pageResult = client.get<FandomPage>(pageUrl)
-                val snippet = pageResult.sections.firstOrNull()?.content?.firstOrNull()?.text ?: pageResult.snippet
-
-                WikiArticle(pageResult.title, snippet, pageResult.url)
-            }
-        } catch (e: ResponseException) {
-            null
+            if (page != null) WikiArticle(page.title, page.abstract, page.url, page.thumbnail) else null
         }
+    } catch (e: ResponseException) {
+        null
     }
 }

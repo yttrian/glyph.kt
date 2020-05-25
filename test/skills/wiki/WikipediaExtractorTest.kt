@@ -1,5 +1,5 @@
 /*
- * FandomExtractorTest.kt
+ * WikipediaExtractorTest.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -25,28 +25,39 @@
 package skills.wiki
 
 import kotlinx.coroutines.runBlocking
-import me.ianmooreis.glyph.skills.wiki.FandomExtractor
+import me.ianmooreis.glyph.skills.wiki.WikipediaExtractor
 import org.junit.jupiter.api.Test
 
-internal class FandomExtractorTest {
-    private val extractor = FandomExtractor("masseffect", 0)
+internal class WikipediaExtractorTest {
+    private val extractor = WikipediaExtractor()
 
     @Test
-    fun getRealArticle() = runBlocking {
-        val garrus = extractor.getArticle("Garrus")
+    fun getArticle() = runBlocking {
+        val massEffect = extractor.getArticle("Mass Effect")
 
-        assert(garrus != null)
+        assert(massEffect != null)
 
-        if (garrus != null) {
-            assert(garrus.title == "Garrus Vakarian")
-            assert(garrus.abstract.startsWith("Garrus Vakarian is a turian"))
-            assert(garrus.thumbnail != null)
+        if (massEffect != null) {
+            assert(massEffect.title == "Mass Effect")
+            assert(massEffect.abstract.startsWith("Mass Effect is a military science fiction media franchise"))
+        }
+    }
+
+    @Test
+    fun getArticleWithThumbnail() = runBlocking {
+        val einstein = extractor.getArticle("Einstein")
+
+        assert(einstein != null)
+
+        if (einstein != null) {
+            assert(einstein.title == "Albert Einstein")
+            assert(einstein.thumbnail != null)
         }
     }
 
     @Test
     fun getFakeArticle() = runBlocking {
-        val fake = extractor.getArticle("realsnotreal")
+        val fake = extractor.getArticle("Real's not real")
 
         assert(fake == null)
     }

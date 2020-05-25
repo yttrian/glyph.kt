@@ -27,46 +27,112 @@ package me.ianmooreis.glyph.skills.wiki
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
 import io.ktor.http.URLBuilder
+import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
 
 /**
  * Grabs articles from Wikipedia
  */
-class WikipediaExtractor : WikiExtractor() {
-    //private val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+class WikipediaExtractor(
+    /**
+     * Specifies what edition of Wikipedia to use
+     */
+    private val languageCode: String = "en"
+) : WikiExtractor() {
+
+    companion object {
+        /**
+         * Page ID used when a query fails
+         */
+        const val INVALID_PAGE_ID: Int = -1
+
+        /**
+         * Represents a thumbnail result
+         */
+        data class Thumbnail(
+            /**
+             * URL of the thumbnail image
+             */
+            val source: String
+        )
+
+        /**
+         * Represents a page on Wikipedia
+         */
+        data class Page(
+            /**
+             * Title of the page
+             */
+            val title: String,
+            /**
+             * Excerpt from the page
+             */
+            val extract: String,
+            /**
+             * URL linking to the page
+             */
+            val fullurl: String,
+            /**
+             * Thumbnail, if any
+             */
+            val thumbnail: Thumbnail?
+        )
+
+        /**
+         * Represents the found pages in a search query listing on Wikipedia
+         */
+        data class Query(
+            /**
+             * Pages found by the query
+             */
+            val pages: Map<Int, Page>
+        )
+
+        /**
+         * Represents the result of a search query on Wikipedia
+         */
+        data class Result(
+            /**
+             * Query results
+             */
+            val query: Query
+        )
+    }
 
     /**
      * Tries to find an article from a search
      *
      * @param query the search query
      */
-    override suspend fun getArticle(query: String): WikiArticle? {
-        val queryUrl = URLBuilder().takeFrom("https://en.wikipedia.org/w/api.php").apply {
+    override suspend fun getArticle(query: String): WikiArticle? = try {
+        val apiBase = "https://${languageCode.encodeURLPath()}.wikipedia.org/w/api.php"
+        val queryUrl = URLBuilder().takeFrom(apiBase).apply {
             parameters.apply {
                 append("action", "query")
                 append("format", "json")
-                append("prop", "extracts|info")
+                append("prop", "extracts|info|pageimages")
                 append("titles", query)
                 append("redirects", "1")
                 append("explaintext", "1")
-                append("inprop", "url")
+                append("exlimit", "1")
                 append("exchars", "500")
+                append("inprop", "url")
+                append("piprop", "thumbnail")
             }
         }.build()
 
-        data class WikipediaPage(val title: String, val extract: String, val fullurl: String)
-        data class WikipediaQuery(val pages: List<WikipediaPage>)
-        data class WikipediaResult(val query: WikipediaQuery)
+        val result = client.get<Result>(queryUrl)
 
-        return try {
-            val result = client.get<WikipediaResult>(queryUrl)
-
-            result.query.pages.firstOrNull()?.let {
-                WikiArticle(it.title, it.extract, it.fullurl)
-            }
-        } catch (e: ResponseException) {
-            null
+        result.query.pages.entries.firstOrNull()?.let { (id, page) ->
+            if (id != INVALID_PAGE_ID) WikiArticle(
+                page.title,
+                page.extract,
+                page.fullurl,
+                page.thumbnail?.source
+            ) else null
         }
+    } catch (e: ResponseException) {
+        null
     }
 }
 

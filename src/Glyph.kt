@@ -135,7 +135,7 @@ object Glyph {
 
             it.addEventListeners(
                 MessagingDirector(aiAgent, redisPool), AuditingDirector,
-                serverDirector, QuickviewDirector, StatusDirector, StarboardDirector
+                serverDirector, QuickviewDirector(), StatusDirector, StarboardDirector
             )
         }
 

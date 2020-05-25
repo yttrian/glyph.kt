@@ -30,65 +30,73 @@ import java.time.Duration
 /**
  * A way Glyph can respond to a message
  */
-sealed class Response
+sealed class Response {
 
-/**
- * A response that only lasts a limited about of time
- */
-data class EphemeralResponse(
     /**
-     * The message content
+     * A response that only lasts a limited about of time
      */
-    val content: String? = null,
-    /**
-     * The message embed
-     */
-    val embed: MessageEmbed? = null,
-    /**
-     * The time to live for the message before being deleted
-     */
-    val ttl: Duration
-) : Response()
+    data class Ephemeral(
+        /**
+         * The message content
+         */
+        val content: String? = null,
+        /**
+         * The message embed
+         */
+        val embed: MessageEmbed? = null,
+        /**
+         * The time to live for the message before being deleted
+         */
+        val ttl: Duration
+    ) : Response() {
+        constructor(content: String, ttl: Duration) : this(content, null, ttl)
+        constructor(embed: MessageEmbed, ttl: Duration) : this(null, embed, ttl)
+    }
 
-/**
- * A message that will delete itself when the triggering message is also deleted
- */
-data class VolatileResponse(
     /**
-     * The message content
+     * A message that will delete itself when the triggering message is also deleted
      */
-    val content: String? = null,
-    /**
-     * The message embed
-     */
-    val embed: MessageEmbed? = null
-) : Response()
+    data class Volatile(
+        /**
+         * The message content
+         */
+        val content: String? = null,
+        /**
+         * The message embed
+         */
+        val embed: MessageEmbed? = null
+    ) : Response() {
+        constructor(embed: MessageEmbed) : this(null, embed)
+    }
 
-/**
- * A message that will not be automatically deleted
- */
-data class PermanentResponse(
     /**
-     * The message content
+     * A message that will not be automatically deleted
      */
-    val content: String? = null,
-    /**
-     * The message embed
-     */
-    val embed: MessageEmbed? = null
-) : Response()
+    data class Permanent(
+        /**
+         * The message content
+         */
+        val content: String? = null,
+        /**
+         * The message embed
+         */
+        val embed: MessageEmbed? = null
+    ) : Response() {
+        constructor(embed: MessageEmbed) : this(null, embed)
+    }
 
-/**
- * Emoji react in response to a message
- */
-data class ReactionResponse(
     /**
-     * The emoji to react with
+     * Emoji react in response to a message
      */
-    val emoji: String
-) : Response()
+    data class Reaction(
+        /**
+         * The emoji to react with
+         */
+        val emoji: String
+    ) : Response()
 
-/**
- * Do not respond to a message
- */
-object NoResponse : Response()
+    /**
+     * Do not respond to a message
+     */
+    object None : Response()
+}

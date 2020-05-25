@@ -114,10 +114,10 @@ class MessagingDirector(
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
         SkillDirector.launch {
             when (val response = SkillDirector.trigger(event, ai)) {
-                is EphemeralResponse -> message.reply(response.content, response.embed, ttl = response.ttl)
-                is VolatileResponse -> message.reply(response.content, response.embed, volatile = true)
-                is PermanentResponse -> message.reply(response.content, response.embed, volatile = false)
-                is ReactionResponse -> message.addReaction(response.emoji)
+                is Response.Ephemeral -> message.reply(response.content, response.embed, ttl = response.ttl)
+                is Response.Volatile -> message.reply(response.content, response.embed, volatile = true)
+                is Response.Permanent -> message.reply(response.content, response.embed, volatile = false)
+                is Response.Reaction -> message.addReaction(response.emoji)
             }
 
             // Increment the total message count for curiosity's sake

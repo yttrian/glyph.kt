@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.awt.Color
@@ -48,6 +47,6 @@ class SourceSkill : Skill("skill.source") {
             .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
             .build()
 
-        return VolatileResponse(embed = embed)
+        return Response.Volatile(embed)
     }
 }

@@ -29,7 +29,6 @@ import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -74,7 +73,7 @@ class RedditSkill : Skill("skill.reddit") {
         event.channel.sendTyping().queue()
         // Try to get the multireddit name
         val multiredditName: String = ai.result.getStringParameter("multireddit")
-            ?: return VolatileResponse("I did not understand what subreddit you were asking for!")
+            ?: return Response.Volatile("I did not understand what subreddit you were asking for!")
         // If we have a multireddit name, try getting the reference to it otherwise report the failure
         try {
             val subreddit: SubredditReference = client.subreddit(multiredditName)
@@ -83,8 +82,8 @@ class RedditSkill : Skill("skill.reddit") {
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                    return VolatileResponse(
-                        embed = EmbedBuilder()
+                    return Response.Volatile(
+                        EmbedBuilder()
                             .setTitle(submission.title, "https://reddit.com${submission.permalink}")
                             .setImage(submission.url)
                             .setFooter("r/${submission.subreddit}", null)
@@ -92,19 +91,19 @@ class RedditSkill : Skill("skill.reddit") {
                             .build()
                     )
                 } else {
-                    return VolatileResponse("I can only show NSFW submissions in a NSFW channel!")
+                    return Response.Volatile("I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
             }
         } catch (e: NetworkException) {
-            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Network error)")
+            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Network error)")
         } catch (e: ApiException) {
-            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
         } catch (e: JsonDataException) {
-            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         } catch (e: NullPointerException) {
-            return VolatileResponse("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
         }
     }
 

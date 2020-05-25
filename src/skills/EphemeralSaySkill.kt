@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.skills
 import com.google.gson.JsonObject
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.EphemeralResponse
 import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
@@ -43,9 +42,9 @@ class EphemeralSaySkill :
     Skill("skill.ephemeral_say", requiredPermissionsSelf = listOf(Permission.MESSAGE_MANAGE), guildOnly = true) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val durationEntity: JsonObject = ai.result.getComplexParameter("duration")
-            ?: return EphemeralResponse(
+            ?: return Response.Ephemeral(
                 "That is an invalid time duration, specify how many seconds you want your message to last.",
-                ttl = Duration.ofSeconds(5)
+                Duration.ofSeconds(5)
             )
 
         val durationAmount = durationEntity.get("amount").asLong
@@ -54,26 +53,26 @@ class EphemeralSaySkill :
             else -> null
         }
         if (durationUnit == null || durationAmount > 30) {
-            return EphemeralResponse(
+            return Response.Ephemeral(
                 "You can only say something ephemerally for less than 30 seconds!",
-                ttl = Duration.ofSeconds(5)
+                Duration.ofSeconds(5)
             )
         } else if (durationAmount <= 0) {
-            return EphemeralResponse(
+            return Response.Ephemeral(
                 "You can only say something ephemerally for a positive amount of time!",
-                ttl = Duration.ofSeconds(5)
+                Duration.ofSeconds(5)
             )
         }
 
         event.message.delete().reason("Ephemeral Say").queue()
-        return EphemeralResponse(
-            embed = EmbedBuilder()
+        return Response.Ephemeral(
+            EmbedBuilder()
                 .setAuthor(event.author.name, null, event.author.avatarUrl)
                 .setDescription(ai.result.getStringParameter("message"))
                 .setFooter("Ephemeral Say", null)
                 .setTimestamp(Instant.now().plus(durationAmount, durationUnit))
                 .build(),
-            ttl = Duration.of(durationAmount, durationUnit)
+            Duration.of(durationAmount, durationUnit)
         )
     }
 }

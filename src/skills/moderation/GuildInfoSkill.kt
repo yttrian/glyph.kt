@@ -30,7 +30,6 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -59,10 +58,10 @@ class GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
                 "farm" -> "Servers are no longer checked for bot farming."
                 else -> "I'm not sure what property `$property` is for a guild."
             }
-            VolatileResponse(content)
+            Response.Volatile(content)
         } else {
-            VolatileResponse(
-                embed = event.guild.getInfoEmbed(
+            Response.Volatile(
+                event.guild.getInfoEmbed(
                     "Guild Info",
                     "Moderation",
                     null,

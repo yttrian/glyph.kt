@@ -30,7 +30,6 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.HierarchyException
@@ -52,7 +51,7 @@ class RoleSetSkill : Skill(
                 Permission.MANAGE_ROLES
             )
         ) {
-            return VolatileResponse("You must have Manage Roles permission to set other peoples' roles!")
+            return Response.Volatile("You must have Manage Roles permission to set other peoples' roles!")
         }
 
         return RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
@@ -62,7 +61,7 @@ class RoleSetSkill : Skill(
                 && event.member!!.roles.count { selectableRoles.contains(it) } >= config.limit
             ) {
                 val randomRole = event.member!!.roles.filter { selectableRoles.contains(it) }.random()
-                VolatileResponse(
+                Response.Volatile(
                     "You can only have ${config.limit} roles in this server! " +
                         (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
                 )
@@ -90,9 +89,9 @@ class RoleSetSkill : Skill(
                             .reason("Asked to be ${desiredRole.name}").queueAfter(500, TimeUnit.MILLISECONDS)
                     }
                     val targetNames = targets.joinToString { it.asPlainMention }
-                    VolatileResponse("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
+                    Response.Volatile("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} now ${desiredRole.name}!*")
                 } catch (e: HierarchyException) {
-                    VolatileResponse("I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
+                    Response.Volatile("I can not set anyone as `${desiredRole.name}` because it is above my highest role!")
                 }
             }
         }

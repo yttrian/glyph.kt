@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.log
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
@@ -37,6 +36,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 class FeedbackSkill : Skill("skill.feedback", cooldownTime = 90) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         event.jda.selfUser.log("Feedback", "```${ai.result.getStringParameter("feedback")}```")
-        return VolatileResponse(ai.result.fulfillment.speech)
+        return Response.Volatile(ai.result.fulfillment.speech)
     }
 }

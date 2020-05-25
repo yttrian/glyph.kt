@@ -26,7 +26,6 @@ package me.ianmooreis.glyph.directors.skills
 import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
@@ -88,7 +87,7 @@ object SkillDirector : Director() {
         return if (skill != null && !ai.result.isActionIncomplete) {
             skill.trigger(event, ai)
         } else {
-            VolatileResponse(
+            Response.Volatile(
                 if (result.fulfillment.speech.isEmpty()) {
                     "`$action` is not available yet!"
                 } else {

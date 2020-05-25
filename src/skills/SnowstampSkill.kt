@@ -27,7 +27,7 @@ package me.ianmooreis.glyph.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
-import me.ianmooreis.glyph.messaging.VolatileResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.utils.TimeUtil
@@ -37,20 +37,20 @@ import java.awt.Color
  * A skill that allows users to get a timestamp from a Discord snowflake id
  */
 class SnowstampSkill : Skill("skill.snowstamp") {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): VolatileResponse {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response.Volatile {
         val snowflake = ai.result.getStringParameter("snowflake") ?: ""
         val snowflakeId = try {
             snowflake.toLong()
         } catch (e: NumberFormatException) {
-            return VolatileResponse("`$snowflake` is not a snowflake!")
+            return Response.Volatile("`$snowflake` is not a snowflake!")
         }
         val snowflakeInstant = TimeUtil.getTimeCreated(snowflakeId).toInstant()
         val description = SimpleDescriptionBuilder()
             .addField("UTC", snowflakeInstant.toString())
             .addField("UNIX", snowflakeInstant.toEpochMilli())
             .build()
-        return VolatileResponse(
-            embed = EmbedBuilder()
+        return Response.Volatile(
+            EmbedBuilder()
                 .setTitle(snowflakeId.toString())
                 .setDescription(description)
                 .setColor(Color.WHITE)

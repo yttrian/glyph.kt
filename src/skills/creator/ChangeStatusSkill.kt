@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -61,7 +60,7 @@ class ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true
 
         StatusDirector.setPresence(jda, status, game)
 
-        return VolatileResponse(
+        return Response.Volatile(
             "Attempted to changed presence to ${status.name.toLowerCase()} " +
                 "while ${game?.type.toString().toLowerCase()} to ${game?.name}! (May be rate limited)"
         )

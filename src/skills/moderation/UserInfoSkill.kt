@@ -29,7 +29,6 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.extensions.getInfoEmbed
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
@@ -40,8 +39,8 @@ class UserInfoSkill : Skill("skill.moderation.userInfo") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         // val userName: String? = ai.result.getStringParameter("user")
         val user: User = event.message.cleanMentionedMembers.firstOrNull()?.user ?: event.author
-        return VolatileResponse(
-            embed = user.getInfoEmbed(
+        return Response.Volatile(
+            user.getInfoEmbed(
                 "User Info",
                 "Moderation",
                 null,

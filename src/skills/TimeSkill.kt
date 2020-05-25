@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.text.SimpleDateFormat
@@ -43,8 +42,8 @@ class TimeSkill : Skill("skill.time") {
         val df = SimpleDateFormat("**HH:mm:ss** 'on' EEEE, MMMM dd, yyyy")
         df.timeZone = TimeZone.getTimeZone(ai.result.getStringParameter("timezone"))
 
-        return VolatileResponse(
-            embed = EmbedBuilder()
+        return Response.Volatile(
+            EmbedBuilder()
                 .setTitle(df.timeZone.displayName)
                 .setDescription(df.format(Date()))
                 .setFooter("Time", null)

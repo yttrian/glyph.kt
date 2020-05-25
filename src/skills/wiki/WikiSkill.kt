@@ -29,9 +29,7 @@ import me.ianmooreis.glyph.directors.config.server.WikiConfig
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant
 
@@ -45,7 +43,6 @@ class WikiSkill : Skill("skill.wiki") {
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki")
         val sources: List<String> =
             if (requestedSource != null) listOf(requestedSource) else (config.sources + "wikipedia")
-        val sourcesDisplay = sources.map { if (it.toLowerCase() == "wikipedia") "Wikipedia" else "$it wiki" }
         event.channel.sendTyping().queue()
         sources.forEachIndexed { index, source ->
             val article: WikiArticle? = if (source.toLowerCase() == "wikipedia") {
@@ -54,25 +51,19 @@ class WikiSkill : Skill("skill.wiki") {
                 FandomExtractor(source, config.minimumQuality).getArticle(query)
             }
             if (article != null) {
-                return VolatileResponse(
-                    embed = getResultEmbed(
-                        article.title,
-                        article.url,
-                        article.intro,
-                        sourcesDisplay[index]
-                    )
+                return Response.Volatile(
+                    EmbedBuilder()
+                        .setTitle(article.title, article.url)
+                        .setDescription(article.intro)
+                        .setFooter(sourceDisplay(source), null)
+                        .setTimestamp(Instant.now())
+                        .build()
                 )
             }
         }
-        return VolatileResponse("No results found for `$query` on ${sourcesDisplay.joinToString()}!")
+        val sourcesDisplay = sources.joinToString { sourceDisplay(it) }
+        return Response.Volatile("No results found for `$query` on $sourcesDisplay!")
     }
 
-    private fun getResultEmbed(title: String, url: String, description: String, wiki: String): MessageEmbed {
-        return EmbedBuilder()
-            .setTitle(title, url)
-            .setDescription(description)
-            .setFooter(wiki, null)
-            .setTimestamp(Instant.now())
-            .build()
-    }
+    private fun sourceDisplay(name: String): String = if (name.equals("wikipedia", true)) "Wikipedia" else "$name wiki"
 }

@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant
@@ -50,8 +49,8 @@ class RoleListSkill : Skill("skill.role.list", guildOnly = true) {
             }
             if (limit > 0) description.append("*You can have up to $limit ${if (limit == 1) "role" else "roles"}*")
 
-            VolatileResponse(
-                embed = EmbedBuilder()
+            Response.Volatile(
+                EmbedBuilder()
                     .setTitle("Available Roles")
                     .setDescription(description)
                     .setFooter("Roles | Try asking \"Set me as ${randomRole.name}\"}")
@@ -59,7 +58,7 @@ class RoleListSkill : Skill("skill.role.list", guildOnly = true) {
                     .build()
             )
         } else {
-            VolatileResponse("There are no selectable roles configured!")
+            Response.Volatile("There are no selectable roles configured!")
         }
     }
 }

@@ -31,7 +31,7 @@ import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.sendDeathPM
-import me.ianmooreis.glyph.messaging.PermanentResponse
+import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
@@ -62,6 +62,6 @@ class KickSkill : Skill(
                 event.guild.audit("Members Kicked", auditMessage)
             }
 
-            PermanentResponse("***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***")
+            Response.Permanent("***${if (targetNames.length < 200) targetNames else "${targets.size} people"} ${if (targets.size == 1) "was" else "were"} kicked!***")
         }
 }

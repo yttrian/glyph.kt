@@ -31,9 +31,7 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.audit
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.toDate
-import me.ianmooreis.glyph.messaging.EphemeralResponse
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
@@ -55,19 +53,19 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
 
         // Check that the user has permission within the channel
         if (!event.member!!.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            return VolatileResponse("You need permission to Manage Messages in this channel in order to purge messages!")
+            return Response.Volatile("You need permission to Manage Messages in this channel in order to purge messages!")
         }
 
         // Check that we have permission in the channel specifically, not the server as a whole
         if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            return VolatileResponse("I need permission to Manage Messages in this channel in order to purge messages!")
+            return Response.Volatile("I need permission to Manage Messages in this channel in order to purge messages!")
         } else if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_HISTORY)) {
-            return VolatileResponse("I need permission to Read Message History in this channel in order to purge messages!")
+            return Response.Volatile("I need permission to Read Message History in this channel in order to purge messages!")
         }
 
         // Warn the user if we can't determine what time duration they want
         if (durationEntity == null) {
-            return VolatileResponse("That is an invalid time duration, try being less vague with abbreviations.")
+            return Response.Volatile("That is an invalid time duration, try being less vague with abbreviations.")
         }
 
         val durationAmount = durationEntity.get("amount").asLong
@@ -81,9 +79,9 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             else -> null
         }
         if (duration === null || duration.isBefore(time.minusDays(14))) {
-            return VolatileResponse("Discord only allows me to purge up to 14 days!")
+            return Response.Volatile("Discord only allows me to purge up to 14 days!")
         } else if (duration.isAfter(time)) {
-            return VolatileResponse("I cannot purge messages from the future!")
+            return Response.Volatile("I cannot purge messages from the future!")
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())
@@ -117,9 +115,9 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
         }
 
         // Inform the user of a successful purge request
-        return EphemeralResponse(
+        return Response.Ephemeral(
             "Purging messages since $prettyDuration! (this may take a while depending on duration)",
-            ttl = Duration.ofSeconds(10)
+            Duration.ofSeconds(10)
         )
     }
 

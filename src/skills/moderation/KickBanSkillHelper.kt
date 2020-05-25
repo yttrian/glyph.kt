@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.skills.moderation
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -54,23 +53,23 @@ object KickBanSkillHelper {
         val selfMaxRole = maxRolePosition(event.guild.selfMember)
         val targets = event.message.cleanMentionedMembers
         return when {
-            event.message.mentionsEveryone() -> VolatileResponse("You cannot $action everyone at once!")
-            targets.isEmpty() -> VolatileResponse("You need to @mention at least one member to $action!")
-            targets.contains(event.member!!) -> VolatileResponse("You cannot $action yourself!")
-            targets.contains(event.guild.owner) -> VolatileResponse("You cannot $action the owner!")
+            event.message.mentionsEveryone() -> Response.Volatile("You cannot $action everyone at once!")
+            targets.isEmpty() -> Response.Volatile("You need to @mention at least one member to $action!")
+            targets.contains(event.member!!) -> Response.Volatile("You cannot $action yourself!")
+            targets.contains(event.guild.owner) -> Response.Volatile("You cannot $action the owner!")
             targets.filterNot { it.hasPermission(Permission.ADMINISTRATOR) }
-                .isEmpty() -> VolatileResponse("I will not $action someone with Administrator permissions!")
+                .isEmpty() -> Response.Volatile("I will not $action someone with Administrator permissions!")
             targets.filterNot { it.hasPermission(Permission.MANAGE_SERVER) }
-                .isEmpty() -> VolatileResponse("I will not $action someone with Manage Server permissions!")
-            targets.contains(event.guild.selfMember) -> VolatileResponse(
+                .isEmpty() -> Response.Volatile("I will not $action someone with Manage Server permissions!")
+            targets.contains(event.guild.selfMember) -> Response.Volatile(
                 "I cannot kick myself!"
             )
             event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= authorMaxRole }
-                .isEmpty() && !event.member!!.isOwner -> VolatileResponse(
+                .isEmpty() && !event.member!!.isOwner -> Response.Volatile(
                 "You cannot $action members of your role or higher!"
             )
             event.message.cleanMentionedMembers.filterNot { maxRolePosition(it) >= selfMaxRole }
-                .isEmpty() -> VolatileResponse(
+                .isEmpty() -> Response.Volatile(
                 "I cannot $action members of my role or higher!"
             )
             else -> success(

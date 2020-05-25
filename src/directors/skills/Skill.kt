@@ -27,10 +27,7 @@ package me.ianmooreis.glyph.directors.skills
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.extensions.isCreator
-import me.ianmooreis.glyph.messaging.EphemeralResponse
-import me.ianmooreis.glyph.messaging.NoResponse
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
@@ -76,20 +73,20 @@ abstract class Skill(
                 if (!currentCooldown.warned) {
                     log.info("Received \"${event.message.contentClean}\" from ${event.author} ${if (event.channelType.isGuild) "in ${event.guild}" else "in PM"}, cooled")
                     currentCooldown.warned = true
-                    return EphemeralResponse(
+                    return Response.Ephemeral(
                         "⌛ `$trigger` is on cooldown, please wait ${currentCooldown.remainingSeconds} seconds before trying to use it again.",
-                        ttl = Duration.ofSeconds(currentCooldown.remainingSeconds)
+                        Duration.ofSeconds(currentCooldown.remainingSeconds)
                     )
                 } else {
                     event.message.addReaction("⌛").queue() //React with :hourglass: to indicate cooldown
                 }
-            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> return VolatileResponse(
+            (guildOnly || requiredPermissionsUser.isNotEmpty()) && !event.channelType.isGuild -> return Response.Volatile(
                 "You can only do that in a server!"
             )
-            !permittedSelf -> return VolatileResponse("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
+            !permittedSelf -> return Response.Volatile("I don't have the required permissions to do that! (${requiredPermissionsSelf.joinToString {
                 prettyPrintPermissionName(it)
             }})")
-            !permittedUser -> return VolatileResponse("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
+            !permittedUser -> return Response.Volatile("You don't have the required permissions to do that! (${requiredPermissionsUser.joinToString {
                 prettyPrintPermissionName(it)
             }})")
             creatorOnly && !event.author.isCreator -> event.message.addReaction("❓")
@@ -101,7 +98,7 @@ abstract class Skill(
             }
         }
 
-        return NoResponse
+        return Response.None
     }
 
     private fun prettyPrintPermissionName(permission: Permission): String {

@@ -29,7 +29,6 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.cleanMentionedMembers
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.messaging.VolatileResponse
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.HierarchyException
@@ -48,7 +47,7 @@ class RoleUnsetSkill : Skill(
                 listOf(Permission.MANAGE_ROLES)
             )
         ) {
-            return VolatileResponse("You must have Manage Roles permission to remove other peoples' roles!")
+            return Response.Volatile("You must have Manage Roles permission to remove other peoples' roles!")
         }
 
         return RoleSkillHelper.getInstance(event, ai) { desiredRole, _, targets ->
@@ -62,7 +61,7 @@ class RoleUnsetSkill : Skill(
                 }
             }
             val targetNames = targets.joinToString { it.asPlainMention }
-            VolatileResponse("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} no longer ${desiredRole.name}!*")
+            Response.Volatile("*${if (targetNames.length < 50) targetNames else "${targets.size} people"} ${if (targets.size == 1) "is" else "are"} no longer ${desiredRole.name}!*")
         }
     }
 }

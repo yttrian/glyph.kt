@@ -41,9 +41,10 @@ class FandomExtractor(
     /**
      * The minimum acceptable article quality
      */
-    val minimumQuality: Int
+    private val minimumQuality: Int
 ) : WikiExtractor() {
-    private val apiBase = "https://${wiki.encodeURLPath()}.fandom.com/api/v1"
+    private val urlBase = "https://${wiki.encodeURLPath()}.fandom.com"
+    private val apiBase = "$urlBase/api/v1"
 
     companion object {
         /**
@@ -137,7 +138,12 @@ class FandomExtractor(
 
             val page = client.get<DetailsListing>(pageUrl).items[it.id]
 
-            if (page != null) WikiArticle(page.title, page.abstract, page.url, page.thumbnail) else null
+            if (page != null) WikiArticle(
+                page.title,
+                page.abstract,
+                urlBase + page.url,
+                page.thumbnail
+            ) else null
         }
     } catch (e: ResponseException) {
         null

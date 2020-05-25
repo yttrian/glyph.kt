@@ -34,7 +34,7 @@ import java.time.Instant
 /**
  * A Picarto channel
  */
-class Channel(
+data class Channel(
     /**
      * The channel name
      */

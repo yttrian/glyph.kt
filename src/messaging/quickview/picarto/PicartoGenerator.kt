@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
-import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -40,16 +39,20 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
  * Handles the creation of QuickViews for picarto.tv links
  */
 class PicartoGenerator : QuickviewGenerator() {
-    private val urlFormat = Regex("((http[s]?)://)?(www.)?(picarto.tv)/(\\w*)/?", RegexOption.IGNORE_CASE)
+    private val urlFormat = Regex("(?:picarto.tv)/(\\w*)", RegexOption.IGNORE_CASE)
 
-    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> {
-        return if (config.picartoEnabled) {
-            urlFormat.findAll(event.message.contentClean).asFlow()
-                .mapNotNull { getChannel(it.groups[5]?.value)?.getEmbed() }
+    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
+        if (config.picartoEnabled) findChannelNames(event.message.contentRaw).mapNotNull {
+            getChannel(it)?.getEmbed()
         } else emptyFlow()
-    }
 
-    private suspend fun getChannel(name: String?): Channel? = try {
+    /**
+     * Attempt to find Picarto channel names from links in a message, if any
+     */
+    fun findChannelNames(content: String): Flow<String> =
+        urlFormat.findAll(content).asFlow().mapNotNull { it.groups[1]?.value }
+
+    private suspend fun getChannel(name: String): Channel? = try {
         client.get<Channel>("https://api.picarto.tv/v1/channel/name/$name")
     } catch (e: ResponseException) {
         null

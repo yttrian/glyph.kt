@@ -28,10 +28,9 @@ import com.google.common.math.IntMath
 import io.ktor.client.request.get
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
-import me.ianmooreis.glyph.extensions.config
-import me.ianmooreis.glyph.extensions.contentClean
 import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -73,27 +72,22 @@ class FurAffinityGenerator : QuickviewGenerator() {
     private val submissionUrlRegex =
         Regex("(furaffinity.net/view/(\\d{8}))|(d.facdn.net/art/(\\w*)/(\\d{10}))", RegexOption.IGNORE_CASE)
 
-    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> {
-        val content = event.message.contentClean
-
-        val submissionIds = findIds(content)
-
-        return submissionIds.mapNotNull {
+    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
+        if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
             getSubmission(it)?.run {
                 // allow only SFW thumbnails in DMs, and all in enabled servers but only show NSFW in NSFW channels
                 val allowThumbnail = (!event.isFromGuild && !rating.nsfw) ||
-                    (event.guild.config.quickview.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
+                    (config.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
 
                 getEmbed(allowThumbnail)
             }
-        }
-    }
+        } else emptyFlow()
 
     /**
      * Attempts to find ids associated with FurAffinity submissions, if there are any
      */
-    fun findIds(content: String): Flow<Int> {
-        return submissionUrlRegex.findAll(content).distinct().asFlow().mapNotNull {
+    fun findIds(content: String): Flow<Int> =
+        submissionUrlRegex.findAll(content).distinct().asFlow().mapNotNull {
             val submissionId = it.groups[2]?.value?.toInt()
             val cdnId = it.groups[5]?.value?.toInt()
             val username = it.groups[4]?.value
@@ -104,7 +98,6 @@ class FurAffinityGenerator : QuickviewGenerator() {
                 else -> null
             }
         }
-    }
 
     /**
      * Try to find a submission using its CDN ID by searching the poster's gallery for it

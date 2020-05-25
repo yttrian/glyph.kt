@@ -27,26 +27,80 @@ package me.ianmooreis.glyph.messaging.quickview.furaffinity
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
-import java.net.URL
 import java.util.Date
 
 /**
  * A FurAffinity submission
  */
 data class Submission(
-    private val title: String, private val name: String, private val profile: URL,
     /**
-     * The direct link to the submission
+     * Title of the submission
      */
-    val link: URL,
-    private val posted_at: Date, private val download: URL, private val full: URL,
-    private val category: String, private val theme: String, private val species: String?, private val gender: String?,
-    private val favorites: Int, private val comments: Int, private val views: Int, private val resolution: String?,
+    val title: String,
     /**
-     * The submission rating (maturity level) of the submission
+     * Name of the poster
+     */
+    val name: String,
+    /**
+     * URL of poster's profile
+     */
+    val profile: String,
+    /**
+     * Direct link to the submission
+     */
+    val link: String,
+    /**
+     * Date the submission was posted
+     */
+    val posted_at: Date,
+    /**
+     * Download URL of the content
+     */
+    val download: String,
+    /**
+     * URL of the full resolution content
+     */
+    val full: String,
+    /**
+     * Category the submission is placed under
+     */
+    val category: String,
+    /**
+     * Theme of the submission
+     */
+    val theme: String,
+    /**
+     * Species specified in the submission
+     */
+    val species: String?,
+    /**
+     * Gender specified in the submission
+     */
+    val gender: String?,
+    /**
+     * Number of favorites the submission has received
+     */
+    val favorites: Int,
+    /**
+     * Number of comments the submission has received
+     */
+    val comments: Int,
+    /**
+     * Number of views the submission has received
+     */
+    val views: Int,
+    /**
+     * Resolution of the submission content is an image
+     */
+    val resolution: String?,
+    /**
+     * Submission rating (maturity level) of the submission
      */
     val rating: SubmissionRating,
-    private val keywords: List<String>
+    /**
+     * Keywords assigned to the submission
+     */
+    val keywords: List<String>
 ) {
 
     /**
@@ -55,7 +109,7 @@ data class Submission(
     fun getEmbed(thumbnail: Boolean): MessageEmbed {
         val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
         val fancyKeywords = if (linkedKeywords.length < 1024) linkedKeywords else keywords.joinToString()
-        val fileType = download.toString().substringAfterLast(".")
+        val fileType = download.substringAfterLast(".")
         val description = SimpleDescriptionBuilder()
 
         // Add the different fields to the quickview embed description
@@ -72,13 +126,13 @@ data class Submission(
         }
 
         return EmbedBuilder()
-            .setTitle(title, link.toString())
-            .setThumbnail(if (thumbnail) full.toString() else null)
+            .setTitle(title, link)
+            .setThumbnail(if (thumbnail) full else null)
             .setDescription(description.build())
             .addField("Keywords", fancyKeywords, false)
             .setFooter("FurAffinity", null)
             .setColor(rating.color)
-            .setAuthor(name, profile.toString())
+            .setAuthor(name, profile)
             .setTimestamp(posted_at.toInstant())
             .build()
     }

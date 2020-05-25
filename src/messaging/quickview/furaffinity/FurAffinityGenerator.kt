@@ -26,11 +26,9 @@ package me.ianmooreis.glyph.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
 import io.ktor.client.request.get
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.merge
 import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.extensions.contentClean
@@ -46,26 +44,39 @@ class FurAffinityGenerator : QuickviewGenerator() {
     companion object {
         private const val API_HOST: String = "https://faexport.spangle.org.uk"
         private const val GALLERY_LISTING_SIZE: Int = 72
+
+        /**
+         * Represents a user page in the API
+         */
+        data class UserPage(
+            /**
+             * Total number of submissions the user has
+             */
+            val submissions: Int
+        )
+
+        /**
+         * Represents a submission excerpt from the submission listing endpoint of the API
+         */
+        data class SubmissionExcerpt(
+            /**
+             * Submission id
+             */
+            val id: Int,
+            /**
+             * Submission thumbnail URL
+             */
+            val thumbnail: String
+        )
     }
 
-    private val standardUrlFormat =
-        Regex("((http[s]?)://)?(www.)?(furaffinity.net)/(\\w*)/(\\d{8})/?", RegexOption.IGNORE_CASE)
-    private val cdnUrlFormat =
-        Regex("(http[s]?):/{2}(d.facdn.net)/art/(.*)/(\\d{10})/.*(.png|.jp[e]?g)", RegexOption.IGNORE_CASE)
+    private val submissionUrlRegex =
+        Regex("(furaffinity.net/view/(\\d{8}))|(d.facdn.net/art/(\\w*)/(\\d{10}))", RegexOption.IGNORE_CASE)
 
-    @ExperimentalCoroutinesApi
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> {
         val content = event.message.contentClean
 
-        val standardSubmissionIds: Flow<Int> =
-            standardUrlFormat.findAll(content).asFlow().mapNotNull { it.groups[6]?.value?.toInt() }
-        val cdnSubmissionIds: Flow<Int> = cdnUrlFormat.findAll(content).asFlow().mapNotNull {
-            val cdnId = it.groups[4]?.value?.toInt()
-            val username = it.groups[3]?.value
-
-            if (cdnId != null && username != null) findSubmissionId(cdnId, username) else null
-        }
-        val submissionIds = merge(standardSubmissionIds, cdnSubmissionIds)
+        val submissionIds = findIds(content)
 
         return submissionIds.mapNotNull {
             getSubmission(it)?.run {
@@ -78,20 +89,35 @@ class FurAffinityGenerator : QuickviewGenerator() {
         }
     }
 
-    private suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
-        val cdnIdString = cdnId.toString()
+    /**
+     * Attempts to find ids associated with FurAffinity submissions, if there are any
+     */
+    fun findIds(content: String): Flow<Int> {
+        return submissionUrlRegex.findAll(content).distinct().asFlow().mapNotNull {
+            val submissionId = it.groups[2]?.value?.toInt()
+            val cdnId = it.groups[5]?.value?.toInt()
+            val username = it.groups[4]?.value
 
-        data class UserPage(val submissions: Int)
+            when {
+                submissionId != null -> submissionId
+                cdnId != null && username != null -> findSubmissionId(cdnId, username)
+                else -> null
+            }
+        }
+    }
+
+    /**
+     * Try to find a submission using its CDN ID by searching the poster's gallery for it
+     */
+    suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
+        val cdnIdString = cdnId.toString()
 
         val submissionCount = client.get<UserPage>("$API_HOST/user/$user.json").submissions
         val maxPages = IntMath.divide(submissionCount, GALLERY_LISTING_SIZE, RoundingMode.CEILING)
 
-        data class SubmissionExcerpt(val id: Int, val thumbnail: String)
-        data class SubmissionListing(val submissions: List<SubmissionExcerpt>)
-
         for (page in 1..maxPages) {
-            val listing = client.get<SubmissionListing>("$API_HOST/user/$user/gallery.json?full=1&page=1")
-            listing.submissions.find { it.thumbnail.contains(cdnIdString) }?.let {
+            val listing = client.get<List<SubmissionExcerpt>>("$API_HOST/user/$user/gallery.json?full=1&page=1")
+            listing.find { it.thumbnail.contains(cdnIdString) }?.let {
                 return it.id
             }
         }
@@ -99,5 +125,8 @@ class FurAffinityGenerator : QuickviewGenerator() {
         return null
     }
 
-    private suspend fun getSubmission(id: Int): Submission? = client.get("$API_HOST/submission/$id.json")
+    /**
+     * Create a submission object given its ID
+     */
+    suspend fun getSubmission(id: Int): Submission? = client.get("$API_HOST/submission/$id.json")
 }

@@ -27,9 +27,14 @@ package me.ianmooreis.glyph.ai
 /**
  * An AI agent that is capable of processing messages
  */
-interface AIAgent {
+abstract class AIAgent(
+    /**
+     * Friendly name of the service
+     */
+    val name: String
+) {
     /**
      * Request an AIResponse for a message from the agent
      */
-    fun request(message: String, sessionId: String): AIResponse
+    abstract fun request(message: String, sessionId: String): AIResponse
 }

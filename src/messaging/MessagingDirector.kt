@@ -102,11 +102,14 @@ class MessagingDirector(
 
         // In the rare circumstance DialogFlow is unavailable, warn the user
         if (ai.isError) {
-            message.reply("It appears DialogFlow is currently unavailable, please try again later!")
+            message.reply(
+                "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message.",
+                volatile = true
+            )
             StatusDirector.setPresence(
                 event.jda,
                 OnlineStatus.DO_NOT_DISTURB,
-                Activity.watching("temporary outage at DialogFlow")
+                Activity.watching("temporary issue with ${aiAgent.name}")
             )
             return
         }

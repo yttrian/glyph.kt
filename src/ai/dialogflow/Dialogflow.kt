@@ -56,31 +56,30 @@ class Dialogflow(
     }
 
     private val config = Config().also(configure)
-    private val detect: (message: String, sessionId: String) -> DetectIntentResponse = run {
-        val credentials = GoogleCredentials.fromStream(credentialStream)
+    private val credentials: GoogleCredentials = GoogleCredentials.fromStream(credentialStream)
+    private val agent: SessionsClient = run {
         val sessionSettings = SessionsSettings.newBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
             .build()
-        val agent = SessionsClient.create(sessionSettings)
-        val projectId = (credentials as ServiceAccountCredentials).projectId
 
-        fun(message: String, sessionId: String): DetectIntentResponse {
-            val textInput = TextInput.newBuilder().setText(message).setLanguageCode(config.languageCode)
-            val queryInput = QueryInput.newBuilder().setText(textInput).build()
-            val session = SessionName.of(projectId, sessionId)
-
-            return agent.detectIntent(session, queryInput)
-        }
+        SessionsClient.create(sessionSettings)
     }
+    private val projectId = (credentials as ServiceAccountCredentials).projectId
     private val errorResponse = DialogflowResponse(DetectIntentResponse.getDefaultInstance(), "None")
 
     /**
      * Request an AIResponse for a message from the agent
      */
-    override fun request(message: String, sessionId: String): AIResponse = try {
-        val response = detect(message, sessionId)
-        DialogflowResponse(response, sessionId)
-    } catch (e: UnknownHostException) {
-        errorResponse
+    override fun request(message: String, sessionId: String): AIResponse {
+        val textInput = TextInput.newBuilder().setText(message).setLanguageCode(config.languageCode)
+        val queryInput = QueryInput.newBuilder().setText(textInput).build()
+        val session = SessionName.of(projectId, sessionId)
+
+        return try {
+            val response = agent.detectIntent(session, queryInput)
+            DialogflowResponse(response, sessionId)
+        } catch (e: UnknownHostException) {
+            errorResponse
+        }
     }
 }

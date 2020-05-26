@@ -42,9 +42,13 @@ data class Submission(
      */
     val name: String,
     /**
-     * URL of poster's profile
+     * URL of the poster's profile
      */
     val profile: String,
+    /**
+     * URL of the poster's avatar
+     */
+    val avatar: String,
     /**
      * Direct link to the submission
      */
@@ -130,9 +134,9 @@ data class Submission(
             .setThumbnail(if (thumbnail) full else null)
             .setDescription(description.build())
             .addField("Keywords", fancyKeywords, false)
-            .setFooter("FurAffinity", null)
+            .setFooter("FurAffinity")
             .setColor(rating.color)
-            .setAuthor(name, profile)
+            .setAuthor(name, profile, avatar)
             .setTimestamp(posted_at.toInstant())
             .build()
     }

@@ -142,12 +142,12 @@ class MessagingDirector(
     }
 
     private val MessageReceivedEvent.isIgnorable
-        get() = this.author.isBot ||  // ignore other bots
-            (this.author == this.jda.selfUser) ||  // ignore self
-            this.isWebhookMessage ||  // ignore webhooks
-            (this.isFromGuild && !message.isMentioned(this.jda.selfUser)) ||  // require mention except in DMs
-            message.contentClean.isEmpty()  // ignore empty messages
-    // ((!message.isMentioned(this.jda.selfUser) || (message.contentStripped.trim() == message.contentClean)) && this.channelType.isGuild)
+        get() = author.isBot ||  // ignore other bots
+            (author == jda.selfUser) ||  // ignore self
+            isWebhookMessage ||  // ignore webhooks
+            (isFromGuild && !message.isMentioned(jda.selfUser)) ||  // require mention except in DMs
+            message.contentClean.isEmpty() || // ignore empty messages
+            (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id))  // must start with mention
 
     private fun Message.reply(
         content: String? = null,

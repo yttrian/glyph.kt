@@ -39,7 +39,7 @@ abstract class Director : ListenerAdapter(), CoroutineScope {
     /**
      * The directors's logger which will show the director's name in the console when logs are made
      */
-    val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+    protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + SupervisorJob()

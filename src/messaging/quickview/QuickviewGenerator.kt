@@ -39,7 +39,7 @@ abstract class QuickviewGenerator : Closeable {
     /**
      * HTTP client for making API requests
      */
-    val client: HttpClient = HttpClient {
+    protected val client: HttpClient = HttpClient {
         install(JsonFeature)
     }
 

@@ -52,12 +52,12 @@ abstract class Skill(
     /**
      * The skill's logger which will show the skill's name in the console when logs are made
      */
-    val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+    protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
     /**
      * When the skill is triggered
      */
-    abstract suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response
+    protected abstract suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response
 
     /**
      * Trigger the skill but do some checks first before truly triggering it

@@ -44,7 +44,7 @@ class WikiSkill : Skill("skill.wiki") {
         val sources: List<String> =
             if (requestedSource != null) listOf(requestedSource) else (config.sources + "wikipedia")
         event.channel.sendTyping().queue()
-        sources.forEachIndexed { index, source ->
+        sources.forEach { source ->
             val article: WikiArticle? = if (source.toLowerCase() == "wikipedia") {
                 WikipediaExtractor().getArticle(query)
             } else {

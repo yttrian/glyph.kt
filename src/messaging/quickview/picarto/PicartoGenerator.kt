@@ -26,6 +26,7 @@ package me.ianmooreis.glyph.messaging.quickview.picarto
 
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
+import io.ktor.http.takeFrom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -39,6 +40,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
  * Handles the creation of QuickViews for picarto.tv links
  */
 class PicartoGenerator : QuickviewGenerator() {
+    companion object {
+        private const val API_BASE: String = "https://api.picarto.tv/v1/"
+    }
+
     private val urlFormat = Regex("(?:picarto.tv)/(\\w*)", RegexOption.IGNORE_CASE)
 
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
@@ -53,7 +58,10 @@ class PicartoGenerator : QuickviewGenerator() {
         urlFormat.findAll(content).asFlow().mapNotNull { it.groups[1]?.value }
 
     private suspend fun getChannel(name: String): Channel? = try {
-        client.get<Channel>("https://api.picarto.tv/v1/channel/name/$name")
+        client.get<Channel> {
+            url.takeFrom(API_BASE)
+            url.path("channel", "name", name)
+        }
     } catch (e: ResponseException) {
         null
     }

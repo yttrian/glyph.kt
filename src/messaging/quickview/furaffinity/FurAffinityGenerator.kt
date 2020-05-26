@@ -26,6 +26,8 @@ package me.ianmooreis.glyph.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.http.takeFrom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -41,7 +43,7 @@ import java.math.RoundingMode
  */
 class FurAffinityGenerator : QuickviewGenerator() {
     companion object {
-        private const val API_HOST: String = "https://faexport.spangle.org.uk"
+        private const val API_BASE: String = "https://faexport.spangle.org.uk"
         private const val GALLERY_LISTING_SIZE: Int = 72
 
         /**
@@ -105,11 +107,18 @@ class FurAffinityGenerator : QuickviewGenerator() {
     suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
         val cdnIdString = cdnId.toString()
 
-        val submissionCount = client.get<UserPage>("$API_HOST/user/$user.json").submissions
+        val submissionCount = client.get<UserPage> {
+            url.takeFrom(API_BASE).path("user", "$user.json")
+        }.submissions
         val maxPages = IntMath.divide(submissionCount, GALLERY_LISTING_SIZE, RoundingMode.CEILING)
 
         for (page in 1..maxPages) {
-            val listing = client.get<List<SubmissionExcerpt>>("$API_HOST/user/$user/gallery.json?full=1&page=1")
+            val listing = client.get<List<SubmissionExcerpt>> {
+                url.takeFrom(API_BASE).path("user", user, "gallery.json")
+                parameter("full", "1")
+                parameter("page", page)
+            }
+
             listing.find { it.thumbnail.contains(cdnIdString) }?.let {
                 return it.id
             }
@@ -121,5 +130,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
     /**
      * Create a submission object given its ID
      */
-    suspend fun getSubmission(id: Int): Submission? = client.get("$API_HOST/submission/$id.json")
+    suspend fun getSubmission(id: Int): Submission? = client.get {
+        url.takeFrom(API_BASE).path("submission", "$id.json")
+    }
 }

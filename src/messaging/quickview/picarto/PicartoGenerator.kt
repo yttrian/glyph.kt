@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
  */
 class PicartoGenerator : QuickviewGenerator() {
     companion object {
-        private const val API_BASE: String = "https://api.picarto.tv/v1/"
+        private const val API_BASE: String = "https://api.picarto.tv"
     }
 
     private val urlFormat = Regex("(?:picarto.tv)/(\\w*)", RegexOption.IGNORE_CASE)
@@ -59,8 +59,7 @@ class PicartoGenerator : QuickviewGenerator() {
 
     private suspend fun getChannel(name: String): Channel? = try {
         client.get<Channel> {
-            url.takeFrom(API_BASE)
-            url.path("channel", "name", name)
+            url.takeFrom(API_BASE).path("v1", "channel", "name", name)
         }
     } catch (e: ResponseException) {
         null

@@ -26,7 +26,7 @@ package me.ianmooreis.glyph.skills.wiki
 
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
-import io.ktor.http.URLBuilder
+import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
 
@@ -106,22 +106,20 @@ class WikipediaExtractor(
      */
     override suspend fun getArticle(query: String): WikiArticle? = try {
         val apiBase = "https://${languageCode.encodeURLPath()}.wikipedia.org/w/api.php"
-        val queryUrl = URLBuilder().takeFrom(apiBase).apply {
-            parameters.apply {
-                append("action", "query")
-                append("format", "json")
-                append("prop", "extracts|info|pageimages")
-                append("titles", query)
-                append("redirects", "1")
-                append("explaintext", "1")
-                append("exlimit", "1")
-                append("exchars", "500")
-                append("inprop", "url")
-                append("piprop", "thumbnail")
-            }
-        }.build()
 
-        val result = client.get<Result>(queryUrl)
+        val result = client.get<Result> {
+            url.takeFrom(apiBase)
+            parameter("action", "query")
+            parameter("format", "json")
+            parameter("prop", "extracts|info|pageimages")
+            parameter("titles", query)
+            parameter("redirects", "1")
+            parameter("explaintext", "1")
+            parameter("exlimit", "1")
+            parameter("exchars", "500")
+            parameter("inprop", "url")
+            parameter("piprop", "thumbnail")
+        }
 
         result.query.pages.entries.firstOrNull()?.let { (id, page) ->
             if (id != INVALID_PAGE_ID) WikiArticle(

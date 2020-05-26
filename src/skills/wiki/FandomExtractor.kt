@@ -26,7 +26,7 @@ package me.ianmooreis.glyph.skills.wiki
 
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
-import io.ktor.http.URLBuilder
+import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
 
@@ -116,27 +116,22 @@ class FandomExtractor(
      * @param query the search query
      */
     override suspend fun getArticle(query: String): WikiArticle? = try {
-        val searchUrl = URLBuilder("$apiBase/Search/List").apply {
-            parameters.apply {
-                append("query", query)
-                append("limit", "1")
-                append("minArticleQuality", minimumQuality.toString())
-                append("batch", "1")
-                append("namespaces", NAMESPACES)
-            }
-        }.build()
-
-        val searchResult = client.get<SearchListing>(searchUrl)
+        val searchResult = client.get<SearchListing> {
+            url.takeFrom("$apiBase/Search/List")
+            parameter("query", query)
+            parameter("limit", "1")
+            parameter("minArticleQuality", minimumQuality.toString())
+            parameter("batch", "1")
+            parameter("namespaces", NAMESPACES)
+            println(url.buildString())
+        }
 
         searchResult.items.firstOrNull()?.let {
-            val pageUrl = URLBuilder().takeFrom("$apiBase/Articles/Details").apply {
-                parameters.apply {
-                    append("ids", it.id)
-                    append("abstract", MAX_ABSTRACT_LENGTH)
-                }
-            }.build()
-
-            val page = client.get<DetailsListing>(pageUrl).items[it.id]
+            val page = client.get<DetailsListing> {
+                url.takeFrom("$apiBase/Articles/Details")
+                parameter("ids", it.id)
+                parameter("abstract", MAX_ABSTRACT_LENGTH)
+            }.items[it.id]
 
             if (page != null) WikiArticle(
                 page.title,
@@ -146,6 +141,7 @@ class FandomExtractor(
             ) else null
         }
     } catch (e: ResponseException) {
+        e.printStackTrace()
         null
     }
 }

@@ -79,7 +79,7 @@ class MessagingDirector(
      * @param invokerId the message id the invoked the response message
      * @param responseId the message id of the response message to the invoking message
      */
-    private fun trackVolatile(invokerId: String, responseId: String) {
+    fun trackVolatile(invokerId: String, responseId: String) {
         redis.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
     }
 

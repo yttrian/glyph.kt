@@ -133,9 +133,11 @@ object Glyph {
                 botList(discordBotList, discordBots)
             }
 
+            val messagingDirector = MessagingDirector(aiAgent, redis)
+
             it.addEventListeners(
-                MessagingDirector(aiAgent, redis), AuditingDirector,
-                serverDirector, QuickviewDirector(), StatusDirector, StarboardDirector
+                messagingDirector, AuditingDirector,
+                serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector
             )
         }
 

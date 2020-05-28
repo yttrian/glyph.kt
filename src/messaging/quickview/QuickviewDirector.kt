@@ -25,31 +25,50 @@ package me.ianmooreis.glyph.messaging.quickview
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.directors.config.ConfigDirector
 import me.ianmooreis.glyph.extensions.config
+import me.ianmooreis.glyph.messaging.MessagingDirector
 import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinityGenerator
 import me.ianmooreis.glyph.messaging.quickview.picarto.PicartoGenerator
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import java.time.Duration
 
 /**
  * Handle triggers for quickviews
  */
-class QuickviewDirector : Director() {
+class QuickviewDirector(private val messagingDirector: MessagingDirector) : Director() {
+    companion object {
+        /**
+         * The maximum amount of time the generators are allowed to process a message for
+         */
+        const val GENERATOR_TIMEOUT_SECONDS: Long = 15
+    }
+
     private val generators = setOf(PicartoGenerator(), FurAffinityGenerator())
+    private val generatorTimeout = Duration.ofSeconds(GENERATOR_TIMEOUT_SECONDS).toMillis()
 
     /**
      * Check for quickviews when a message is received
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
+        if (event.isIgnorable) return
         val config = if (event.channelType.isGuild) event.guild.config else ConfigDirector.getDefaultServerConfig()
 
         launch {
-            generators.forEach {
-                it.generate(event, config.quickview).collect {
-                    TODO("Reply with a volatile response")
+            withTimeout(generatorTimeout) {
+                generators.forEach {
+                    it.generate(event, config.quickview).collect { embed ->
+                        event.channel.sendMessage(embed).queue { response ->
+                            messagingDirector.trackVolatile(event.messageId, response.id)
+                        }
+                    }
                 }
             }
         }
     }
+
+    private val MessageReceivedEvent.isIgnorable
+        get() = author.isBot || isWebhookMessage || (author == jda.selfUser)
 }

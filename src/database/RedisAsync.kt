@@ -1,10 +1,10 @@
 /*
- * Director.kt
+ * RedisAsync.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2018 by Ian Moore
+ * Copyright (C) 2017-2020 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,25 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph
+package me.ianmooreis.glyph.database
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import kotlin.coroutines.CoroutineContext
+import io.lettuce.core.api.async.RedisAsyncCommands
 
 /**
- * The definition of a director, with pre-included properties like a logger
+ * Reduces the need to type out the long type for Redis Async String Commands
  */
-abstract class Director : ListenerAdapter(), CoroutineScope {
-    /**
-     * The directors's logger which will show the director's name in the console when logs are made
-     */
-    protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + SupervisorJob()
-}
+typealias RedisAsync = RedisAsyncCommands<String, String>

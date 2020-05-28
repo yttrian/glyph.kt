@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.database.Key
+import me.ianmooreis.glyph.database.RedisAsync
 import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
@@ -40,16 +41,16 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.apache.commons.codec.digest.DigestUtils
-import redis.clients.jedis.JedisPool
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /**
- * Manages message events including handling incoming messages and dispatching the SkillDirector in addition to the message ledger
+ * Manages message events including handling incoming messages
+ * and dispatching the SkillDirector in addition to the message ledger
  */
 class MessagingDirector(
     private val aiAgent: AIAgent,
-    private val redisPool: JedisPool,
+    private val redis: RedisAsync,
     configure: Config.() -> Unit = {}
 ) : Director() {
     /**
@@ -59,20 +60,27 @@ class MessagingDirector(
         /**
          * How long associated messages should be remembered for DeleteWith functionality
          */
-        var volatileTrackingExpiration: Duration = Duration.ofDays(14)
+        var volatileTrackingExpiration: Duration = Duration.ofDays(DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS)
+    }
+
+    companion object {
+        /**
+         * By default how long to track volatile messages for
+         */
+        const val DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS: Long = 14
     }
 
     private val config = Config().also(configure)
-    private val volatileTrackingExpirationSeconds = config.volatileTrackingExpiration.toSeconds().toInt()
+    private val volatileTrackingExpirationSeconds = config.volatileTrackingExpiration.toSeconds()
 
     /**
      * Add a message to the ledger
      *
-     * @param invokerId  the message id the invoked the response message
+     * @param invokerId the message id the invoked the response message
      * @param responseId the message id of the response message to the invoking message
      */
-    private fun trackVolatile(invokerId: String, responseId: String): Unit = redisPool.resource.use {
-        it.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
+    private fun trackVolatile(invokerId: String, responseId: String) {
+        redis.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
     }
 
     /**
@@ -124,18 +132,16 @@ class MessagingDirector(
             }
 
             // Increment the total message count for curiosity's sake
-            redisPool.resource.use {
-                it.incr(Key.MESSAGE_COUNT.value)
-            }
+            redis.incr(Key.MESSAGE_COUNT.value)
         }
     }
 
     /**
      * When a message is deleted anywhere, remove the invoking message if considered volatile
      */
-    override fun onMessageDelete(event: MessageDeleteEvent): Unit = redisPool.resource.use { redis ->
+    override fun onMessageDelete(event: MessageDeleteEvent) {
         val key = Key.VOLATILE_MESSAGE_PREFIX.value + event.messageId
-        redis.get(key)?.let { responseId ->
+        redis.get(key).thenAccept { responseId ->
             redis.del(key)
             event.channel.retrieveMessageById(responseId).queue {
                 it.addReaction("❌").queue()
@@ -145,12 +151,12 @@ class MessagingDirector(
     }
 
     private val MessageReceivedEvent.isIgnorable
-        get() = author.isBot ||  // ignore other bots
-            (author == jda.selfUser) ||  // ignore self
-            isWebhookMessage ||  // ignore webhooks
-            (isFromGuild && !message.isMentioned(jda.selfUser)) ||  // require mention except in DMs
+        get() = author.isBot || // ignore other bots
+            (author == jda.selfUser) || // ignore self
+            isWebhookMessage || // ignore webhooks
+            (isFromGuild && !message.isMentioned(jda.selfUser)) || // require mention except in DMs
             message.contentClean.isEmpty() || // ignore empty messages
-            (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id))  // must start with mention
+            (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id)) // must start with mention
 
     private fun Message.reply(
         content: String? = null,
@@ -176,4 +182,3 @@ class MessagingDirector(
         }
     }
 }
-

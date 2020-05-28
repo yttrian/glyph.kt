@@ -27,6 +27,7 @@ package me.ianmooreis.glyph
 import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.ai.dialogflow.Dialogflow
 import me.ianmooreis.glyph.database.DatabaseDirector
+import me.ianmooreis.glyph.database.RedisAsync
 import me.ianmooreis.glyph.directors.AuditingDirector
 import me.ianmooreis.glyph.directors.StarboardDirector
 import me.ianmooreis.glyph.directors.StatusDirector
@@ -59,7 +60,6 @@ import me.ianmooreis.glyph.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.skills.wiki.WikiSkill
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
-import redis.clients.jedis.JedisPool
 
 /**
  * The Glyph object to use when building the client
@@ -73,11 +73,11 @@ object Glyph {
     private val aiAgent: AIAgent = Dialogflow(System.getenv("DIALOGFLOW_CREDENTIALS").byteInputStream())
 
     private val databaseDirector = DatabaseDirector {
-        databaseConnectionUrl = System.getenv("DATABASE_URL")
-        redisConnectionUrl = System.getenv("REDIS_URL")
+        databaseConnectionUri = System.getenv("DATABASE_URL")
+        redisConnectionUri = System.getenv("REDIS_URL")
     }
 
-    private val redisPool: JedisPool = databaseDirector.redisPool
+    private val redis: RedisAsync = databaseDirector.redis
 
     /**
      * Build the bot and run
@@ -85,7 +85,7 @@ object Glyph {
     fun run() {
         SkillDirector.addSkill(
             HelpSkill(),
-            StatusSkill(redisPool),
+            StatusSkill(redis),
             SourceSkill(),
             RoleSetSkill(),
             RoleUnsetSkill(),
@@ -134,7 +134,7 @@ object Glyph {
             }
 
             it.addEventListeners(
-                MessagingDirector(aiAgent, redisPool), AuditingDirector,
+                MessagingDirector(aiAgent, redis), AuditingDirector,
                 serverDirector, QuickviewDirector(), StatusDirector, StarboardDirector
             )
         }

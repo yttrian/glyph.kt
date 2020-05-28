@@ -24,10 +24,10 @@
 
 package me.ianmooreis.glyph.database
 
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
 import me.ianmooreis.glyph.Director
 import org.jetbrains.exposed.sql.Database
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
 import java.net.URI
 
 /**
@@ -39,9 +39,9 @@ class DatabaseDirector(configure: Config.() -> Unit) : Director() {
      */
     class Config {
         /**
-         * A url the describes how to connect to the main database
+         * A uri the describes how to connect to the main database
          */
-        var databaseConnectionUrl: String = "localhost"
+        var databaseConnectionUri: String = "localhost"
 
         /**
          * The driver used when connecting to the database, usually Postgres
@@ -49,19 +49,14 @@ class DatabaseDirector(configure: Config.() -> Unit) : Director() {
         var driver: String = "org.postgresql.Driver"
 
         /**
-         * A url that describes how to connect to the Redis instance
+         * A uri that describes how to connect to the Redis instance
          */
-        var redisConnectionUrl: String = "localhost"
-
-        /**
-         * The maximum total connections allowed in the Redis pool
-         */
-        var redisMaxTotal: Int = 10
+        var redisConnectionUri: String = "redis://localhost"
     }
 
     private val config = Config().also(configure)
     private val db = Database.apply {
-        val dbUri = URI(config.databaseConnectionUrl)
+        val dbUri = URI(config.databaseConnectionUri)
         val userInfo = dbUri.userInfo.split(":")
         val username = userInfo[0]
         val password = userInfo[1]
@@ -76,10 +71,12 @@ class DatabaseDirector(configure: Config.() -> Unit) : Director() {
     /**
      * The Redis client, to be used for interacting with Redis
      */
-    val redisPool: JedisPool by lazy {
-        val poolConfig = JedisPoolConfig().apply {
-            maxTotal = config.redisMaxTotal
+    val redis: RedisAsync = RedisClient.create().run {
+        val redisUri = RedisURI.create(config.redisConnectionUri).apply {
+            // We are using Heroku Redis which is version 5, but for some reason they give us a username.
+            // However if we supply the username it runs the version 6 command and fails to login.
+            username = null
         }
-        JedisPool(poolConfig, URI(config.redisConnectionUrl))
+        connect(redisUri).async()
     }
 }

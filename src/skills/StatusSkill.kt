@@ -24,9 +24,12 @@
 
 package me.ianmooreis.glyph.skills
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.ianmooreis.glyph.Glyph
 import me.ianmooreis.glyph.ai.AIResponse
 import me.ianmooreis.glyph.database.Key
+import me.ianmooreis.glyph.database.RedisAsync
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.isCreator
@@ -35,7 +38,6 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDAInfo
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
-import redis.clients.jedis.JedisPool
 import java.lang.management.ManagementFactory
 import java.time.Instant
 import java.util.Date
@@ -43,7 +45,7 @@ import java.util.Date
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only
  */
-class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cooldownTime = 5) {
+class StatusSkill(private val redis: RedisAsync) : Skill("skill.status", cooldownTime = 5) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val jda = event.jda
         val name = jda.selfUser.name
@@ -56,9 +58,9 @@ class StatusSkill(private val redisPool: JedisPool) : Skill("skill.status", cool
             )
             .addField("Users", jda.users.size)
         if (event.author.isCreator) {
-            redisPool.resource.use {
-                discordDescription.addField("Messages", it.get(Key.MESSAGE_COUNT.value) ?: "?")
-            }
+            // TODO: User kotlinx coroutines await
+            val messageCount = withContext(Dispatchers.IO) { redis.get(Key.MESSAGE_COUNT.value).get() }
+            discordDescription.addField("Messages", messageCount ?: "?")
         }
         val embed = EmbedBuilder()
             .setTitle("$name Status")

@@ -52,7 +52,7 @@ class Dialogflow(
         /**
          * The language code used during requests
          */
-        var languageCode: String = "en-US"  // TODO: Not hardcode language
+        var languageCode: String = "en-US" // TODO: Not hardcode language
     }
 
     private val config = Config().also(configure)

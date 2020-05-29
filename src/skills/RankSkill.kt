@@ -30,7 +30,6 @@ import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.asPlainMention
 import me.ianmooreis.glyph.extensions.toDate
 import me.ianmooreis.glyph.messaging.Response
-import me.ianmooreis.glyph.skills.utils.Hastebin
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -43,23 +42,21 @@ import java.time.Instant
  */
 class RankSkill : Skill("skill.rank", guildOnly = true) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        event.channel.sendTyping().queue()
+        if (event.guild.memberCount > GUILD_SIZE_LIMIT) {
+            return Response.Volatile(
+                "Sorry, due to time constraints " +
+                    "I will not attempt to rank servers with more than $GUILD_SIZE_LIMIT members!"
+            )
+        }
+
         val property: String? = ai.result.getStringParameter("memberProperty")
 
         return if (property != null) {
             val members = event.guild.members
             when (property) {
-                "join" -> Response.Volatile(
-                    rankMembersByJoin(
-                        members,
-                        event.member ?: event.guild.selfMember
-                    )
-                )
+                "join" -> Response.Volatile(rankMembersByJoin(members, event.member ?: event.guild.selfMember))
                 "created" -> Response.Volatile(
-                    rankMembersByCreation(
-                        members,
-                        event.member ?: event.guild.selfMember
-                    )
+                    rankMembersByCreation(members, event.member ?: event.guild.selfMember)
                 )
                 else -> Response.Volatile("I'm not sure what property `$property` is for members.")
             }
@@ -71,14 +68,16 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
     private fun rankMembersByJoin(members: List<Member>, requester: Member): MessageEmbed {
         val rankedMembers = members.sortedBy { it.timeJoined }
         return createRankEmbed("Guild Join Rankings", rankedMembers, requester) {
-            "**${it.asPlainMention}** joined **${PrettyTime().format(it.timeJoined.toDate())}** on **${it.timeJoined}**"
+            val prettyTime = PrettyTime().format(it.timeJoined.toDate())
+            "**${it.asPlainMention}** joined **$prettyTime** on **${it.timeJoined}**"
         }
     }
 
     private fun rankMembersByCreation(members: List<Member>, requester: Member): MessageEmbed {
         val rankedMembers = members.sortedBy { it.user.idLong }
         return createRankEmbed("Account Creation Rankings", rankedMembers, requester) {
-            "**${it.asPlainMention}** was created **${PrettyTime().format(it.user.timeCreated.toDate())}** on **${it.user.timeCreated}**"
+            val prettyTime = PrettyTime().format(it.user.timeCreated.toDate())
+            "**${it.asPlainMention}** was created **$prettyTime** on **${it.user.timeCreated}**"
         }
     }
 
@@ -90,8 +89,9 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
     ): MessageEmbed {
         val notable = SimpleDescriptionBuilder()
         val notableMembers = ArrayList<Member>()
-        notableMembers.addAll(rankedMembers.take(3))
-        notableMembers.addAll(rankedMembers.takeLast(3))
+        notableMembers.addAll(rankedMembers.take(NOTABLE_GROUP_SIZE))
+        notableMembers.addAll(rankedMembers.takeLast(NOTABLE_GROUP_SIZE))
+        // TODO: Reduce big-O time complexity
         notableMembers.forEach {
             notable.addField("`${rankedMembers.indexOf(it).plus(1)}.`", description(it))
         }
@@ -102,15 +102,18 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
             .addField("You", requesterRankDescription, true)
             .setFooter("Rank", null)
             .setTimestamp(Instant.now())
-        val everyone = SimpleDescriptionBuilder(true)
-        rankedMembers.forEach {
-            everyone.addField("${rankedMembers.indexOf(it).plus(1)}.", description(it).replace("*", ""))
-        }
-        Hastebin.postHasteBlocking(everyone.build(), 500).also {
-            if (it !== null) {
-                embed.addField("Everyone", "[Click to view]($it)", true)
-            }
-        }
         return embed.build()
+    }
+
+    companion object {
+        /**
+         * The maximum size a guild can be for ranking to be allowed
+         */
+        const val GUILD_SIZE_LIMIT: Int = 50
+
+        /**
+         * The size of the notable groups
+         */
+        const val NOTABLE_GROUP_SIZE: Int = 3
     }
 }

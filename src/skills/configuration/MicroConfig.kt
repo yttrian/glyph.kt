@@ -138,7 +138,6 @@ sealed class MicroConfig {
         /**
          * Read in a MicroConfig from the string representation
          */
-        @Throws(IllegalArgumentException::class)
         suspend fun read(configString: String): Reader {
             val data = withContext(Dispatchers.IO) {
                 val inflater = Inflater()

@@ -43,6 +43,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.util.zip.DataFormatException
+import java.util.zip.ZipException
 
 /**
  * The skill for getting a server configuration which will be posted to Hastebin in YAML format
@@ -64,7 +65,10 @@ class ServerConfigSkill : Skill(
                     "https://gl.yttr.org/config#$micro"
 
                 if (micro.length > Message.MAX_CONTENT_LENGTH) {
-                    Response.Volatile("I'm sorry, your config cannot be edited for inane reasons!")
+                    Response.Volatile(
+                        "I'm sorry, your config cannot be edited for inane reasons! " +
+                            "Please visit the support server for assistance: <https://gl.yttr.org/server>"
+                    )
                 } else {
                     val guild = event.guild
                     val configListener = object : Director() {
@@ -72,15 +76,18 @@ class ServerConfigSkill : Skill(
                             // listen for the specific message
                             if (metaEvent.channel != event.channel || metaEvent.author != event.author) return
                             val metaMessage = metaEvent.message
+                            fun fail() = metaMessage.addReaction("👎").queue()
 
                             launch {
                                 try {
                                     guild.config = fromMicro(MicroConfig.Reader().read(metaMessage.contentRaw))
                                     metaMessage.addReaction("👍").queue()
                                 } catch (e: IllegalArgumentException) {
-                                    metaMessage.addReaction("👎").queue()
+                                    fail()
                                 } catch (e: DataFormatException) {
-                                    metaMessage.addReaction("👎").queue()
+                                    fail()
+                                } catch (e: ZipException) {
+                                    fail()
                                 }
                             }
 

@@ -104,7 +104,12 @@ class MessagingDirector(
 
         // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
-        val ai = aiAgent.request(event.message.contentClean, sessionId)
+        val ai = try {
+            aiAgent.request(event.message.contentClean, sessionId)
+        } catch (e: IllegalArgumentException) {
+            message.addReaction("⁉").queue()
+            return
+        }
 
         // In the rare circumstance the agent is unavailable or has an issue, warn the user
         if (ai.isError) {

@@ -106,8 +106,15 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        get("/test") {
-            call.respond(GlyphConfig.pubSub.listen("TestMessage"))
+        get("/test/{guildId}") {
+            val guildId = call.parameters["guildId"] ?: "Error"
+            call.respond(
+                GlyphConfig.pubSub.ask(
+                    guildId,
+                    "GlyphConfig:Query",
+                    "GlyphConfig:Response:$guildId"
+                )
+            )
         }
 
         authenticate("discord-oauth") {

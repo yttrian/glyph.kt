@@ -28,6 +28,7 @@ import me.ianmooreis.glyph.bot.ai.AIAgent
 import me.ianmooreis.glyph.bot.ai.dialogflow.Dialogflow
 import me.ianmooreis.glyph.bot.database.DatabaseDirector
 import me.ianmooreis.glyph.bot.database.RedisAsync
+import me.ianmooreis.glyph.bot.database.config.ConfigDirector
 import me.ianmooreis.glyph.bot.directors.AuditingDirector
 import me.ianmooreis.glyph.bot.directors.StarboardDirector
 import me.ianmooreis.glyph.bot.directors.StatusDirector
@@ -36,10 +37,24 @@ import me.ianmooreis.glyph.bot.directors.servers.ServerDirector
 import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
 import me.ianmooreis.glyph.bot.messaging.MessagingDirector
 import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewDirector
-import me.ianmooreis.glyph.bot.skills.*
+import me.ianmooreis.glyph.bot.skills.DoomsdayClockSkill
+import me.ianmooreis.glyph.bot.skills.EphemeralSaySkill
+import me.ianmooreis.glyph.bot.skills.FallbackSkill
+import me.ianmooreis.glyph.bot.skills.FeedbackSkill
+import me.ianmooreis.glyph.bot.skills.HelpSkill
+import me.ianmooreis.glyph.bot.skills.RankSkill
+import me.ianmooreis.glyph.bot.skills.RedditSkill
+import me.ianmooreis.glyph.bot.skills.SnowstampSkill
+import me.ianmooreis.glyph.bot.skills.SourceSkill
+import me.ianmooreis.glyph.bot.skills.StatusSkill
+import me.ianmooreis.glyph.bot.skills.TimeSkill
 import me.ianmooreis.glyph.bot.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.bot.skills.creator.ChangeStatusSkill
-import me.ianmooreis.glyph.bot.skills.moderation.*
+import me.ianmooreis.glyph.bot.skills.moderation.BanSkill
+import me.ianmooreis.glyph.bot.skills.moderation.GuildInfoSkill
+import me.ianmooreis.glyph.bot.skills.moderation.KickSkill
+import me.ianmooreis.glyph.bot.skills.moderation.PurgeSkill
+import me.ianmooreis.glyph.bot.skills.moderation.UserInfoSkill
 import me.ianmooreis.glyph.bot.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.bot.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.bot.skills.roles.RoleUnsetSkill
@@ -122,7 +137,7 @@ object Glyph {
             val messagingDirector = MessagingDirector(aiAgent, redis)
 
             it.addEventListeners(
-                messagingDirector, AuditingDirector,
+                messagingDirector, AuditingDirector, ConfigDirector,
                 serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector
             )
         }

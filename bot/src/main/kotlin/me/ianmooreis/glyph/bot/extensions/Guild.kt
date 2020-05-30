@@ -39,14 +39,13 @@ import java.time.Instant
 /**
  * The configuration of a guild (either custom or default if no custom one found)
  */
-var Guild.config: ServerConfig
-    get() = ConfigDirector.getServerConfig(this)
-    set(value) = ConfigDirector.setServerConfig(this, value)
+val Guild.config: ServerConfig
+    get(): ServerConfig = ConfigDirector.getServerConfig(this)
 
 /**
  * Delete a guild's configuration from the database
  */
-fun Guild.deleteConfig() {
+suspend fun Guild.deleteConfig() {
     ConfigDirector.deleteServerConfig(this)
 }
 

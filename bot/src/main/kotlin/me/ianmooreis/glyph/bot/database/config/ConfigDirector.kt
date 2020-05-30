@@ -24,13 +24,34 @@
 
 package me.ianmooreis.glyph.bot.database.config
 
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
+import io.lettuce.core.pubsub.RedisPubSubListener
+import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.database.config.server.*
+import me.ianmooreis.glyph.bot.database.config.server.AuditingConfig
+import me.ianmooreis.glyph.bot.database.config.server.QuickviewConfig
+import me.ianmooreis.glyph.bot.database.config.server.SelectableRolesConfig
+import me.ianmooreis.glyph.bot.database.config.server.ServerConfig
+import me.ianmooreis.glyph.bot.database.config.server.ServerConfigsTable
+import me.ianmooreis.glyph.bot.database.config.server.ServerSelectableRolesTable
+import me.ianmooreis.glyph.bot.database.config.server.ServerWikiSourcesTable
+import me.ianmooreis.glyph.bot.database.config.server.StarboardConfig
+import me.ianmooreis.glyph.bot.database.config.server.WikiConfig
 import me.ianmooreis.glyph.bot.extensions.deleteConfig
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteIgnoreWhere
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 /**
  * Manages the configuration database
@@ -39,13 +60,60 @@ object ConfigDirector : Director() {
     private val configs = mutableMapOf<Long, ServerConfig>()
     private val defaultConfig = ServerConfig()
 
+    /**
+     * JDA instance for grabbing Guild data
+     */
+    lateinit var jda: JDA
+
     // Some shorthand for long table names
     private val sct = ServerConfigsTable
     private val swst = ServerWikiSourcesTable
     private val ssrt = ServerSelectableRolesTable
 
+    private val redis = RedisClient.create().run {
+        // TODO: Do not duplicate functionality of database director
+        val redisUri = RedisURI.create(System.getenv("REDIS_URL")).apply {
+            // See DatabaseDirector for why this is set to null
+            username = null
+        }
+        connectPubSub(redisUri)
+    }
+
+    /**
+     * Sets the JDA instance
+     */
+    override fun onReady(event: ReadyEvent) {
+        jda = event.jda
+    }
+
+    private const val REFRESH_CHANNEL: String = "GlyphConfig:Refresh"
+    private const val QUERY_CHANNEL: String = "GlyphConfig:Query"
+    private const val RESPONSE_CHANNEL_PREFIX: String = "GlyphConfig:Response"
+
     init {
         createTables()
+
+        redis.addListener(object : RedisPubSubListener<String, String> {
+            override fun psubscribed(pattern: String, count: Long) = Unit
+            override fun punsubscribed(pattern: String, count: Long) = Unit
+            override fun unsubscribed(channel: String, count: Long) = Unit
+            override fun subscribed(channel: String, count: Long) = Unit
+            override fun message(pattern: String, channel: String, message: String) = Unit
+            override fun message(channel: String, message: String) {
+                when (channel) {
+                    REFRESH_CHANNEL -> {
+                        jda.getGuildById(message)?.let { reloadServerConfig(it) }
+                    }
+                    QUERY_CHANNEL -> {
+                        val guild = jda.getGuildById(message)
+                        val guildConfig = guild?.let { getServerConfig(it) }
+                        redis.async().publish("$RESPONSE_CHANNEL_PREFIX:$message", guildConfig?.toJSON(guild))
+                    }
+                }
+            }
+        })
+
+        redis.async().subscribe(REFRESH_CHANNEL, QUERY_CHANNEL)
     }
 
     /**
@@ -60,59 +128,50 @@ object ConfigDirector : Director() {
     /**
      * Load all the configurations from the database
      */
-    private fun loadConfig(guild: Guild): ServerConfig {
+    private fun loadConfig(guild: Guild): ServerConfig = transaction {
         val serverId = guild.idLong
 
-        var wikiConfig = WikiConfig()
-        var selectableRolesConfig = SelectableRolesConfig()
-        var quickviewConfig = QuickviewConfig()
-        var auditingConfig = AuditingConfig()
-        var starboardConfig = StarboardConfig()
-
-        transaction {
-
-            val wikiSources = swst.select {
-                swst.serverId.eq(serverId)
-            }.map {
-                it[swst.destination]
-            }
-
-            val selectableRoles = ssrt.select {
-                ssrt.serverId.eq(serverId)
-            }.map {
-                it[ssrt.roleId]
-            }
-
-            sct.select {
-                sct.serverId.eq(serverId)
-            }.forEach { r ->
-                quickviewConfig = QuickviewConfig(
-                    r[sct.quickviewFuraffinityEnabled],
-                    r[sct.quickviewFuraffinityThumbnail],
-                    r[sct.quickviewPicartoEnabled]
-                )
-                auditingConfig = AuditingConfig(
-                    r[sct.logJoins],
-                    r[sct.logLeaves],
-                    r[sct.logPurge],
-                    r[sct.logKicks],
-                    r[sct.logBans],
-                    r[sct.logNames],
-                    r[sct.logChannelID]
-                )
-                starboardConfig = StarboardConfig(
-                    r[sct.starboardEnabled],
-                    r[sct.starboardChannelID],
-                    r[sct.starboardEmoji],
-                    r[sct.starboardThreshold],
-                    r[sct.starboardAllowSelfStar]
-                )
-                wikiConfig = WikiConfig(wikiSources, r[sct.wikiMinQuality])
-                selectableRolesConfig = SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit])
-            }
+        val wikiSources = swst.select {
+            swst.serverId.eq(serverId)
+        }.map {
+            it[swst.destination]
         }
 
-        return ServerConfig(wikiConfig, selectableRolesConfig, quickviewConfig, auditingConfig, starboardConfig)
+        val selectableRoles = ssrt.select {
+            ssrt.serverId.eq(serverId)
+        }.map {
+            it[ssrt.roleId]
+        }
+
+        sct.select {
+            sct.serverId.eq(serverId)
+        }.firstOrNull()?.let { r ->
+            val quickviewConfig = QuickviewConfig(
+                r[sct.quickviewFuraffinityEnabled],
+                r[sct.quickviewFuraffinityThumbnail],
+                r[sct.quickviewPicartoEnabled]
+            )
+            val auditingConfig = AuditingConfig(
+                r[sct.logJoins],
+                r[sct.logLeaves],
+                r[sct.logPurge],
+                r[sct.logKicks],
+                r[sct.logBans],
+                r[sct.logNames],
+                r[sct.logChannelID]
+            )
+            val starboardConfig = StarboardConfig(
+                r[sct.starboardEnabled],
+                r[sct.starboardChannelID],
+                r[sct.starboardEmoji],
+                r[sct.starboardThreshold],
+                r[sct.starboardAllowSelfStar]
+            )
+            val wikiConfig = WikiConfig(wikiSources, r[sct.wikiMinQuality])
+            val selectableRolesConfig = SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit])
+
+            ServerConfig(wikiConfig, selectableRolesConfig, quickviewConfig, auditingConfig, starboardConfig)
+        } ?: defaultConfig
     }
 
     /**
@@ -127,11 +186,9 @@ object ConfigDirector : Director() {
      *
      * @param guild the guild who's configuration to delete
      */
-    fun deleteServerConfig(guild: Guild) {
-        transaction {
-            sct.deleteIgnoreWhere {
-                sct.serverId.eq(guild.idLong)
-            }
+    suspend fun deleteServerConfig(guild: Guild): Int = newSuspendedTransaction {
+        sct.deleteIgnoreWhere {
+            sct.serverId.eq(guild.idLong)
         }
     }
 
@@ -149,23 +206,6 @@ object ConfigDirector : Director() {
     }
 
     /**
-     * Checks is a guild has a custom configuration
-     *
-     * @param guild the guild to check for a custom config
-     */
-    fun hasCustomConfig(guild: Guild): Boolean {
-        var exists = false
-
-        transaction {
-            exists = sct.select {
-                sct.serverId.eq(guild.idLong)
-            }.count() > 0
-        }
-
-        return exists
-    }
-
-    /**
      * Returns the default server configuration
      *
      * @return the default server configuration
@@ -177,57 +217,55 @@ object ConfigDirector : Director() {
     /**
      * Sets a guild's custom configuration
      *
-     * @param guild     the guild who's configuration should be updates
-     * @param config    the new server config to try to apply
+     * @param guild the guild who's configuration should be updates
+     * @param config the new server config to try to apply
      */
-    fun setServerConfig(guild: Guild, config: ServerConfig) {
+    suspend fun setServerConfig(guild: Guild, config: ServerConfig) = newSuspendedTransaction {
         val sct = ServerConfigsTable
         val serverId = guild.idLong
 
-        transaction {
-            // Lazy man's upsert
-            sct.insertIgnore {
-                it[sct.serverId] = serverId
-            }
+        // Lazy man's upsert
+        sct.insertIgnore {
+            it[sct.serverId] = serverId
+        }
 
-            sct.update({ sct.serverId.eq(serverId) }) {
-                it[sct.serverId] = serverId
-                it[sct.wikiMinQuality] = config.wiki.minimumQuality
-                it[sct.selectableRolesLimit] = config.selectableRoles.limit
-                it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
-                it[sct.quickviewFuraffinityThumbnail] = config.quickview.furaffinityThumbnails
-                it[sct.quickviewPicartoEnabled] = config.quickview.picartoEnabled
-                it[sct.logJoins] = config.auditing.joins
-                it[sct.logLeaves] = config.auditing.leaves
-                it[sct.logPurge] = config.auditing.purge
-                it[sct.logKicks] = config.auditing.kicks
-                it[sct.logBans] = config.auditing.bans
-                it[sct.logNames] = config.auditing.names
-                it[sct.logChannelID] = config.auditing.channel
-                it[sct.starboardEnabled] = config.starboard.enabled
-                it[sct.starboardChannelID] = config.starboard.channel
-                it[sct.starboardEmoji] = config.starboard.emoji
-                it[sct.starboardThreshold] = config.starboard.threshold
-                it[sct.starboardAllowSelfStar] = config.starboard.allowSelfStarring
-            }
+        sct.update({ sct.serverId.eq(serverId) }) {
+            it[sct.serverId] = serverId
+            it[sct.wikiMinQuality] = config.wiki.minimumQuality
+            it[sct.selectableRolesLimit] = config.selectableRoles.limit
+            it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
+            it[sct.quickviewFuraffinityThumbnail] = config.quickview.furaffinityThumbnails
+            it[sct.quickviewPicartoEnabled] = config.quickview.picartoEnabled
+            it[sct.logJoins] = config.auditing.joins
+            it[sct.logLeaves] = config.auditing.leaves
+            it[sct.logPurge] = config.auditing.purge
+            it[sct.logKicks] = config.auditing.kicks
+            it[sct.logBans] = config.auditing.bans
+            it[sct.logNames] = config.auditing.names
+            it[sct.logChannelID] = config.auditing.channel
+            it[sct.starboardEnabled] = config.starboard.enabled
+            it[sct.starboardChannelID] = config.starboard.channel
+            it[sct.starboardEmoji] = config.starboard.emoji
+            it[sct.starboardThreshold] = config.starboard.threshold
+            it[sct.starboardAllowSelfStar] = config.starboard.allowSelfStarring
+        }
 
-            // Add in all the wiki sources
-            swst.deleteWhere {
-                swst.serverId.eq(serverId)
-            }
-            swst.batchInsert(config.wiki.sources, true) { wiki ->
-                this[swst.serverId] = serverId
-                this[swst.destination] = wiki
-            }
+        // Add in all the wiki sources
+        swst.deleteWhere {
+            swst.serverId.eq(serverId)
+        }
+        swst.batchInsert(config.wiki.sources, true) { wiki ->
+            this[swst.serverId] = serverId
+            this[swst.destination] = wiki
+        }
 
-            // Add in all the roles
-            ssrt.deleteWhere {
-                ssrt.serverId.eq(serverId)
-            }
-            ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
-                this[ssrt.serverId] = serverId
-                this[ssrt.roleId] = role
-            }
+        // Add in all the roles
+        ssrt.deleteWhere {
+            ssrt.serverId.eq(serverId)
+        }
+        ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
+            this[ssrt.serverId] = serverId
+            this[ssrt.roleId] = role
         }
 
         configs[serverId] = config
@@ -237,7 +275,6 @@ object ConfigDirector : Director() {
      * Delete a guild's config when the server if left
      */
     override fun onGuildLeave(event: GuildLeaveEvent) {
-        event.guild.deleteConfig()
+        launch { event.guild.deleteConfig() }
     }
 }
-

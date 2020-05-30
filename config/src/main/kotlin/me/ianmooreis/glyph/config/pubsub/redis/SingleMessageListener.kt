@@ -26,8 +26,7 @@ package me.ianmooreis.glyph.config.pubsub.redis
 
 import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
-import kotlinx.coroutines.future.await
-import java.util.concurrent.CompletableFuture
+import kotlinx.coroutines.channels.Channel
 
 /**
  * Provides an interface for listening for the next message on a channel
@@ -41,42 +40,20 @@ internal class SingleMessageListener<K, V>(
     /**
      * Get CompletableFuture for response channel
      */
-    fun listen(responseChannel: K): CompletableFuture<V> {
-        val future = CompletableFuture<V>()
+    fun listen(responseChannel: K): Channel<V> {
+        val rendezvous = Channel<V>()
         val listener = object : RedisPubSubListener<K, V> {
-            /**
-             * Ignored
-             */
-            override fun message(pattern: K?, channel: K?, message: V?): Unit = Unit
+            override fun message(pattern: K?, channel: K?, message: V?) = Unit
+            override fun psubscribed(pattern: K?, count: Long) = Unit
+            override fun punsubscribed(pattern: K?, count: Long) = Unit
+            override fun unsubscribed(channel: K?, count: Long) = Unit
+            override fun subscribed(channel: K?, count: Long) = Unit
 
-            /**
-             * Ignored
-             */
-            override fun psubscribed(pattern: K?, count: Long): Unit = Unit
-
-            /**
-             * Ignored
-             */
-            override fun punsubscribed(pattern: K?, count: Long): Unit = Unit
-
-            /**
-             * Ignored
-             */
-            override fun unsubscribed(channel: K?, count: Long): Unit = Unit
-
-            /**
-             * Ignored
-             */
-            override fun subscribed(channel: K?, count: Long): Unit = Unit
-
-            /**
-             * Listens for the next message in the channel
-             */
             override fun message(channel: K, message: V) {
                 if (channel == responseChannel) {
                     redis.async().unsubscribe(channel)
                     redis.removeListener(this)
-                    future.complete(message)
+                    rendezvous.offer(message)
                 }
             }
         }
@@ -84,11 +61,11 @@ internal class SingleMessageListener<K, V>(
         redis.addListener(listener)
         redis.async().subscribe(responseChannel)
 
-        return future
+        return rendezvous
     }
 
     /**
      * Wait for the message
      */
-    suspend fun await(responseChannel: K): V = listen(responseChannel).await()
+    suspend fun await(responseChannel: K): V = listen(responseChannel).receive()
 }

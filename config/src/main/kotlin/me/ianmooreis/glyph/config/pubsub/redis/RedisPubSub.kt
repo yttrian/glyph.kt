@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.config.pubsub.redis
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.codec.StringCodec
-import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.config.pubsub.PubSub
 
 /**
@@ -69,6 +68,6 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub<String, String> {
 
         val listener = singleMessageListener.listen(inChannel)
         publish(outChannel, message)
-        return listener.await()
+        return listener.receive()
     }
 }

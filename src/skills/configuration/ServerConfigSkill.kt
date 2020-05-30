@@ -71,23 +71,27 @@ class ServerConfigSkill : Skill(
                     )
                 } else {
                     val guild = event.guild
+                    val superLog = log
                     val configListener = object : Director() {
                         override fun onGuildMessageReceived(metaEvent: GuildMessageReceivedEvent) {
                             // listen for the specific message
                             if (metaEvent.channel != event.channel || metaEvent.author != event.author) return
                             val metaMessage = metaEvent.message
-                            fun fail() = metaMessage.addReaction("👎").queue()
+                            fun fail(e: Throwable) {
+                                superLog.warn("Failed configuration load in $guild!", e)
+                                metaMessage.addReaction("👎").queue()
+                            }
 
                             launch {
                                 try {
                                     guild.config = fromMicro(MicroConfig.Reader().read(metaMessage.contentRaw))
                                     metaMessage.addReaction("👍").queue()
                                 } catch (e: IllegalArgumentException) {
-                                    fail()
+                                    fail(e)
                                 } catch (e: DataFormatException) {
-                                    fail()
+                                    fail(e)
                                 } catch (e: ZipException) {
-                                    fail()
+                                    fail(e)
                                 }
                             }
 

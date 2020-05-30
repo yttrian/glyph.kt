@@ -163,7 +163,7 @@ class ServerConfigSkill : Skill(
         return microConfig
     }
 
-    // TODO: Either get rid of magic numbers or take mercy and put MicroConfig to rest
+    @Suppress("MagicNumber")
     private fun fromMicro(microConfig: MicroConfig.Reader): ServerConfig {
         val quickviewBooleans = microConfig.pullBooleans(2, 0, 3)
         val auditingBooleans = microConfig.pullBooleans(3, 0, 6)

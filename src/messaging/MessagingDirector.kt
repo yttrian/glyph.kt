@@ -28,12 +28,9 @@ import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIAgent
 import me.ianmooreis.glyph.database.Key
 import me.ianmooreis.glyph.database.RedisAsync
-import me.ianmooreis.glyph.directors.StatusDirector
 import me.ianmooreis.glyph.directors.skills.SkillDirector
 import me.ianmooreis.glyph.extensions.contentClean
 import net.dv8tion.jda.api.MessageBuilder
-import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.TextChannel
@@ -106,23 +103,13 @@ class MessagingDirector(
 
         // Get ready to ask the DialogFlow agent
         val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
-        val ai = try {
-            aiAgent.request(event.message.contentClean, sessionId)
-        } catch (e: IllegalArgumentException) {
-            message.addReaction("⁉").queue()
-            return
-        }
+        val ai = aiAgent.request(event.message.contentClean, sessionId)
 
-        // In the rare circumstance DialogFlow is unavailable, warn the user
+        // In the rare circumstance the agent is unavailable or has an issue, warn the user
         if (ai.isError) {
             message.reply(
                 "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message.",
                 volatile = true
-            )
-            StatusDirector.setPresence(
-                event.jda,
-                OnlineStatus.DO_NOT_DISTURB,
-                Activity.watching("temporary issue with ${aiAgent.name}")
             )
             return
         }

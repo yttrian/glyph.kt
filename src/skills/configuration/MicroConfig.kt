@@ -122,15 +122,22 @@ sealed class MicroConfig {
          */
         fun pullInt(section: Int, index: Int): Int? = config[section][index]?.toInt(RADIX)
 
+        /**
+         * Pull a list of strings from a known section
+         */
         fun pullStringList(section: Int, startIndex: Int): List<String> =
             config[section].listIterator(startIndex).asSequence().toList().filterNotNull()
 
+        /**
+         * Pull a list of longs from a known section
+         */
         fun pullLongList(section: Int, startIndex: Int): List<Long> =
             config[section].listIterator(startIndex).asSequence().toList().mapNotNull { it?.toLong(RADIX) }
 
         /**
          * Read in a MicroConfig from the string representation
          */
+        @Throws(IllegalArgumentException::class)
         suspend fun read(configString: String): Reader {
             val data = withContext(Dispatchers.IO) {
                 val decompressor = Inflater()
@@ -146,9 +153,11 @@ sealed class MicroConfig {
             var section = mutableListOf<String?>()
             data.forEach {
                 when (it) {
-                    is Int -> {
-                        config.add(section)
-                        section = mutableListOf()
+                    is Number -> {
+                        if (section.isNotEmpty()) {
+                            config.add(section)
+                            section = mutableListOf()
+                        }
                     }
                     is String? -> {
                         section.add(it)

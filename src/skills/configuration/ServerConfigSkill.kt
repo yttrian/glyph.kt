@@ -41,7 +41,8 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import java.util.zip.DataFormatException
 
 /**
  * The skill for getting a server configuration which will be posted to Hastebin in YAML format
@@ -59,7 +60,7 @@ class ServerConfigSkill : Skill(
                 val micro = toMicro(event.guild).build()
 
                 val message = "Use the link below to edit your config. " +
-                    "When done, click Save and Copy Key, send me a direct message with the key you got.\n" +
+                    "When done, click Save and Copy Key, and send it as a message here.\n" +
                     "https://gl.yttr.org/config#$micro"
 
                 if (micro.length > Message.MAX_CONTENT_LENGTH) {
@@ -67,11 +68,22 @@ class ServerConfigSkill : Skill(
                 } else {
                     val guild = event.guild
                     val configListener = object : Director() {
-                        override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
+                        override fun onGuildMessageReceived(metaEvent: GuildMessageReceivedEvent) {
+                            // listen for the specific message
+                            if (metaEvent.channel != event.channel || metaEvent.author != event.author) return
+                            val metaMessage = metaEvent.message
+
                             launch {
-                                guild.config = fromMicro(MicroConfig.Reader().read(event.message.contentRaw))
-                                event.message.addReaction("✔").queue()
+                                try {
+                                    guild.config = fromMicro(MicroConfig.Reader().read(metaMessage.contentRaw))
+                                    metaMessage.addReaction("👍").queue()
+                                } catch (e: IllegalArgumentException) {
+                                    metaMessage.addReaction("👎").queue()
+                                } catch (e: DataFormatException) {
+                                    metaMessage.addReaction("👎").queue()
+                                }
                             }
+
                             event.jda.removeEventListener(this)
                         }
                     }
@@ -123,12 +135,13 @@ class ServerConfigSkill : Skill(
         microConfig.startSection()
         config.starboard.apply {
             microConfig.push(enabled, allowSelfStarring)
-            microConfig.push(threshold)
             microConfig.push(emoji)
+            microConfig.push(threshold)
             microConfig.push(channel)
         }
 
         // Server info
+        microConfig.startSection()
         microConfig.push(guild.idLong)
         microConfig.push(guild.name)
 
@@ -172,9 +185,9 @@ class ServerConfigSkill : Skill(
                 auditingBooleans[4], auditingBooleans[5], auditingBooleans[6]
             ),
             StarboardConfig(
-                starboardBooleans[0], microConfig.pullLong(4, 1),
-                microConfig.pullString(4, 2) ?: "star",
-                microConfig.pullInt(4, 3) ?: 1,
+                starboardBooleans[0], microConfig.pullLong(4, 2),
+                microConfig.pullString(4, 1) ?: "star",
+                microConfig.pullInt(4, 2) ?: 1,
                 starboardBooleans[1]
             )
         )

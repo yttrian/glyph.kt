@@ -82,7 +82,7 @@ class Dialogflow(
         } catch (e: UnknownHostException) {
             errorResponse
         } catch (e: InvalidArgumentException) {
-            throw IllegalArgumentException()
+            errorResponse
         }
     }
 }

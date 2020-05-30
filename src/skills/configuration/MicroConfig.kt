@@ -28,9 +28,11 @@ import com.daveanthonythomas.moshipack.MoshiPack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Base64
-import java.nio.ByteBuffer
+import java.io.ByteArrayOutputStream
 import java.util.zip.Deflater
+import java.util.zip.DeflaterOutputStream
 import java.util.zip.Inflater
+import java.util.zip.InflaterOutputStream
 
 /**
  * An array based, message-packed, base64 url encoded serialization that requires knowledge of the layout on both ends
@@ -83,13 +85,12 @@ sealed class MicroConfig {
         suspend fun build(): String = withContext(Dispatchers.IO) {
             startSection()
             val pack = MoshiPack().pack(config).readByteArray()
-            val compressor = Deflater()
-            compressor.setInput(pack)
-            compressor.finish()
-            val out = ByteBuffer.allocate(pack.size)
-            compressor.deflate(out)
-            compressor.end()
-            Base64.encodeBase64URLSafeString(out.array())
+            val deflater = Deflater()
+            val outputStream = ByteArrayOutputStream()
+            val deflaterOutputStream = DeflaterOutputStream(outputStream, deflater)
+            deflaterOutputStream.write(pack)
+            deflaterOutputStream.finish()
+            Base64.encodeBase64URLSafeString(outputStream.toByteArray())
         }
     }
 
@@ -140,13 +141,13 @@ sealed class MicroConfig {
         @Throws(IllegalArgumentException::class)
         suspend fun read(configString: String): Reader {
             val data = withContext(Dispatchers.IO) {
-                val decompressor = Inflater()
+                val inflater = Inflater()
                 val zstring = Base64.decodeBase64(configString)
-                decompressor.setInput(zstring)
-                val out = ByteBuffer.allocate(zstring.size)
-                decompressor.inflate(out)
-                decompressor.end()
-                val unpack: List<Any?> = MoshiPack().unpack(out.array())
+                val outputStream = ByteArrayOutputStream()
+                val inflaterOutputStream = InflaterOutputStream(outputStream, inflater)
+                inflaterOutputStream.write(zstring)
+                inflater.end()
+                val unpack: List<Any?> = MoshiPack().unpack(outputStream.toByteArray())
                 unpack
             }
 

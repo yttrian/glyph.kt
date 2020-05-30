@@ -105,7 +105,6 @@ class ServerConfigSkill : Skill(
         val config = guild.config
 
         // Wiki
-        microConfig.startSection()
         config.wiki.apply {
             microConfig.push(minimumQuality)
             sources.forEach { microConfig.push(it) }

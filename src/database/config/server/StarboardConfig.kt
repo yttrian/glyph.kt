@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config.server
+package me.ianmooreis.glyph.database.config.server
 
-import me.ianmooreis.glyph.directors.config.Config
+import me.ianmooreis.glyph.database.config.Config
 
 /**
  * A configuration for starboarding

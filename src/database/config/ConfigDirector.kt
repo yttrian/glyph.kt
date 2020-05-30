@@ -22,18 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config
+package me.ianmooreis.glyph.database.config
 
 import me.ianmooreis.glyph.Director
-import me.ianmooreis.glyph.directors.config.server.AuditingConfig
-import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
-import me.ianmooreis.glyph.directors.config.server.SelectableRolesConfig
-import me.ianmooreis.glyph.directors.config.server.ServerConfig
-import me.ianmooreis.glyph.directors.config.server.ServerConfigsTable
-import me.ianmooreis.glyph.directors.config.server.ServerSelectableRolesTable
-import me.ianmooreis.glyph.directors.config.server.ServerWikiSourcesTable
-import me.ianmooreis.glyph.directors.config.server.StarboardConfig
-import me.ianmooreis.glyph.directors.config.server.WikiConfig
+import me.ianmooreis.glyph.database.config.server.AuditingConfig
+import me.ianmooreis.glyph.database.config.server.QuickviewConfig
+import me.ianmooreis.glyph.database.config.server.SelectableRolesConfig
+import me.ianmooreis.glyph.database.config.server.ServerConfig
+import me.ianmooreis.glyph.database.config.server.ServerConfigsTable
+import me.ianmooreis.glyph.database.config.server.ServerSelectableRolesTable
+import me.ianmooreis.glyph.database.config.server.ServerWikiSourcesTable
+import me.ianmooreis.glyph.database.config.server.StarboardConfig
+import me.ianmooreis.glyph.database.config.server.WikiConfig
 import me.ianmooreis.glyph.extensions.deleteConfig
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent

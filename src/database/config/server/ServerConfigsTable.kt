@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.directors.config.server
+package me.ianmooreis.glyph.database.config.server
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table

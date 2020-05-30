@@ -24,17 +24,24 @@
 
 package me.ianmooreis.glyph.skills.configuration
 
-import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.launch
+import me.ianmooreis.glyph.Director
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.config.ConfigDirector
+import me.ianmooreis.glyph.database.config.ConfigDirector
+import me.ianmooreis.glyph.database.config.server.AuditingConfig
+import me.ianmooreis.glyph.database.config.server.QuickviewConfig
+import me.ianmooreis.glyph.database.config.server.SelectableRolesConfig
+import me.ianmooreis.glyph.database.config.server.ServerConfig
+import me.ianmooreis.glyph.database.config.server.StarboardConfig
+import me.ianmooreis.glyph.database.config.server.WikiConfig
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.Response
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 /**
  * The skill for getting a server configuration which will be posted to Hastebin in YAML format
@@ -46,140 +53,32 @@ class ServerConfigSkill : Skill(
     requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
     requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
 ) {
-    private val client = HttpClient {
-        install(JsonFeature)
-    }
-
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        val action = ai.result.getStringParameter("action")
-        val config = event.guild.config
-        val guild = event.guild
-
-        return when (action) {
+        return when (ai.result.getStringParameter("action")) {
             "get" -> {
-                val json = config.toJSON(guild)
+                val micro = toMicro(event.guild).build()
 
-                val microConfig = MicroConfig.Builder()
-                val wait = Mutex(true)
+                val message = "Use the link below to edit your config. " +
+                    "When done, click Save and Copy Key, send me a direct message with the key you got.\n" +
+                    "https://gl.yttr.org/config#$micro"
 
-                // Server info
-                microConfig.push(guild.idLong)
-                microConfig.push(guild.name)
-
-                // Channels
-                microConfig.startSection()
-                guild.textChannels.forEach {
-                    microConfig.push(it.name)
-                    microConfig.push(it.idLong)
-                }
-
-                // Emojis
-                microConfig.startSection()
-                guild.retrieveEmotes().queue {
-                    it.forEach { emote ->
-                        microConfig.push(emote.name)
-                        // microConfig.push(emote.idLong)
-                    }
-                    wait.unlock()
-                }
-                wait.lock()
-
-                // Roles
-                microConfig.startSection()
-                guild.roles.forEach {
-                    microConfig.push(it.name)
-                    // microConfig.push(it.position)
-                    // microConfig.push(event.guild.selfMember.canInteract(it))
-                    microConfig.push(it.idLong)
-                }
-
-                // Wiki
-                microConfig.startSection()
-                config.wiki.apply {
-                    microConfig.push(minimumQuality)
-                    sources.forEach { microConfig.push(it) }
-                }
-
-                // Selectable roles
-                microConfig.startSection()
-                config.selectableRoles.apply {
-                    microConfig.push(limit)
-                    roles.forEach { microConfig.push(it) }
-                }
-
-                // Quickview
-                microConfig.startSection()
-                config.quickview.apply {
-                    microConfig.push(furaffinityEnabled, furaffinityThumbnails, picartoEnabled)
-                }
-
-                // Auditing
-                microConfig.startSection()
-                config.auditing.apply {
-                    microConfig.push(joins, leaves, purge, kicks, bans, names)
-                    microConfig.push(channel)
-                }
-
-                // Starboard
-                microConfig.startSection()
-                config.starboard.apply {
-                    microConfig.push(enabled, allowSelfStarring)
-                    microConfig.push(threshold)
-                    microConfig.push(emoji)
-                    microConfig.push(channel)
-                }
-
-                microConfig.push(null)
-
-                val msgPack = microConfig.build()
-
-                println(msgPack)
-
-                if (msgPack.length > Message.MAX_CONTENT_LENGTH) {
-                    Response.Volatile("Whoops, I'm stupid!")
+                if (micro.length > Message.MAX_CONTENT_LENGTH) {
+                    Response.Volatile("I'm sorry, your config cannot be edited for inane reasons!")
                 } else {
-                    Response.Volatile(msgPack)
+                    val guild = event.guild
+                    val configListener = object : Director() {
+                        override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
+                            launch {
+                                guild.config = fromMicro(MicroConfig.Reader().read(event.message.contentRaw))
+                                event.message.addReaction("✔").queue()
+                            }
+                            event.jda.removeEventListener(this)
+                        }
+                    }
+
+                    event.jda.addEventListener(configListener)
+                    Response.Volatile(message)
                 }
-
-                // event.message.reply(json)
-                // Myjson.postJSON(json, 2000) { key ->
-                //     if (key !== null) {
-                //         event.message.reply(
-                //             EmbedBuilder()
-                //                 .setTitle("Glyph Config Editor")
-                //                 .setDescription(
-                //                     "Click the link below to edit your config. " +
-                //                             "When done on the editor, click Save and then Copy Key. " +
-                //                             "Come back here and tell Glyph to \"load config <key>\" with the key " +
-                //                             "you were given.\n" +
-                //                             "[Edit Config](https://gl.yttr.org/config#$key)"
-                //                 )
-                //                 .build()
-                //         )
-                //     } else {
-                //         event.message.reply("Unable to upload config for editing, try again later.")
-                //     }
-                // }
-            }
-            "set" -> {
-                val key = ai.result.getStringParameter("key")
-
-                // if (key !== null) {
-                //     Myjson.getJSON(key, 2000) { result ->
-                //         when (result) {
-                //             is Result.Success -> {
-                //                 val newConfig = config.fromJSON(result.get())
-                //                 ConfigDirector.setServerConfig(event.guild, newConfig)
-                //
-                //                 event.message.reply("Successfully updated server config!")
-                //             }
-                //             is Result.Failure -> {
-                //                 event.message.reply("Could not retrieve config or it was malformed!")
-                //             }
-                //         }
-                //     }
-                // }
-                Response.None
             }
             "reload" -> {
                 ConfigDirector.reloadServerConfig(event.guild)
@@ -187,5 +86,97 @@ class ServerConfigSkill : Skill(
             }
             else -> Response.Volatile("I'm not sure what you want to do with your config")
         }
+    }
+
+    private fun toMicro(guild: Guild): MicroConfig.Builder {
+        val microConfig = MicroConfig.Builder()
+        val config = guild.config
+
+        // Wiki
+        microConfig.startSection()
+        config.wiki.apply {
+            microConfig.push(minimumQuality)
+            sources.forEach { microConfig.push(it) }
+        }
+
+        // Selectable roles
+        microConfig.startSection()
+        config.selectableRoles.apply {
+            microConfig.push(limit)
+            roles.forEach { microConfig.push(it) }
+        }
+
+        // Quickview
+        microConfig.startSection()
+        config.quickview.apply {
+            microConfig.push(furaffinityEnabled, furaffinityThumbnails, picartoEnabled)
+        }
+
+        // Auditing
+        microConfig.startSection()
+        config.auditing.apply {
+            microConfig.push(joins, leaves, purge, kicks, bans, names)
+            microConfig.push(channel)
+        }
+
+        // Starboard
+        microConfig.startSection()
+        config.starboard.apply {
+            microConfig.push(enabled, allowSelfStarring)
+            microConfig.push(threshold)
+            microConfig.push(emoji)
+            microConfig.push(channel)
+        }
+
+        // Server info
+        microConfig.push(guild.idLong)
+        microConfig.push(guild.name)
+
+        // Channels
+        microConfig.startSection()
+        guild.textChannels.forEach {
+            microConfig.push(it.name)
+            microConfig.push(it.idLong)
+        }
+
+        // Roles
+        microConfig.startSection()
+        guild.roles.forEach {
+            microConfig.push(it.name)
+            // microConfig.push(it.position)
+            // microConfig.push(event.guild.selfMember.canInteract(it))
+            microConfig.push(it.idLong)
+        }
+
+        return microConfig
+    }
+
+    // TODO: Either get rid of magic numbers or take mercy and put MicroConfig to rest
+    private fun fromMicro(microConfig: MicroConfig.Reader): ServerConfig {
+        val quickviewBooleans = microConfig.pullBooleans(2, 0, 3)
+        val auditingBooleans = microConfig.pullBooleans(3, 0, 6)
+        val starboardBooleans = microConfig.pullBooleans(4, 0, 2)
+
+        return ServerConfig(
+            WikiConfig(
+                microConfig.pullStringList(0, 1),
+                microConfig.pullInt(0, 0) ?: 50
+            ),
+            SelectableRolesConfig(
+                microConfig.pullLongList(1, 1),
+                microConfig.pullInt(1, 0) ?: 1
+            ),
+            QuickviewConfig(quickviewBooleans[0], quickviewBooleans[1], quickviewBooleans[2]),
+            AuditingConfig(
+                auditingBooleans[0], auditingBooleans[1], auditingBooleans[3],
+                auditingBooleans[4], auditingBooleans[5], auditingBooleans[6]
+            ),
+            StarboardConfig(
+                starboardBooleans[0], microConfig.pullLong(4, 1),
+                microConfig.pullString(4, 2) ?: "star",
+                microConfig.pullInt(4, 3) ?: 1,
+                starboardBooleans[1]
+            )
+        )
     }
 }

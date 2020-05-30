@@ -25,6 +25,7 @@
 package me.ianmooreis.glyph.ai.dialogflow
 
 import com.google.api.gax.core.FixedCredentialsProvider
+import com.google.api.gax.rpc.InvalidArgumentException
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.cloud.dialogflow.v2.DetectIntentResponse
@@ -80,6 +81,8 @@ class Dialogflow(
             DialogflowResponse(response, sessionId)
         } catch (e: UnknownHostException) {
             errorResponse
+        } catch (e: InvalidArgumentException) {
+            throw IllegalArgumentException()
         }
     }
 }

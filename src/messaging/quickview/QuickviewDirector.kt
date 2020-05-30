@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import me.ianmooreis.glyph.Director
-import me.ianmooreis.glyph.directors.config.ConfigDirector
+import me.ianmooreis.glyph.database.config.ConfigDirector
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.MessagingDirector
 import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinityGenerator

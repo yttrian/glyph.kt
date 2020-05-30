@@ -30,15 +30,16 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Base64
 import java.nio.ByteBuffer
 import java.util.zip.Deflater
+import java.util.zip.Inflater
 
 /**
  * An array based, message-packed, base64 url encoded serialization that requires knowledge of the layout on both ends
  */
-class MicroConfig {
+sealed class MicroConfig {
     /**
      * Build a MicroConfig
      */
-    class Builder {
+    class Builder : MicroConfig() {
         private val config = mutableListOf<Any?>()
         private var lastSection = 0
 
@@ -89,6 +90,73 @@ class MicroConfig {
             compressor.deflate(out)
             compressor.end()
             Base64.encodeBase64URLSafeString(out.array())
+        }
+    }
+
+    /**
+     * Read a MicroConfig
+     */
+    class Reader : MicroConfig() {
+        private val config = mutableListOf<List<String?>>()
+
+        /**
+         * Pull a string from a known section and index
+         */
+        fun pullString(section: Int, index: Int): String? = config[section][index]
+
+        /**
+         * Pull a boolean combination from a known section and index
+         */
+        fun pullBooleans(section: Int, index: Int, count: Int): List<Boolean> {
+            val booleanCombo = pullInt(section, index)
+            return (0..count).map { booleanCombo?.and(1.shl(it)) == 1 }
+        }
+
+        /**
+         * Pull a long from a known section and index
+         */
+        fun pullLong(section: Int, index: Int): Long? = config[section][index]?.toLong(RADIX)
+
+        /**
+         * Pull an integer from a known section and index
+         */
+        fun pullInt(section: Int, index: Int): Int? = config[section][index]?.toInt(RADIX)
+
+        fun pullStringList(section: Int, startIndex: Int): List<String> =
+            config[section].listIterator(startIndex).asSequence().toList().filterNotNull()
+
+        fun pullLongList(section: Int, startIndex: Int): List<Long> =
+            config[section].listIterator(startIndex).asSequence().toList().mapNotNull { it?.toLong(RADIX) }
+
+        /**
+         * Read in a MicroConfig from the string representation
+         */
+        suspend fun read(configString: String): Reader {
+            val data = withContext(Dispatchers.IO) {
+                val decompressor = Inflater()
+                val zstring = Base64.decodeBase64(configString)
+                decompressor.setInput(zstring)
+                val out = ByteBuffer.allocate(zstring.size)
+                decompressor.inflate(out)
+                decompressor.end()
+                val unpack: List<Any?> = MoshiPack().unpack(out.array())
+                unpack
+            }
+
+            var section = mutableListOf<String?>()
+            data.forEach {
+                when (it) {
+                    is Int -> {
+                        config.add(section)
+                        section = mutableListOf()
+                    }
+                    is String? -> {
+                        section.add(it)
+                    }
+                }
+            }
+
+            return this
         }
     }
 

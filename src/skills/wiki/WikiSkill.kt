@@ -25,7 +25,7 @@
 package me.ianmooreis.glyph.skills.wiki
 
 import me.ianmooreis.glyph.ai.AIResponse
-import me.ianmooreis.glyph.directors.config.server.WikiConfig
+import me.ianmooreis.glyph.database.config.server.WikiConfig
 import me.ianmooreis.glyph.directors.skills.Skill
 import me.ianmooreis.glyph.extensions.config
 import me.ianmooreis.glyph.messaging.Response

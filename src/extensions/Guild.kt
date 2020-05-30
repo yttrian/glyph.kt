@@ -24,8 +24,8 @@
 
 package me.ianmooreis.glyph.extensions
 
-import me.ianmooreis.glyph.directors.config.ConfigDirector
-import me.ianmooreis.glyph.directors.config.server.ServerConfig
+import me.ianmooreis.glyph.database.config.ConfigDirector
+import me.ianmooreis.glyph.database.config.server.ServerConfig
 import me.ianmooreis.glyph.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.OnlineStatus
@@ -39,8 +39,9 @@ import java.time.Instant
 /**
  * The configuration of a guild (either custom or default if no custom one found)
  */
-val Guild.config: ServerConfig
+var Guild.config: ServerConfig
     get() = ConfigDirector.getServerConfig(this)
+    set(value) = ConfigDirector.setServerConfig(this, value)
 
 /**
  * Delete a guild's configuration from the database

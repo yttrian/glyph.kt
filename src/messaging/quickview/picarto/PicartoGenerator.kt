@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
-import me.ianmooreis.glyph.directors.config.server.QuickviewConfig
+import me.ianmooreis.glyph.database.config.server.QuickviewConfig
 import me.ianmooreis.glyph.messaging.quickview.QuickviewGenerator
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent

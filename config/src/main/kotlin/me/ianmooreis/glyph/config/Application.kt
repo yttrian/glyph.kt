@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
-
 /*
- * build.gradle.kts
+ * Application.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,32 +22,36 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val kotlin_version: String by project.extra
+package me.ianmooreis.glyph.config
 
-plugins {
-    kotlin("jvm") version "1.3.72" apply true
-    id("tanvd.kosogor") version "1.0.9" apply true
-}
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.CallLogging
+import io.ktor.request.path
+import io.ktor.response.respond
+import io.ktor.routing.get
+import io.ktor.routing.route
+import io.ktor.routing.routing
+import io.ktor.server.netty.EngineMain
+import org.slf4j.event.Level
 
-subprojects {
-    apply(plugin = "kotlin")
-    apply(plugin = "tanvd.kosogor")
+/**
+ * The entry point of the Ktor webs server
+ */
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
-    repositories {
-        jcenter()
+fun Application.module(testing: Boolean = false) {
+    install(CallLogging) {
+        level = Level.INFO
+        filter { call -> call.request.path().startsWith("/") }
     }
 
-    dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-    }
-
-    tasks.register("stage") {
-        dependsOn(":clean")
-    }
-
-    tasks.withType(KotlinJvmCompile::class) {
-        kotlinOptions {
-            jvmTarget = "1.8"
+    routing {
+        route("/") {
+            get {
+                call.respond("Hello world!")
+            }
         }
     }
 }

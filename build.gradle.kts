@@ -31,13 +31,15 @@ plugins {
     id("tanvd.kosogor") version "1.0.9" apply true
 }
 
-subprojects {
-    apply(plugin = "kotlin")
-    apply(plugin = "tanvd.kosogor")
-
+allprojects {
     repositories {
         jcenter()
     }
+}
+
+subprojects {
+    apply(plugin = "kotlin")
+    apply(plugin = "tanvd.kosogor")
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")

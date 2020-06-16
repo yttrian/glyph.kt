@@ -27,7 +27,7 @@ package me.ianmooreis.glyph.config.discord
 /**
  * Represents a users relationship to a guild
  */
-class UserGuild(
+data class UserGuild(
     /**
      * The snowflake id of the guild
      */

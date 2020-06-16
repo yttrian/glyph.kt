@@ -32,7 +32,7 @@ import io.ktor.client.request.header
 /**
  * Represents a Discord user
  */
-class User(
+data class User(
     /**
      * The user snowflake id
      */
@@ -51,9 +51,6 @@ class User(
             install(JsonFeature)
         }
 
-        /**
-         * The base url for the user API endpoints
-         */
         private const val USER_API_BASE: String = "https://discord.com/api/users/@me"
 
         /**

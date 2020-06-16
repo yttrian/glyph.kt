@@ -28,7 +28,11 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.*
+import io.ktor.auth.Authentication
+import io.ktor.auth.OAuthAccessTokenResponse
+import io.ktor.auth.authenticate
+import io.ktor.auth.authentication
+import io.ktor.auth.oauth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.features.CallLogging
@@ -44,8 +48,12 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
-import io.ktor.sessions.*
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.sessions.SessionStorageMemory
+import io.ktor.sessions.Sessions
+import io.ktor.sessions.cookie
+import io.ktor.sessions.get
+import io.ktor.sessions.sessions
+import io.ktor.sessions.set
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import org.slf4j.event.Level
@@ -55,7 +63,6 @@ import org.slf4j.event.Level
  */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
-@KtorExperimentalAPI
 fun Application.module(testing: Boolean = false) {
     install(DefaultHeaders)
     install(Locations)
@@ -65,14 +72,14 @@ fun Application.module(testing: Boolean = false) {
     }
     install(Authentication) {
         oauth("discord-oauth") {
-            val discordAuth = DiscordOAuth2(
+            val discordAuth = DiscordOAuth2.getProvider(
                 clientId = System.getenv("CLIENT_ID"),
                 clientSecret = System.getenv("CLIENT_SECRET"),
                 scopes = listOf("identify", "guilds")
             )
 
             client = HttpClient(OkHttp)
-            providerLookup = { discordAuth.provider }
+            providerLookup = { discordAuth }
             urlProvider = { redirectUrl("/login") }
         }
     }
@@ -111,9 +118,6 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
-/**
- * From the Ktor documentation
- */
 private fun ApplicationCall.redirectUrl(path: String): String {
     val defaultPort = if (request.origin.scheme == "http") 80 else 443
     val hostPort = request.host() + request.port().let { port -> if (port == defaultPort) "" else ":$port" }

@@ -1,7 +1,5 @@
-import tanvd.kosogor.proxy.shadowJar
-
 /*
- * build.gradle.kts
+ * UserGuild.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,25 +22,29 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val logback_version: String by project.extra
-val ktor_version: String by project.extra
+package me.ianmooreis.glyph.config.discord
 
-shadowJar {
-    jar {
-        archiveName = "glyph-config.jar"
-        mainClass = "io.ktor.server.netty.EngineMain"
+/**
+ * Represents a users relationship to a guild
+ */
+class UserGuild(
+    /**
+     * The snowflake id of the guild
+     */
+    val id: String,
+    /**
+     * The name of the guild
+     */
+    val name: String,
+    private val permissions: Int
+) {
+    /**
+     * Whether or not the user has manage guild permission
+     */
+    val hasManageGuild: Boolean
+        get() = permissions.and(PERMISSION_MANAGE_GUILD) == PERMISSION_MANAGE_GUILD
+
+    companion object {
+        private const val PERMISSION_MANAGE_GUILD: Int = 0x00000020
     }
-}
-
-tasks.named("stage") {
-    dependsOn("shadowJar")
-}
-
-dependencies {
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-locations:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
 }

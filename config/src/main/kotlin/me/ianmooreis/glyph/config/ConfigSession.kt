@@ -1,7 +1,5 @@
-import tanvd.kosogor.proxy.shadowJar
-
 /*
- * build.gradle.kts
+ * DiscordSession.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,25 +22,14 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val logback_version: String by project.extra
-val ktor_version: String by project.extra
+package me.ianmooreis.glyph.config
 
-shadowJar {
-    jar {
-        archiveName = "glyph-config.jar"
-        mainClass = "io.ktor.server.netty.EngineMain"
-    }
-}
-
-tasks.named("stage") {
-    dependsOn("shadowJar")
-}
-
-dependencies {
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-locations:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
-}
+/**
+ * Represents a session on the config editor
+ */
+data class ConfigSession(
+    /**
+     * The logged in Discord user
+     */
+    val token: String
+)

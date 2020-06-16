@@ -1,7 +1,5 @@
-import tanvd.kosogor.proxy.shadowJar
-
 /*
- * build.gradle.kts
+ * DiscordOauth.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,25 +22,25 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val logback_version: String by project.extra
-val ktor_version: String by project.extra
+package me.ianmooreis.glyph.config.discord
 
-shadowJar {
-    jar {
-        archiveName = "glyph-config.jar"
-        mainClass = "io.ktor.server.netty.EngineMain"
-    }
-}
+import io.ktor.auth.OAuthServerSettings
+import io.ktor.http.HttpMethod
 
-tasks.named("stage") {
-    dependsOn("shadowJar")
-}
-
-dependencies {
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-locations:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
+/**
+ * Assists in the usage of the Discord OAuth2 endpoints
+ */
+class DiscordOAuth2(clientId: String, clientSecret: String, scopes: List<String> = listOf("identify")) {
+    /**
+     * The OAuth2 provider
+     */
+    val provider: OAuthServerSettings.OAuth2ServerSettings = OAuthServerSettings.OAuth2ServerSettings(
+        name = "discord",
+        authorizeUrl = "https://discord.com/api/oauth2/authorize",
+        accessTokenUrl = "https://discord.com/api/oauth2/token",
+        requestMethod = HttpMethod.Post,
+        clientId = clientId,
+        clientSecret = clientSecret,
+        defaultScopes = scopes
+    )
 }

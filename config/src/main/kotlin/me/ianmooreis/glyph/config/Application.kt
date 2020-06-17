@@ -48,16 +48,17 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
+import io.ktor.sessions.SessionTransportTransformerEncrypt
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
-import io.lettuce.core.RedisURI
+import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.hex
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
-import me.ianmooreis.glyph.config.session.SessionStorageRedis
 import org.slf4j.event.Level
 
 /**
@@ -65,6 +66,7 @@ import org.slf4j.event.Level
  */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
+@KtorExperimentalAPI
 fun Application.module(testing: Boolean = false) {
     install(DefaultHeaders)
     install(Locations)
@@ -86,8 +88,14 @@ fun Application.module(testing: Boolean = false) {
         }
     }
     install(Sessions) {
-        val redisSessions = SessionStorageRedis(RedisURI.create(System.getenv("REDIS_URL")))
-        cookie<ConfigSession>("GlyphConfigSession", redisSessions)
+        // must be 16 bytes
+        val secretEncryptKey = hex(System.getenv("SESSION_ENCRYPT_KEY"))
+        val secretAuthKey = hex(System.getenv("SESSION_ENCRYPT_KEY"))
+
+        cookie<ConfigSession>("GlyphConfigSession") {
+            // TODO: Consider how this is stored securely
+            transform(SessionTransportTransformerEncrypt(secretEncryptKey, secretAuthKey))
+        }
     }
 
     routing {

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
+package me.ianmooreis.glyph.config.session
 
 /**
  * Represents a session on the config editor

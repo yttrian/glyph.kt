@@ -59,7 +59,6 @@ dependencies {
     implementation("com.vdurmont:emoji-java:4.0.0")
     implementation("net.jodah:expiringmap:0.5.9")
     implementation("commons-codec:commons-codec:1.14")
-    implementation("io.lettuce:lettuce-core:6.0.0.M1")
     implementation("com.daveanthonythomas.moshipack:moshipack:1.0.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 }

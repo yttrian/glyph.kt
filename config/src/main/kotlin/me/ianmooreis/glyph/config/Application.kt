@@ -48,14 +48,16 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
-import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
+import io.lettuce.core.RedisURI
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
+import me.ianmooreis.glyph.config.session.ConfigSession
+import me.ianmooreis.glyph.config.session.SessionStorageRedis
 import org.slf4j.event.Level
 
 /**
@@ -84,7 +86,8 @@ fun Application.module(testing: Boolean = false) {
         }
     }
     install(Sessions) {
-        cookie<ConfigSession>("GlyphConfigSession", SessionStorageMemory())
+        val redisSessions = SessionStorageRedis(RedisURI.create(System.getenv("REDIS_URL")))
+        cookie<ConfigSession>("GlyphConfigSession", redisSessions)
     }
 
     routing {

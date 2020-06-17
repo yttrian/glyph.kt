@@ -43,6 +43,7 @@ subprojects {
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+        implementation("io.lettuce:lettuce-core:6.0.0.M1")
     }
 
     tasks.register("stage") {

@@ -29,7 +29,11 @@ package me.ianmooreis.glyph.config.session
  */
 data class ConfigSession(
     /**
-     * The logged in Discord user
+     * The current access token
      */
-    val token: String
+    val accessToken: String,
+    /**
+     * Epoch milli for when the token expires
+     */
+    val tokenExpiration: Long
 )

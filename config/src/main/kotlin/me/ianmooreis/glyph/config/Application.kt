@@ -48,25 +48,23 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
-import io.ktor.sessions.SessionTransportTransformerEncrypt
+import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.hex
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
 import org.slf4j.event.Level
+import java.time.Instant
 
 /**
  * The entry point of the Ktor webs server
  */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
-@KtorExperimentalAPI
 fun Application.module(testing: Boolean = false) {
     install(DefaultHeaders)
     install(Locations)
@@ -88,21 +86,15 @@ fun Application.module(testing: Boolean = false) {
         }
     }
     install(Sessions) {
-        // must be 16 bytes
-        val secretEncryptKey = hex(System.getenv("SESSION_ENCRYPT_KEY"))
-        val secretAuthKey = hex(System.getenv("SESSION_ENCRYPT_KEY"))
-
-        cookie<ConfigSession>("GlyphConfigSession") {
-            // TODO: Consider how this is stored securely
-            transform(SessionTransportTransformerEncrypt(secretEncryptKey, secretAuthKey))
-        }
+        // TODO: Replace with a more robust storage method, do not currently trust SessionStorageRedis
+        cookie<ConfigSession>("GlyphConfigSession", SessionStorageMemory())
     }
 
     routing {
         route("/") {
             get {
                 val session = call.sessions.get<ConfigSession>()
-                val token = session?.token
+                val token = session?.accessToken
 
                 if (token != null) {
                     val user = User.getUser(token)
@@ -114,13 +106,21 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        get("/test") {
+            call.respond(GlyphConfig.pubSub.listen("TestMessage"))
+        }
+
         authenticate("discord-oauth") {
             route("/login") {
                 handle {
                     val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
                         ?: error("No principal")
 
-                    call.sessions.set(ConfigSession(principal.accessToken))
+                    val session = ConfigSession(
+                        principal.accessToken,
+                        Instant.now().plusSeconds(principal.expiresIn).toEpochMilli()
+                    )
+                    call.sessions.set(session)
 
                     call.respondRedirect("/")
                 }

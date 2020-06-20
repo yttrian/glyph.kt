@@ -22,38 +22,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config.pubsub.redis
+package me.ianmooreis.glyph.shared.pubsub.redis
 
-import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import kotlinx.coroutines.channels.Channel
 
 /**
  * Provides an interface for listening for the next message on a channel
  */
-internal class SingleMessageListener<K, V>(
+internal class SingleMessageListener(
     /**
      * Redis PubSub connection for adding/removing the listener
      */
-    private val redis: StatefulRedisPubSubConnection<K, V>
+    private val redis: StatefulRedisPubSubConnection<String, String>
 ) {
     /**
      * Get CompletableFuture for response channel
      */
-    fun listen(responseChannel: K): Channel<V> {
-        val rendezvous = Channel<V>()
-        val listener = object : RedisPubSubListener<K, V> {
-            override fun message(pattern: K?, channel: K?, message: V?) = Unit
-            override fun psubscribed(pattern: K?, count: Long) = Unit
-            override fun punsubscribed(pattern: K?, count: Long) = Unit
-            override fun unsubscribed(channel: K?, count: Long) = Unit
-            override fun subscribed(channel: K?, count: Long) = Unit
-
-            override fun message(channel: K, message: V) {
+    fun listen(responseChannel: String): Channel<String> {
+        val rendezvous = Channel<String>()
+        val listener = object : SimplifiedListener() {
+            override fun message(channel: String, message: String) {
                 if (channel == responseChannel) {
                     redis.async().unsubscribe(channel)
                     redis.removeListener(this)
                     rendezvous.offer(message)
+                    rendezvous.close()
                 }
             }
         }
@@ -63,9 +57,4 @@ internal class SingleMessageListener<K, V>(
 
         return rendezvous
     }
-
-    /**
-     * Wait for the message
-     */
-    suspend fun await(responseChannel: K): V = listen(responseChannel).receive()
 }

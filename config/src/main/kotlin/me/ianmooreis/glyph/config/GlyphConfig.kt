@@ -24,8 +24,8 @@
 
 package me.ianmooreis.glyph.config
 
-import me.ianmooreis.glyph.config.pubsub.PubSub
-import me.ianmooreis.glyph.config.pubsub.redis.RedisPubSub
+import me.ianmooreis.glyph.shared.pubsub.PubSub
+import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 
 /**
  * Standard location for configuration and features
@@ -34,7 +34,7 @@ object GlyphConfig {
     /**
      * PubSub for message passing between the website and bot
      */
-    val pubSub: PubSub<String, String> = RedisPubSub {
+    val pubSub: PubSub = RedisPubSub {
         redisConnectionUri = System.getenv("REDIS_URL")
     }
 }

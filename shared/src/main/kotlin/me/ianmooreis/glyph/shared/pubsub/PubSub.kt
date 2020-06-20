@@ -1,7 +1,5 @@
-import tanvd.kosogor.proxy.shadowJar
-
 /*
- * build.gradle.kts
+ * PubSub.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,29 +22,29 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "me.ianmooreis.glyph.config"
-version = "1.0"
+package me.ianmooreis.glyph.shared.pubsub
 
-val logback_version: String by project.extra
-val ktor_version: String by project.extra
+/**
+ * Generic interface for PubSub connectors
+ */
+interface PubSub {
+    /**
+     * Publish a message
+     */
+    fun publish(channel: PubSubChannel, message: String)
 
-shadowJar {
-    jar {
-        archiveName = "glyph-config.jar"
-        mainClass = "io.ktor.server.netty.EngineMain"
-    }
-}
+    /**
+     * Add an action-less listener
+     */
+    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
 
-tasks.named("stage") {
-    dependsOn("shadowJar")
-}
+    /**
+     * Publish a message and listen for the response
+     */
+    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String
 
-dependencies {
-    implementation(project(":shared"))
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-locations:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
+    /**
+     * Add a responder for an ask
+     */
+    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String)
 }

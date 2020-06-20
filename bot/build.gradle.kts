@@ -24,6 +24,9 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+group = "me.ianmooreis.glyph.bot"
+version = "1.0"
+
 val kotlin_version: String by project.extra
 val logback_version: String by project.extra
 val jda_version: String by project.extra
@@ -42,6 +45,7 @@ tasks.named("stage") {
 }
 
 dependencies {
+    implementation(project(":shared"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("net.dv8tion:JDA:$jda_version")

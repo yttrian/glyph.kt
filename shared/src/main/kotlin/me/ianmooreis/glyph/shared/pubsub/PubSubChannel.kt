@@ -1,5 +1,5 @@
 /*
- * PubSub.kt
+ * PubSubChannels.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,24 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config.pubsub
+package me.ianmooreis.glyph.shared.pubsub
 
 /**
- * Generic interface for PubSub connectors
+ * Channel names and prefixes for PubSub
  */
-interface PubSub<K, V> {
+enum class PubSubChannel(
     /**
-     * Publish a message
+     * The value associated with the enum item
      */
-    fun publish(channel: K, message: V)
+    val value: String
+) {
+    /**
+     * Send a server ID to this channel to refresh the cached config for it
+     */
+    CONFIG_REFRESH("Glyph:Config:Refresh"),
 
     /**
-     * Listen for a message
+     * Used for ask and responder
      */
-    suspend fun listen(channel: K): V
-
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(message: V, outChannel: K, inChannel: K): V
+    CONFIG_PREFIX("Glyph:Config")
 }

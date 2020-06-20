@@ -24,9 +24,6 @@
 
 package me.ianmooreis.glyph.bot.database.config
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
-import io.lettuce.core.pubsub.RedisPubSubListener
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.database.config.server.AuditingConfig
@@ -39,6 +36,8 @@ import me.ianmooreis.glyph.bot.database.config.server.ServerWikiSourcesTable
 import me.ianmooreis.glyph.bot.database.config.server.StarboardConfig
 import me.ianmooreis.glyph.bot.database.config.server.WikiConfig
 import me.ianmooreis.glyph.bot.extensions.deleteConfig
+import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
+import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -70,13 +69,8 @@ object ConfigDirector : Director() {
     private val swst = ServerWikiSourcesTable
     private val ssrt = ServerSelectableRolesTable
 
-    private val redis = RedisClient.create().run {
-        // TODO: Do not duplicate functionality of database director
-        val redisUri = RedisURI.create(System.getenv("REDIS_URL")).apply {
-            // See DatabaseDirector for why this is set to null
-            username = null
-        }
-        connectPubSub(redisUri)
+    private val redis = RedisPubSub {
+        redisConnectionUri = System.getenv("REDIS_URL")
     }
 
     /**
@@ -86,34 +80,18 @@ object ConfigDirector : Director() {
         jda = event.jda
     }
 
-    private const val REFRESH_CHANNEL: String = "GlyphConfig:Refresh"
-    private const val QUERY_CHANNEL: String = "GlyphConfig:Query"
-    private const val RESPONSE_CHANNEL_PREFIX: String = "GlyphConfig:Response"
-
     init {
         createTables()
 
-        redis.addListener(object : RedisPubSubListener<String, String> {
-            override fun psubscribed(pattern: String, count: Long) = Unit
-            override fun punsubscribed(pattern: String, count: Long) = Unit
-            override fun unsubscribed(channel: String, count: Long) = Unit
-            override fun subscribed(channel: String, count: Long) = Unit
-            override fun message(pattern: String, channel: String, message: String) = Unit
-            override fun message(channel: String, message: String) {
-                when (channel) {
-                    REFRESH_CHANNEL -> {
-                        jda.getGuildById(message)?.let { reloadServerConfig(it) }
-                    }
-                    QUERY_CHANNEL -> {
-                        val guild = jda.getGuildById(message)
-                        val guildConfig = guild?.let { getServerConfig(it) }
-                        redis.async().publish("$RESPONSE_CHANNEL_PREFIX:$message", guildConfig?.toJSON(guild))
-                    }
-                }
-            }
-        })
+        redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
+            val guild = jda.getGuildById(guildId)
+            val guildConfig = guild?.let { getServerConfig(it) }
+            guildConfig?.toJSON(guild) ?: ""
+        }
 
-        redis.async().subscribe(REFRESH_CHANNEL, QUERY_CHANNEL)
+        redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
+            jda.getGuildById(guildId)?.let { reloadServerConfig(it) }
+        }
     }
 
     /**

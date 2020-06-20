@@ -57,6 +57,7 @@ import io.ktor.sessions.set
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
+import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
 import org.slf4j.event.Level
 import java.time.Instant
 
@@ -107,14 +108,8 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/test/{guildId}") {
-            val guildId = call.parameters["guildId"] ?: "Error"
-            call.respond(
-                GlyphConfig.pubSub.ask(
-                    guildId,
-                    "GlyphConfig:Query",
-                    "GlyphConfig:Response:$guildId"
-                )
-            )
+            val guildId = call.parameters["guildId"] ?: error("No guild id given")
+            call.respond(GlyphConfig.pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX))
         }
 
         authenticate("discord-oauth") {

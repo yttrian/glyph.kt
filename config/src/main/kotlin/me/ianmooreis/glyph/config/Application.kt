@@ -109,7 +109,7 @@ fun Application.module(testing: Boolean = false) {
 
         get("/test/{guildId}") {
             val guildId = call.parameters["guildId"] ?: error("No guild id given")
-            call.respond(GlyphConfig.pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX))
+            call.respond(GlyphConfig.pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX) ?: "Failed!")
         }
 
         authenticate("discord-oauth") {

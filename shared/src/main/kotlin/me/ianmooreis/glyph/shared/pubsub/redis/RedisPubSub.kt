@@ -26,8 +26,10 @@ package me.ianmooreis.glyph.shared.pubsub.redis
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import kotlinx.coroutines.channels.Channel
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * PubSub implementation using Redis PubSub (sounds redundant, huh)
@@ -47,7 +49,6 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
     private val redis = RedisClient.create(RedisURI.create(config.redisConnectionUri).apply { username = null })
     private val redisCommandsAsync = redis.connect().async()
     private val redisPubSubConnection = redis.connectPubSub()
-    private val singleMessageListener = SingleMessageListener(redisPubSubConnection)
 
     override fun publish(channel: PubSubChannel, message: String) {
         redisCommandsAsync.publish(channel.value, message)
@@ -63,17 +64,50 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         })
     }
 
-    override suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String {
-        val listener = singleMessageListener.listen(askChannelPrefix.asResponse(query))
-        redisCommandsAsync.publish(askChannelPrefix.asQuery, query)
-        return listener.receive()
+    override suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String? {
+        val rendezvous = Channel<String?>()
+        val failMax = AtomicLong()
+
+        val failingResponse = askChannelPrefix.asFailResponse(query)
+        val successfulResponse = askChannelPrefix.asSuccessResponse(query)
+
+        val listener = object : SimplifiedListener() {
+            override fun message(channel: String, message: String) {
+                when (channel) {
+                    successfulResponse -> complete(message)
+                    failingResponse -> if (failMax.decrementAndGet() <= 0) complete(null)
+                }
+            }
+
+            fun complete(message: String?) {
+                redisPubSubConnection.async().unsubscribe(successfulResponse, failingResponse)
+                redisPubSubConnection.removeListener(this)
+                rendezvous.offer(message)
+                rendezvous.close()
+            }
+        }
+
+        redisPubSubConnection.addListener(listener)
+        redisPubSubConnection.async().subscribe(successfulResponse, failingResponse)
+        redisCommandsAsync.publish(askChannelPrefix.asQuery, query).thenAccept {
+            if (it == 0.toLong()) listener.complete(null)
+            failMax.set(it)
+        }
+
+        return rendezvous.receive()
     }
 
-    override fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String) {
+    override fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?) {
         redisPubSubConnection.addListener(object : SimplifiedListener() {
             override fun message(channel: String, message: String) {
                 if (channel == askChannelPrefix.asQuery) {
-                    redisCommandsAsync.publish(askChannelPrefix.asResponse(message), responder(message))
+                    val result = responder(message)
+                    val responseChannel = if (result != null) {
+                        askChannelPrefix.asSuccessResponse(message)
+                    } else {
+                        askChannelPrefix.asFailResponse(message)
+                    }
+                    redisCommandsAsync.publish(responseChannel, result)
                 }
             }
         })
@@ -84,5 +118,7 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
     private val PubSubChannel.asQuery
         get() = this.value + ":Query"
 
-    private fun PubSubChannel.asResponse(query: String) = this.value + ":Response:" + query
+    private fun PubSubChannel.asFailResponse(query: String) = this.value + ":Response:" + query + ":Fail"
+
+    private fun PubSubChannel.asSuccessResponse(query: String) = this.value + ":Response:" + query + ":Success"
 }

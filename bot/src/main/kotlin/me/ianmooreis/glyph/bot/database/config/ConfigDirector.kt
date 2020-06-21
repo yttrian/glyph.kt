@@ -85,8 +85,7 @@ object ConfigDirector : Director() {
 
         redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
             val guild = jda.getGuildById(guildId)
-            val guildConfig = guild?.let { getServerConfig(it) }
-            guildConfig?.toJSON(guild) ?: ""
+            guild?.let { getServerConfig(it) }?.toJSON(guild)
         }
 
         redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->

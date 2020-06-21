@@ -41,10 +41,10 @@ interface PubSub {
     /**
      * Publish a message and listen for the response
      */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String
+    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String?
 
     /**
      * Add a responder for an ask
      */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String)
+    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
 }

@@ -88,7 +88,7 @@ nav ul.nav-links li:not(:first-child) {
     margin: 0 3rem 0 3rem;
 }
 
-ul.guilds li {
+ul.guilds li a {
     color: wheat !important;
 }
 
@@ -209,6 +209,14 @@ input, select {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
+}
+
+.warning-text a {
+    background-color: wheat;
+    padding: .2em .4rem;
+    border-radius: .2rem;
+    color: #1c1c1c;
+    text-decoration: none;
 }
 
 code {

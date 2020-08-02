@@ -39,6 +39,8 @@ Editor.prototype.init = function () {
     this.keyInput = document.getElementById("key");
     this.populator = new Populator("option");
     this.hinter = new Hinter("hint", "hinter");
+    this.invalidStateReason = document.getElementById("warning-reason");
+    this.valid = true;
 
     var myself = this;
 
@@ -48,7 +50,7 @@ Editor.prototype.init = function () {
     document.getElementById("save").onclick = function () {
         var config = myself.depopulate();
 
-        myself.save(config, myself.setKey.bind(myself))
+        myself.save(config, myself.setKey.bind(myself));
     };
 
     document.getElementById("load").onclick = function () {
@@ -57,11 +59,21 @@ Editor.prototype.init = function () {
 };
 
 /**
+ * Warn the user that the config cannot be edited.
+ * @param reason html reason to display
+ */
+Editor.prototype.invalidate = function (reason) {
+    this.valid = false;
+    document.body.classList.add("invalid");
+    this.invalidStateReason.innerHTML = reason;
+};
+
+/**
  * Grabs the config key from the save bar input
  * @return {string} the config key
  */
 Editor.prototype.getKey = function () {
-    return this.keyInput.value
+    return this.keyInput.value;
 };
 
 /**
@@ -106,7 +118,7 @@ Editor.prototype.depopulate = function () {
  */
 
 /**
- * Loads a config from a MicroConfig string
+ * Loads a config from a JSON string
  * @param {loadCallback} callback - function to call when request completes
  */
 Editor.prototype.load = function (callback) {
@@ -114,12 +126,15 @@ Editor.prototype.load = function (callback) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", myself.getKey() + "/data/");
     xhr.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            var responseJSON = JSON.parse(this.response);
-
-            callback.call(myself, responseJSON);
-        } else if (this.readyState === 4 && this.status === 401) {
-            document.location = "/";
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                var responseJSON = JSON.parse(this.response);
+                callback.call(myself, responseJSON);
+            } else if (this.status === 401) {
+                myself.invalidate("You are unauthorized to manage this server. Are you <a href='/'>logged</a> in?");
+            } else if (this.status === 500) {
+                myself.invalidate(this.response);
+            }
         }
     };
     xhr.send();
@@ -132,11 +147,20 @@ Editor.prototype.load = function (callback) {
  */
 
 /**
- * Saves a config to a MicroConfig string
+ * Saves a config to a JSON string
  * @param {Object} config - the json config
  * @param {saveCallback} callback - function to call when request completes
  */
 Editor.prototype.save = function (config, callback) {
+    if (!this.valid) {
+        // An invalid state can be caused by not being logged in, or trying to edit a server Glyph is not in
+        // Either way, if the user was the still forcibly submit the form, they would be checked for permission first.
+        // In the case of not being logged in, nothing would happen. In the case of saving to a non-Glyph server,
+        // assuming they even have Manage Guild permissions, they would likely just end up messing up their config for
+        // when they add Glyph and be upset at themselves.
+        console.log("Refusing to save when in invalid state!");
+        return;
+    }
     var myself = this;
     var xhr = new XMLHttpRequest();
     xhr.open("POST", myself.getKey() + "/data/");
@@ -144,6 +168,8 @@ Editor.prototype.save = function (config, callback) {
     xhr.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 201) {
             callback.call(myself, myself.getKey());
+        } else if (this.readyState === 4 && this.status === 401) {
+            myself.invalidate("You are unauthorized to manage this server. Are you <a href='/'>logged</a> in?");
         }
     };
     xhr.send(JSON.stringify(config));

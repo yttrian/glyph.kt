@@ -1,10 +1,10 @@
 /*
- * PubSub.kt
+ * emoji.js
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,31 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
-
-import arrow.core.Either
-
 /**
- * Generic interface for PubSub connectors
+ * Emoji and their shortnames for the emoji picker
+ *
+ * Instead of dealing with tons of possible emoji and variants,
+ * we'll just limit it to a select few for no good reason other
+ * than the fact that it makes it easier to make sure they all work
+ * properly. We also don't have to worry about twemoji having a heart
+ * attack when told emoji like :cheese: which it doesn't seem to think
+ * exists for some reason. It also seems to not be happy with skin tones
+ * they way I did it before, so I'll just keep things simple.
+ *
+ * @type {Object.<string, string>}
  */
-interface PubSub {
-    /**
-     * Publish a message
-     */
-    fun publish(channel: PubSubChannel, message: String)
-
-    /**
-     * Add an action-less listener
-     */
-    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
-
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String>
-
-    /**
-     * Add a responder for an ask
-     */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
-}
+var emoji = {
+    "star": "⭐",
+    "heart": "❤"
+};

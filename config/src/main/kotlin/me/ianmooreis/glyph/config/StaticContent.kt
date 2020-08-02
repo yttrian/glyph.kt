@@ -1,5 +1,5 @@
 /*
- * PubSub.kt
+ * StaticContent.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,31 +22,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
+package me.ianmooreis.glyph.config
 
-import arrow.core.Either
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
+import io.ktor.routing.Route
 
 /**
- * Generic interface for PubSub connectors
+ * Static content for the website. This makes up the majority of user facing pages.
+ * Server is only really needed to load/save the config data.
  */
-interface PubSub {
-    /**
-     * Publish a message
-     */
-    fun publish(channel: PubSubChannel, message: String)
+fun Route.staticContent() {
+    static {
+        static("css") {
+            resources("content/css")
+        }
 
-    /**
-     * Add an action-less listener
-     */
-    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
+        static("img") {
+            resources("content/img")
+        }
 
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String>
-
-    /**
-     * Add a responder for an ask
-     */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
+        static("js") {
+            resources("content/js")
+        }
+    }
 }

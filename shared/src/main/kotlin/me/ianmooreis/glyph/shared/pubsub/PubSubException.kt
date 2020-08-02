@@ -1,5 +1,5 @@
 /*
- * PubSub.kt
+ * PubSubException.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -24,29 +24,17 @@
 
 package me.ianmooreis.glyph.shared.pubsub
 
-import arrow.core.Either
-
 /**
- * Generic interface for PubSub connectors
+ * An issue with PubSub
  */
-interface PubSub {
+sealed class PubSubException : Exception() {
     /**
-     * Publish a message
+     * All subscribed listeners ignored the ask
      */
-    fun publish(channel: PubSubChannel, message: String)
+    object Ignored : PubSubException()
 
     /**
-     * Add an action-less listener
+     * There are no listeners
      */
-    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
-
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String>
-
-    /**
-     * Add a responder for an ask
-     */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
+    object Deaf : PubSubException()
 }

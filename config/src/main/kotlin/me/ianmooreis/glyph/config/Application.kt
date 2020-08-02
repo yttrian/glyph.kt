@@ -24,55 +24,62 @@
 
 package me.ianmooreis.glyph.config
 
+import arrow.core.Either
+import arrow.core.Option
+import arrow.core.toOption
+import com.github.mustachejava.DefaultMustacheFactory
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
-import io.ktor.auth.OAuthAccessTokenResponse
-import io.ktor.auth.authenticate
-import io.ktor.auth.authentication
 import io.ktor.auth.oauth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.features.AutoHeadResponse
 import io.ktor.features.CallLogging
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.origin
-import io.ktor.locations.Locations
+import io.ktor.mustache.Mustache
+import io.ktor.mustache.MustacheContent
 import io.ktor.request.host
 import io.ktor.request.path
 import io.ktor.request.port
 import io.ktor.response.respond
-import io.ktor.response.respondRedirect
 import io.ktor.routing.get
-import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
+import io.ktor.sessions.CurrentSession
 import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import io.ktor.sessions.set
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
-import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
+import me.ianmooreis.glyph.shared.pubsub.PubSub
+import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import org.slf4j.event.Level
-import java.time.Instant
 
 /**
  * The entry point of the Ktor webs server
  */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
+/**
+ * The main main module to run
+ */
 fun Application.module(testing: Boolean = false) {
+    install(AutoHeadResponse)
+
     install(DefaultHeaders)
-    install(Locations)
+
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }
     }
+
     install(Authentication) {
         oauth("discord-oauth") {
             val discordAuth = DiscordOAuth2.getProvider(
@@ -86,48 +93,39 @@ fun Application.module(testing: Boolean = false) {
             urlProvider = { redirectUrl("/login") }
         }
     }
+
+    install(Mustache) {
+        mustacheFactory = DefaultMustacheFactory("content")
+    }
+
     install(Sessions) {
         // TODO: Replace with a more robust storage method, do not currently trust SessionStorageRedis
         cookie<ConfigSession>("GlyphConfigSession", SessionStorageMemory())
     }
 
     routing {
-        route("/") {
-            get {
-                val session = call.sessions.get<ConfigSession>()
-                val token = session?.accessToken
+        get("/") {
+            val token = call.sessions.getOption<ConfigSession>().map { it.accessToken }
 
-                if (token != null) {
-                    val user = User.getUser(token)
-                    val guilds = user.guilds.joinToString { it.name + if (it.hasManageGuild) "*" else "" }
-                    call.respond("Hello ${user.username}, you're in $guilds")
-                } else {
-                    call.respond("Hello world!")
-                }
+            val templateData = when (val user = User.getUser(token)) {
+                is Either.Left -> emptyMap()
+                is Either.Right -> mapOf("guilds" to user.b.guilds.mapNotNull {
+                    if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
+                })
             }
+
+            call.respond(MustacheContent("index.hbs", templateData))
         }
 
-        get("/test/{guildId}") {
-            val guildId = call.parameters["guildId"] ?: error("No guild id given")
-            call.respond(GlyphConfig.pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX) ?: "Failed!")
+        val pubSub: PubSub = RedisPubSub {
+            redisConnectionUri = System.getenv("REDIS_URL")
         }
 
-        authenticate("discord-oauth") {
-            route("/login") {
-                handle {
-                    val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
-                        ?: error("No principal")
+        staticContent()
 
-                    val session = ConfigSession(
-                        principal.accessToken,
-                        Instant.now().plusSeconds(principal.expiresIn).toEpochMilli()
-                    )
-                    call.sessions.set(session)
+        editing(pubSub)
 
-                    call.respondRedirect("/")
-                }
-            }
-        }
+        discordLogin()
     }
 }
 
@@ -137,3 +135,8 @@ private fun ApplicationCall.redirectUrl(path: String): String {
     val protocol = request.origin.scheme
     return "$protocol://$hostPort$path"
 }
+
+/**
+ * Retrieve a session object wrapped as an option
+ */
+inline fun <reified T> CurrentSession.getOption(): Option<T> = this.get<T>().toOption()

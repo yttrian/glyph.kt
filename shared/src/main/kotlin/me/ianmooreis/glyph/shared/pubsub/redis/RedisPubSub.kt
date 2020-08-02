@@ -24,11 +24,15 @@
 
 package me.ianmooreis.glyph.shared.pubsub.redis
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import kotlinx.coroutines.channels.Channel
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
+import me.ianmooreis.glyph.shared.pubsub.PubSubException
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -64,8 +68,8 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         })
     }
 
-    override suspend fun ask(query: String, askChannelPrefix: PubSubChannel): String? {
-        val rendezvous = Channel<String?>()
+    override suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String> {
+        val rendezvous = Channel<Either<PubSubException, String>>()
         val failMax = AtomicLong()
 
         val failingResponse = askChannelPrefix.asFailResponse(query)
@@ -74,12 +78,14 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         val listener = object : SimplifiedListener() {
             override fun message(channel: String, message: String) {
                 when (channel) {
-                    successfulResponse -> complete(message)
-                    failingResponse -> if (failMax.decrementAndGet() <= 0) complete(null)
+                    successfulResponse -> complete(message.right())
+                    failingResponse -> if (failMax.decrementAndGet() <= 0) {
+                        complete(PubSubException.Ignored.left())
+                    }
                 }
             }
 
-            fun complete(message: String?) {
+            fun complete(message: Either<PubSubException, String>) {
                 redisPubSubConnection.async().unsubscribe(successfulResponse, failingResponse)
                 redisPubSubConnection.removeListener(this)
                 rendezvous.offer(message)
@@ -90,7 +96,9 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         redisPubSubConnection.addListener(listener)
         redisPubSubConnection.async().subscribe(successfulResponse, failingResponse)
         redisCommandsAsync.publish(askChannelPrefix.asQuery, query).thenAccept {
-            if (it == 0.toLong()) listener.complete(null)
+            if (it == 0.toLong()) {
+                listener.complete(PubSubException.Deaf.left())
+            }
             failMax.set(it)
         }
 

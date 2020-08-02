@@ -24,8 +24,16 @@
 
 package me.ianmooreis.glyph.config.discord
 
+import arrow.core.Either
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
+import arrow.core.left
+import arrow.core.right
 import io.ktor.client.HttpClient
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 
@@ -56,16 +64,17 @@ data class User(
         /**
          * Get a user, based on
          */
-        suspend fun getUser(token: String): User {
-            val user: User = client.get(USER_API_BASE) {
-                header("Authorization", "Bearer $token")
-            }
-            val guilds: List<UserGuild> = client.get("$USER_API_BASE/guilds") {
-                header("Authorization", "Bearer $token")
-            }
+        suspend fun getUser(token: Option<String>): Either<DiscordException, User> = when (token) {
+            is Some -> try {
+                fun HttpRequestBuilder.addAuth() = header("Authorization", "Bearer ${token.t}")
+                val user: User = client.get(USER_API_BASE) { addAuth() }
+                val guilds: List<UserGuild> = client.get("$USER_API_BASE/guilds") { addAuth() }
 
-            // TODO: Something that feels less "hacky"
-            return User(user.id, user.username, guilds)
+                User(user.id, user.username, guilds).right()
+            } catch (e: ClientRequestException) {
+                DiscordException.Unauthorized.left()
+            }
+            is None -> DiscordException.InvalidToken.left()
         }
     }
 }

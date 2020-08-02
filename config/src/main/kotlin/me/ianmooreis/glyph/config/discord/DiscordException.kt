@@ -1,5 +1,5 @@
 /*
- * GlyphConfig.kt
+ * DiscordException.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,19 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
-
-import me.ianmooreis.glyph.shared.pubsub.PubSub
-import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
+package me.ianmooreis.glyph.config.discord
 
 /**
- * Standard location for configuration and features
+ * Discord API related exceptions
  */
-object GlyphConfig {
+sealed class DiscordException : Exception() {
     /**
-     * PubSub for message passing between the website and bot
+     * The request lacked proper authorization
      */
-    val pubSub: PubSub = RedisPubSub {
-        redisConnectionUri = System.getenv("REDIS_URL")
-    }
+    object Unauthorized : DiscordException()
+
+    /**
+     * The token used is invalid
+     */
+    object InvalidToken : DiscordException()
+
+    /**
+     * The token used is expired
+     */
+    object ExpiredToken : DiscordException()
 }

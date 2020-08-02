@@ -1,10 +1,10 @@
 /*
- * PubSub.kt
+ * hinter.js
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2019 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,31 +22,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
-
-import arrow.core.Either
-
 /**
- * Generic interface for PubSub connectors
+ * Displays hints in the save bar to help explain things
+ * @param dataTag the data tag to select
+ * @param displayID the element id for where to show the hint
+ * @constructor
  */
-interface PubSub {
-    /**
-     * Publish a message
-     */
-    fun publish(channel: PubSubChannel, message: String)
+function Hinter(dataTag, displayID) {
+    this.hinted = document.querySelectorAll("[data-" + dataTag + "]");
+    this.hintDisplay = document.getElementById(displayID);
 
-    /**
-     * Add an action-less listener
-     */
-    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
+    var myself = this;
 
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String>
+    this.hinted.forEach(function (el) {
+        el.onmouseover = function () {
+            myself.hintDisplay.innerText = this.getAttribute("data-" + dataTag);
+        };
 
-    /**
-     * Add a responder for an ask
-     */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
+        el.onmouseleave = function () {
+            myself.hintDisplay.innerText = "";
+        }
+    });
 }
+

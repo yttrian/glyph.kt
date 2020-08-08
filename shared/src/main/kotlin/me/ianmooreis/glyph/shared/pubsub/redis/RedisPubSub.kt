@@ -29,6 +29,7 @@ import arrow.core.left
 import arrow.core.right
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import kotlinx.coroutines.channels.Channel
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
@@ -58,15 +59,8 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         redisCommandsAsync.publish(channel.value, message)
     }
 
-    override fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit) {
-        redisPubSubConnection.addListener(object : SimplifiedListener() {
-            override fun message(channel: String, message: String) {
-                if (channel == listenChannel.value) {
-                    action(message)
-                }
-            }
-        })
-    }
+    override fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit): Unit =
+        redisPubSubConnection.addListener(listenChannel.value, action)
 
     override suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String> {
         val rendezvous = Channel<Either<PubSubException, String>>()
@@ -106,22 +100,29 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
     }
 
     override fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?) {
-        redisPubSubConnection.addListener(object : SimplifiedListener() {
-            override fun message(channel: String, message: String) {
-                if (channel == askChannelPrefix.asQuery) {
-                    val result = responder(message)
-                    val responseChannel = if (result != null) {
-                        askChannelPrefix.asSuccessResponse(message)
-                    } else {
-                        askChannelPrefix.asFailResponse(message)
-                    }
-                    redisCommandsAsync.publish(responseChannel, result)
-                }
+        redisPubSubConnection.addListener(askChannelPrefix.asQuery) { message ->
+            val result = responder(message)
+            val responseChannel = if (result != null) {
+                askChannelPrefix.asSuccessResponse(message)
+            } else {
+                askChannelPrefix.asFailResponse(message)
             }
-        })
+            redisCommandsAsync.publish(responseChannel, result)
+        }
 
         redisPubSubConnection.async().subscribe(askChannelPrefix.asQuery)
     }
+
+    private fun StatefulRedisPubSubConnection<String, String>.addListener(
+        listenChannel: String,
+        listener: (message: String) -> Unit
+    ) = this.addListener(object : SimplifiedListener() {
+        override fun message(channel: String, message: String) {
+            if (channel == listenChannel) {
+                listener(message)
+            }
+        }
+    })
 
     private val PubSubChannel.asQuery
         get() = this.value + ":Query"

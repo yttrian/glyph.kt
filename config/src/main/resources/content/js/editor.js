@@ -166,10 +166,15 @@ Editor.prototype.save = function (config, callback) {
     xhr.open("POST", myself.getKey() + "/data/");
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 201) {
-            callback.call(myself, myself.getKey());
-        } else if (this.readyState === 4 && this.status === 401) {
-            myself.invalidate("You are unauthorized to manage this server. Are you <a href='/'>logged</a> in?");
+        if (this.readyState === 4) {
+            if (this.status === 201) {
+                myself.hinter.hint("Saved!");
+                callback.call(myself, myself.getKey());
+            } else if (this.status === 400) {
+                myself.invalidate("The config is malformed and cannot be recovered. Try reloading?");
+            } else if (this.status === 401) {
+                myself.invalidate("You are unauthorized to manage this server. Are you <a href='/'>logged</a> in?");
+            }
         }
     };
     xhr.send(JSON.stringify(config));

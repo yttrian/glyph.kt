@@ -24,11 +24,13 @@
 
 package me.ianmooreis.glyph.shared.config.server
 
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.shared.config.Config
 
 /**
  * A configuration for QuickViews
  */
+@Serializable
 data class QuickviewConfig(
     /**
      * Whether or not FurAffinity QuickViews are enabled

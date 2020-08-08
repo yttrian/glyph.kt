@@ -58,6 +58,7 @@ import io.ktor.sessions.sessions
 import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
+import me.ianmooreis.glyph.shared.config.ConfigManager
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import org.slf4j.event.Level
@@ -121,9 +122,13 @@ fun Application.module(testing: Boolean = false) {
             redisConnectionUri = System.getenv("REDIS_URL")
         }
 
+        val configManager = ConfigManager {
+            databaseConnectionUri = System.getenv("DATABASE_URL")
+        }
+
         staticContent()
 
-        editing(pubSub)
+        editing(pubSub, configManager)
 
         discordLogin()
     }

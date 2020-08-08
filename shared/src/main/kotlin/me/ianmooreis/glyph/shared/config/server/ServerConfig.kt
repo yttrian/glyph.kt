@@ -24,11 +24,13 @@
 
 package me.ianmooreis.glyph.shared.config.server
 
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.shared.config.Config
 
 /**
  * The holder of all the sub-configurations
  */
+@Serializable
 data class ServerConfig(
     /**
      * The wiki config

@@ -44,6 +44,10 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
  */
 class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
     private val configManager = ConfigManager(configure)
+
+    /**
+     * The default server config
+     */
     val defaultConfig = configManager.getDefaultServerConfig()
 
     /**
@@ -69,8 +73,9 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
         }
 
         redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
-            jda.getGuildById(guildId)?.let {
-                configManager.reloadServerConfig(it.idLong)
+            guildId.toLongOrNull()?.let {
+                log.info("Reloaded config for guild $guildId")
+                configManager.reloadServerConfig(it)
             }
         }
     }

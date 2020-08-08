@@ -36,12 +36,19 @@ function Hinter(dataTag, displayID) {
 
     this.hinted.forEach(function (el) {
         el.onmouseover = function () {
-            myself.hintDisplay.innerText = this.getAttribute("data-" + dataTag);
+            myself.hint(this.getAttribute("data-" + dataTag));
         };
 
         el.onmouseleave = function () {
-            myself.hintDisplay.innerText = "";
+            myself.hint("");
         }
     });
 }
 
+/**
+ * Display a hint
+ * @param message the message to display
+ */
+Hinter.prototype.hint = function (message) {
+    this.hintDisplay.innerText = message;
+};

@@ -24,11 +24,13 @@
 
 package me.ianmooreis.glyph.shared.config.server
 
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.shared.config.Config
 
 /**
  * A configuration for selectable roles
  */
+@Serializable
 data class SelectableRolesConfig(
     /**
      * The list of selectable roles

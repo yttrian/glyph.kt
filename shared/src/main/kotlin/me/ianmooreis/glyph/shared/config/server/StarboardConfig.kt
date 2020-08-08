@@ -24,11 +24,13 @@
 
 package me.ianmooreis.glyph.shared.config.server
 
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.shared.config.Config
 
 /**
  * A configuration for starboarding
  */
+@Serializable
 data class StarboardConfig(
     /**
      * Whether or not the starboard is enabled

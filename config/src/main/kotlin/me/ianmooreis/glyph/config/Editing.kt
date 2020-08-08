@@ -27,16 +27,24 @@ package me.ianmooreis.glyph.config
 import arrow.core.Either
 import arrow.core.Option
 import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.mustache.MustacheContent
+import io.ktor.request.ContentTransformationException
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.serialization.json
 import io.ktor.sessions.sessions
+import kotlinx.serialization.json.JsonConfiguration
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
+import me.ianmooreis.glyph.shared.config.ConfigManager
+import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
 import me.ianmooreis.glyph.shared.pubsub.PubSubException
@@ -44,7 +52,11 @@ import me.ianmooreis.glyph.shared.pubsub.PubSubException
 /**
  * Endpoints for editing the config
  */
-fun Route.editing(pubSub: PubSub) {
+fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
+    install(ContentNegotiation) {
+        json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true))
+    }
+
     route("/{guildId}") {
         get {
             val guildId = call.parameters["guildId"] ?: error("No guild id given")
@@ -73,14 +85,20 @@ fun Route.editing(pubSub: PubSub) {
 
             post {
                 val guildId = call.parameters["guildId"] ?: error("No guild id given")
-//            val config = call.receiveText()
                 val session = call.sessions.getOption<ConfigSession>()
 
                 if (session.canManageGuild(guildId)) {
+                    val config = try {
+                        call.receive<ServerConfig>()
+                    } catch (e: ContentTransformationException) {
+                        call.respond(HttpStatusCode.BadRequest, "That is not a valid server config JSON!")
+                        error("Malformed server config JSON")
+                    }
+                    configManager.setServerConfig(guildId.toLong(), config)
                     pubSub.publish(PubSubChannel.CONFIG_REFRESH, guildId)
                     call.respond(HttpStatusCode.Accepted)
                 } else {
-                    call.respond(HttpStatusCode.Forbidden, "You do not have permission to do that!")
+                    call.respond(HttpStatusCode.Unauthorized, "You do not have permission to do that!")
                 }
             }
         }

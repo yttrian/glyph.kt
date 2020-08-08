@@ -24,14 +24,15 @@
 
 package me.ianmooreis.glyph.bot
 
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
 import me.ianmooreis.glyph.bot.ai.AIAgent
 import me.ianmooreis.glyph.bot.ai.dialogflow.Dialogflow
-import me.ianmooreis.glyph.bot.database.DatabaseDirector
-import me.ianmooreis.glyph.bot.database.RedisAsync
-import me.ianmooreis.glyph.bot.database.config.ConfigDirector
 import me.ianmooreis.glyph.bot.directors.AuditingDirector
 import me.ianmooreis.glyph.bot.directors.StarboardDirector
 import me.ianmooreis.glyph.bot.directors.StatusDirector
+import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
+import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.directors.servers.BotList
 import me.ianmooreis.glyph.bot.directors.servers.ServerDirector
 import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
@@ -44,11 +45,11 @@ import me.ianmooreis.glyph.bot.skills.FeedbackSkill
 import me.ianmooreis.glyph.bot.skills.HelpSkill
 import me.ianmooreis.glyph.bot.skills.RankSkill
 import me.ianmooreis.glyph.bot.skills.RedditSkill
+import me.ianmooreis.glyph.bot.skills.ServerConfigSkill
 import me.ianmooreis.glyph.bot.skills.SnowstampSkill
 import me.ianmooreis.glyph.bot.skills.SourceSkill
 import me.ianmooreis.glyph.bot.skills.StatusSkill
 import me.ianmooreis.glyph.bot.skills.TimeSkill
-import me.ianmooreis.glyph.bot.skills.configuration.ServerConfigSkill
 import me.ianmooreis.glyph.bot.skills.creator.ChangeStatusSkill
 import me.ianmooreis.glyph.bot.skills.moderation.BanSkill
 import me.ianmooreis.glyph.bot.skills.moderation.GuildInfoSkill
@@ -73,42 +74,48 @@ object Glyph {
 
     private val aiAgent: AIAgent = Dialogflow(System.getenv("DIALOGFLOW_CREDENTIALS").byteInputStream())
 
-    private val databaseDirector = DatabaseDirector {
-        databaseConnectionUri = System.getenv("DATABASE_URL")
-        redisConnectionUri = System.getenv("REDIS_URL")
+    private val redis: RedisAsync = RedisClient.create().run {
+        val redisUri = RedisURI.create(System.getenv("REDIS_URL")).apply {
+            // We are using Heroku Redis which is version 5, but for some reason they give us a username.
+            // However if we supply the username it runs the version 6 command and fails to login.
+            username = null
+        }
+        connect(redisUri).async()
     }
 
-    private val redis: RedisAsync = databaseDirector.redis
+    private val configDirector = ConfigDirector {
+        databaseConnectionUri = System.getenv("DATABASE_URL")
+    }
+
+    private val skillDirector = SkillDirector().addSkill(
+        HelpSkill(),
+        StatusSkill(redis),
+        SourceSkill(),
+        RoleSetSkill(),
+        RoleUnsetSkill(),
+        RoleListSkill(),
+        ServerConfigSkill(),
+        PurgeSkill(),
+        UserInfoSkill(),
+        GuildInfoSkill(),
+        KickSkill(),
+        BanSkill(),
+        RankSkill(),
+        EphemeralSaySkill(),
+        RedditSkill(),
+        WikiSkill(),
+        TimeSkill(),
+        FeedbackSkill(),
+        DoomsdayClockSkill(),
+        SnowstampSkill(),
+        ChangeStatusSkill(),
+        FallbackSkill()
+    )
 
     /**
      * Build the bot and run
      */
     fun run() {
-        SkillDirector.addSkill(
-            HelpSkill(),
-            StatusSkill(redis),
-            SourceSkill(),
-            RoleSetSkill(),
-            RoleUnsetSkill(),
-            RoleListSkill(),
-            ServerConfigSkill(),
-            PurgeSkill(),
-            UserInfoSkill(),
-            GuildInfoSkill(),
-            KickSkill(),
-            BanSkill(),
-            RankSkill(),
-            EphemeralSaySkill(),
-            RedditSkill(),
-            WikiSkill(),
-            TimeSkill(),
-            FeedbackSkill(),
-            DoomsdayClockSkill(),
-            SnowstampSkill(),
-            ChangeStatusSkill(),
-            FallbackSkill()
-        )
-
         val builder = DefaultShardManagerBuilder.createLight(null).also {
             val token = System.getenv("DISCORD_TOKEN")
 
@@ -134,10 +141,17 @@ object Glyph {
                 botList(discordBotList, discordBots)
             }
 
-            val messagingDirector = MessagingDirector(aiAgent, redis)
+            val messagingDirector = MessagingDirector(aiAgent, redis, skillDirector)
 
-            it.addEventListeners(
-                messagingDirector, AuditingDirector, ConfigDirector,
+            fun addDirectors(vararg directors: Director) {
+                directors.forEach { director ->
+                    director.configDirector = configDirector
+                    it.addEventListeners(director)
+                }
+            }
+
+            addDirectors(
+                messagingDirector, AuditingDirector, skillDirector, configDirector,
                 serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector
             )
         }

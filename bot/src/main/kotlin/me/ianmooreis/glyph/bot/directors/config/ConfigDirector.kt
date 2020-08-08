@@ -1,5 +1,5 @@
 /*
- * ServerConfig.kt
+ * ConfigDirector.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,46 +22,66 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
+package me.ianmooreis.glyph.bot.directors.config
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.LongSerializationPolicy
+import kotlinx.coroutines.launch
+import me.ianmooreis.glyph.bot.Director
+import me.ianmooreis.glyph.shared.config.ConfigManager
+import me.ianmooreis.glyph.shared.config.server.ServerConfig
+import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
+import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 
 /**
- * The holder of all the sub-configurations
+ * Manages the configuration database
  */
-data class ServerConfig(
+class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
+    private val configManager = ConfigManager(configure)
+    val defaultConfig = configManager.getDefaultServerConfig()
+
     /**
-     * The wiki config
+     * JDA instance for grabbing Guild data
      */
-    val wiki: WikiConfig = WikiConfig(),
+    lateinit var jda: JDA
+
+    private val redis = RedisPubSub {
+        redisConnectionUri = System.getenv("REDIS_URL")
+    }
+
     /**
-     * The selectable roles config
+     * Sets the JDA instance
      */
-    val selectableRoles: SelectableRolesConfig = SelectableRolesConfig(),
-    /**
-     * The QuickView config
-     */
-    val quickview: QuickviewConfig = QuickviewConfig(),
-    /**
-     * The auditing config
-     */
-    val auditing: AuditingConfig = AuditingConfig(),
-    /**
-     * The starboard config
-     */
-    val starboard: StarboardConfig = StarboardConfig()
-) {
-    fun toJSON(guild: Guild): String {
+    override fun onReady(event: ReadyEvent) {
+        jda = event.jda
+    }
+
+    init {
+        redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
+            val guild = jda.getGuildById(guildId)
+            guild?.getServerConfigJson()
+        }
+
+        redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
+            jda.getGuildById(guildId)?.let {
+                configManager.reloadServerConfig(it.idLong)
+            }
+        }
+    }
+
+    private fun Guild.getServerConfigJson(): String {
+        val guild = this
         val serializer = GsonBuilder()
             .serializeNulls()
             .setLongSerializationPolicy(LongSerializationPolicy.STRING)
             .create()
-        val config = serializer.toJsonTree(this).asJsonObject
+        val config = serializer.toJsonTree(getServerConfig(guild)).asJsonObject
         val serverData = JsonObject()
 
         // Let's add some extra useful details about the server for suggestions
@@ -107,5 +127,22 @@ data class ServerConfig(
         return config.toString()
     }
 
-    fun fromJSON(json: String): ServerConfig = Gson().fromJson(json, ServerConfig::class.java)
+    /**
+     * Retrieves the server's config
+     */
+    fun getServerConfig(guild: Guild): ServerConfig = configManager.getServerConfig(guild.idLong)
+
+    /**
+     * Deletes a server's config
+     */
+    private fun deleteServerConfig(guild: Guild) {
+        launch { configManager.deleteServerConfig(guild.idLong) }
+    }
+
+    /**
+     * Delete a guild's config when the server if left
+     */
+    override fun onGuildLeave(event: GuildLeaveEvent) {
+        launch { deleteServerConfig(event.guild) }
+    }
 }

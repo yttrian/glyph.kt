@@ -1,5 +1,5 @@
 /*
- * ServerConfigSkill.kt
+ * Key.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,24 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.configuration
-
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.messaging.Response
-import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+package me.ianmooreis.glyph.bot.directors.config
 
 /**
- * The skill for getting a server configuration which will be posted to Hastebin in YAML format
+ * Key names for standardizing statistics storage (likely in Redis)
  */
-class ServerConfigSkill : Skill(
-    "skill.config.server",
-    cooldownTime = 15,
-    guildOnly = true,
-    requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
-    requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
+enum class Key(
+    /**
+     * The database key for the statistic
+     */
+    val value: String
 ) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
-        Response.Volatile("To edit your config, visit https://gl.yttr.org/config")
+    /**
+     * The total number of messages processed by the bot
+     */
+    MESSAGE_COUNT("Glyph:Messages:Count"),
+
+    /**
+     * Prefix for volatile message data keys
+     */
+    VOLATILE_MESSAGE_PREFIX("Glyph:Message:Volatile:")
 }

@@ -28,7 +28,6 @@ import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.skills.Skill
 import me.ianmooreis.glyph.bot.extensions.asPlainMention
 import me.ianmooreis.glyph.bot.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -54,7 +53,11 @@ class RoleSetSkill : Skill(
             return Response.Volatile("You must have Manage Roles permission to set other peoples' roles!")
         }
 
-        return RoleSkillHelper.getInstance(event, ai) { desiredRole, selectableRoles, targets ->
+        return RoleSkillHelper.getInstance(
+            event,
+            ai,
+            event.guild.config.selectableRoles
+        ) { desiredRole, selectableRoles, targets ->
             val config = event.guild.config.selectableRoles
             //If the user is the only target and does not have manage roles permission and would violate the limit, make them remove a role first (mods can ignore this)
             if (targets.size > 1 && targets.contains(event.member) && !event.member!!.hasPermission(Permission.MANAGE_ROLES)
@@ -63,7 +66,7 @@ class RoleSetSkill : Skill(
                 val randomRole = event.member!!.roles.filter { selectableRoles.contains(it) }.random()
                 Response.Volatile(
                     "You can only have ${config.limit} roles in this server! " +
-                        (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
+                            (if (randomRole != null) "Try removing one first, by telling me for example: \"remove me from ${randomRole.name}\"" else "")
                 )
             } else {
                 //Remove old roles if the sever role limit is 1, this is the default and is meant for switching roles

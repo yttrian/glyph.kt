@@ -28,8 +28,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.database.config.ConfigDirector
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.messaging.MessagingDirector
 import me.ianmooreis.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
 import me.ianmooreis.glyph.bot.messaging.quickview.picarto.PicartoGenerator
@@ -55,7 +53,7 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.isIgnorable) return
-        val config = if (event.channelType.isGuild) event.guild.config else ConfigDirector.getDefaultServerConfig()
+        val config = if (event.channelType.isGuild) event.guild.config else configDirector.defaultConfig
 
         launch {
             withTimeout(generatorTimeout) {

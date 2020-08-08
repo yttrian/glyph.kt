@@ -50,7 +50,7 @@ class RoleUnsetSkill : Skill(
             return Response.Volatile("You must have Manage Roles permission to remove other peoples' roles!")
         }
 
-        return RoleSkillHelper.getInstance(event, ai) { desiredRole, _, targets ->
+        return RoleSkillHelper.getInstance(event, ai, event.guild.config.selectableRoles) { desiredRole, _, targets ->
             //Remove the role
             targets.forEach {
                 try {

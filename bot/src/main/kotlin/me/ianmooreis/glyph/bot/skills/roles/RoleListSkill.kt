@@ -26,7 +26,6 @@ package me.ianmooreis.glyph.bot.skills.roles
 
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -53,7 +52,7 @@ class RoleListSkill : Skill("skill.role.list", guildOnly = true) {
                 EmbedBuilder()
                     .setTitle("Available Roles")
                     .setDescription(description)
-                    .setFooter("Roles | Try asking \"Set me as ${randomRole.name}\"}")
+                    .setFooter("Roles | Try asking \"Set me as ${randomRole.name}\"")
                     .setTimestamp(Instant.now())
                     .build()
             )

@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
+package me.ianmooreis.glyph.shared.config.server
 
-import me.ianmooreis.glyph.bot.database.config.Config
+import me.ianmooreis.glyph.shared.config.Config
 
 /**
  * A configuration for starboarding

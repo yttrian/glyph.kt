@@ -1,5 +1,5 @@
 /*
- * Miscellaneous.kt
+ * AuditingConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,12 +22,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.extensions
+package me.ianmooreis.glyph.shared.config.server
 
-import java.time.OffsetDateTime
-import java.util.*
+import me.ianmooreis.glyph.shared.config.Config
 
 /**
- * Convert an OffsetDateTime to a Date
+ * A configuration for auditing
  */
-fun OffsetDateTime.toDate(): Date = Date.from(this.toInstant())
+data class AuditingConfig(
+    /**
+     * Whether or not to audit member joins
+     */
+    val joins: Boolean = false,
+    /**
+     * Whether or not to audit member leaves
+     */
+    val leaves: Boolean = false,
+    /**
+     * Whether or not to purges
+     */
+    val purge: Boolean = false,
+    /**
+     * Whether or not to audit kicks
+     */
+    val kicks: Boolean = false,
+    /**
+     * Whether or not to audit bans
+     */
+    val bans: Boolean = false,
+    /**
+     * Whether or not to audit username changes
+     */
+    val names: Boolean = false,
+    /**
+     * The channel to send audits to
+     */
+    val channel: Long? = null
+) : Config

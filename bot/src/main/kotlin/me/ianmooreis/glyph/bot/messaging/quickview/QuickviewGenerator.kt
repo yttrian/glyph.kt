@@ -27,7 +27,7 @@ package me.ianmooreis.glyph.bot.messaging.quickview
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import kotlinx.coroutines.flow.Flow
-import me.ianmooreis.glyph.bot.database.config.server.QuickviewConfig
+import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.io.Closeable

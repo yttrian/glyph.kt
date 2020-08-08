@@ -26,10 +26,9 @@ package me.ianmooreis.glyph.bot.skills.moderation
 
 import com.google.gson.JsonObject
 import me.ianmooreis.glyph.bot.ai.AIResponse
+import me.ianmooreis.glyph.bot.directors.AuditingDirector.audit
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.audit
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.extensions.toDate
 import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.Permission

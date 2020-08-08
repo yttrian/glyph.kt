@@ -28,7 +28,9 @@ import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.extensions.contentClean
 import me.ianmooreis.glyph.bot.extensions.isCreator
 import me.ianmooreis.glyph.bot.messaging.Response
+import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -49,6 +51,9 @@ abstract class Skill(
     private val requiredPermissionsSelf: Collection<Permission> = emptyList(),
     private val creatorOnly: Boolean = false
 ) {
+    // TODO: Avoid using lateinit and var
+    lateinit var skillDirector: SkillDirector
+
     /**
      * The skill's logger which will show the skill's name in the console when logs are made
      */
@@ -67,7 +72,7 @@ abstract class Skill(
             if (event.channelType.isGuild) event.member!!.hasPermission(requiredPermissionsUser) else true
         val permittedSelf: Boolean =
             if (event.channelType.isGuild) event.guild.selfMember.hasPermission(requiredPermissionsSelf) else true
-        val currentCooldown: SkillCooldown? = SkillDirector.getCooldown(event.author, this)
+        val currentCooldown: SkillCooldown? = skillDirector.getCooldown(event.author, this)
         when {
             currentCooldown != null && !currentCooldown.expired ->
                 if (!currentCooldown.warned) {
@@ -93,7 +98,7 @@ abstract class Skill(
                 .queue() //Pretend the skill does not exist
             else -> {
                 log.info("Received \"${event.message.contentClean}\" from ${ai.sessionID}")
-                SkillDirector.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
+                skillDirector.setCooldown(event.author, this, SkillCooldown(cooldownTime, cooldownUnit))
                 return this.onTrigger(event, ai)
             }
         }
@@ -106,4 +111,10 @@ abstract class Skill(
     }
 
     override fun toString(): String = trigger
+
+    /**
+     * Get the config for a server (or default if none)
+     */
+    protected val Guild.config: ServerConfig
+        get() = skillDirector.configDirector.getServerConfig(this)
 }

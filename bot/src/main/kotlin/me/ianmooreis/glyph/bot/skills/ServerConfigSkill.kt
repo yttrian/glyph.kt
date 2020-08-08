@@ -1,5 +1,5 @@
 /*
- * ServerSelectableRolesTable.kt
+ * ServerConfigSkill.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,19 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
+package me.ianmooreis.glyph.bot.skills
 
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import me.ianmooreis.glyph.bot.ai.AIResponse
+import me.ianmooreis.glyph.bot.directors.skills.Skill
+import me.ianmooreis.glyph.bot.messaging.Response
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 /**
- * Database table to store server configured selectable roles
+ * Tells people to use the config website to edit their config
  */
-@Suppress("KDocMissingDocumentation")
-object ServerSelectableRolesTable : Table() {
-    val serverId: Column<Long> = long("ServerID")
-        .primaryKey(0)
-        .references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
-    val roleId: Column<Long> = long("RoleID").primaryKey(1)
+class ServerConfigSkill : Skill(
+    "skill.config.server",
+    cooldownTime = 15,
+    guildOnly = true,
+    requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
+    requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
+) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
+        Response.Volatile("To edit your config, visit https://gl.yttr.org/config")
 }

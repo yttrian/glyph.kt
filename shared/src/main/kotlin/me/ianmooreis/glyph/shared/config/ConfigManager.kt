@@ -1,5 +1,5 @@
 /*
- * ConfigDirector.kt
+ * ConfigManager.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -17,31 +17,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ *     
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config
+package me.ianmooreis.glyph.shared.config
 
-import kotlinx.coroutines.launch
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.database.config.server.AuditingConfig
-import me.ianmooreis.glyph.bot.database.config.server.QuickviewConfig
-import me.ianmooreis.glyph.bot.database.config.server.SelectableRolesConfig
-import me.ianmooreis.glyph.bot.database.config.server.ServerConfig
-import me.ianmooreis.glyph.bot.database.config.server.ServerConfigsTable
-import me.ianmooreis.glyph.bot.database.config.server.ServerSelectableRolesTable
-import me.ianmooreis.glyph.bot.database.config.server.ServerWikiSourcesTable
-import me.ianmooreis.glyph.bot.database.config.server.StarboardConfig
-import me.ianmooreis.glyph.bot.database.config.server.WikiConfig
-import me.ianmooreis.glyph.bot.extensions.deleteConfig
-import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
-import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
-import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
+import me.ianmooreis.glyph.shared.config.server.AuditingConfig
+import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
+import me.ianmooreis.glyph.shared.config.server.SelectableRolesConfig
+import me.ianmooreis.glyph.shared.config.server.ServerConfig
+import me.ianmooreis.glyph.shared.config.server.ServerConfigsTable
+import me.ianmooreis.glyph.shared.config.server.ServerSelectableRolesTable
+import me.ianmooreis.glyph.shared.config.server.ServerWikiSourcesTable
+import me.ianmooreis.glyph.shared.config.server.StarboardConfig
+import me.ianmooreis.glyph.shared.config.server.WikiConfig
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteIgnoreWhere
@@ -51,77 +43,80 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.net.URI
 
 /**
- * Manages the configuration database
+ * Manages the loading/saving of configs
  */
-object ConfigDirector : Director() {
+class ConfigManager(configure: Config.() -> Unit) {
+    /**
+     * HOCON-like config for the database director
+     */
+    class Config {
+        /**
+         * A uri the describes how to connect to the main database
+         */
+        var databaseConnectionUri: String = "localhost"
+
+        /**
+         * The driver used when connecting to the database, usually Postgres
+         */
+        var driver: String = "org.postgresql.Driver"
+    }
+
+    private val config = Config().also(configure)
+    private val db = Database.apply {
+        val dbUri = URI(config.databaseConnectionUri)
+        val userInfo = dbUri.userInfo.split(":")
+        val username = userInfo[0]
+        val password = userInfo[1]
+        val connectionUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
+
+        connect(
+            connectionUrl, driver = config.driver,
+            user = username, password = password
+        )
+    }
+
     private val configs = mutableMapOf<Long, ServerConfig>()
     private val defaultConfig = ServerConfig()
-
-    /**
-     * JDA instance for grabbing Guild data
-     */
-    lateinit var jda: JDA
 
     // Some shorthand for long table names
     private val sct = ServerConfigsTable
     private val swst = ServerWikiSourcesTable
     private val ssrt = ServerSelectableRolesTable
 
-    private val redis = RedisPubSub {
-        redisConnectionUri = System.getenv("REDIS_URL")
-    }
-
-    /**
-     * Sets the JDA instance
-     */
-    override fun onReady(event: ReadyEvent) {
-        jda = event.jda
-    }
-
-    init {
-        createTables()
-
-        redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
-            val guild = jda.getGuildById(guildId)
-            guild?.let { getServerConfig(it) }?.toJSON(guild)
-        }
-
-        redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
-            jda.getGuildById(guildId)?.let { reloadServerConfig(it) }
-        }
-    }
-
     /**
      * Creates the database tables if they don't already exist
      */
     private fun createTables() {
         transaction {
-            SchemaUtils.create(sct, swst, ssrt)
+            SchemaUtils.create(
+                sct,
+                swst,
+                ssrt
+            )
         }
     }
 
     /**
      * Load all the configurations from the database
      */
-    private fun loadConfig(guild: Guild): ServerConfig = transaction {
-        val serverId = guild.idLong
-
+    private fun loadConfig(guildId: Long): ServerConfig = transaction {
         val wikiSources = swst.select {
-            swst.serverId.eq(serverId)
+            swst.serverId.eq(guildId)
         }.map {
             it[swst.destination]
         }
 
         val selectableRoles = ssrt.select {
-            ssrt.serverId.eq(serverId)
+            ssrt.serverId.eq(guildId)
         }.map {
             it[ssrt.roleId]
         }
 
         sct.select {
-            sct.serverId.eq(serverId)
+            sct.serverId.eq(guildId)
         }.firstOrNull()?.let { r ->
             val quickviewConfig = QuickviewConfig(
                 r[sct.quickviewFuraffinityEnabled],
@@ -154,8 +149,8 @@ object ConfigDirector : Director() {
     /**
      * Force reloads a server config
      */
-    fun reloadServerConfig(guild: Guild) {
-        configs[guild.idLong] = loadConfig(guild)
+    fun reloadServerConfig(guildId: Long) {
+        configs[guildId] = loadConfig(guildId)
     }
 
     /**
@@ -163,9 +158,9 @@ object ConfigDirector : Director() {
      *
      * @param guild the guild who's configuration to delete
      */
-    suspend fun deleteServerConfig(guild: Guild): Int = newSuspendedTransaction {
+    suspend fun deleteServerConfig(guildId: Long): Int = newSuspendedTransaction {
         sct.deleteIgnoreWhere {
-            sct.serverId.eq(guild.idLong)
+            sct.serverId.eq(guildId)
         }
     }
 
@@ -176,9 +171,9 @@ object ConfigDirector : Director() {
      *
      * @return the configuration
      */
-    fun getServerConfig(guild: Guild): ServerConfig {
-        return configs.getOrPut(guild.idLong) {
-            loadConfig(guild)
+    fun getServerConfig(guildId: Long): ServerConfig {
+        return configs.getOrPut(guildId) {
+            loadConfig(guildId)
         }
     }
 
@@ -197,9 +192,9 @@ object ConfigDirector : Director() {
      * @param guild the guild who's configuration should be updates
      * @param config the new server config to try to apply
      */
-    suspend fun setServerConfig(guild: Guild, config: ServerConfig) = newSuspendedTransaction {
+    suspend fun setServerConfig(guildId: Long, config: ServerConfig) = newSuspendedTransaction {
         val sct = ServerConfigsTable
-        val serverId = guild.idLong
+        val serverId = guildId
 
         // Lazy man's upsert
         sct.insertIgnore {
@@ -246,12 +241,5 @@ object ConfigDirector : Director() {
         }
 
         configs[serverId] = config
-    }
-
-    /**
-     * Delete a guild's config when the server if left
-     */
-    override fun onGuildLeave(event: GuildLeaveEvent) {
-        launch { event.guild.deleteConfig() }
     }
 }

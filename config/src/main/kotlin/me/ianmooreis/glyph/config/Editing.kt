@@ -51,35 +51,37 @@ fun Route.editing(pubSub: PubSub) {
             call.respond(MustacheContent("edit.hbs", mapOf("guildId" to guildId)))
         }
 
-        get("/data") {
-            val guildId = call.parameters["guildId"] ?: error("No guild id given")
-            val session = call.sessions.getOption<ConfigSession>()
+        route("/data") {
+            get {
+                val guildId = call.parameters["guildId"] ?: error("No guild id given")
+                val session = call.sessions.getOption<ConfigSession>()
 
-            if (session.canManageGuild(guildId)) {
-                val response = when (val config = pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX)) {
-                    is Either.Left -> HttpStatusCode.InternalServerError to when (config.a) {
-                        is PubSubException.Deaf -> "Bot is completely offline, try again later."
-                        is PubSubException.Ignored -> "Bot could not find the requested guild. Is it a member?"
-                        else -> "Unknown error"
+                if (session.canManageGuild(guildId)) {
+                    val response = when (val config = pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX)) {
+                        is Either.Left -> HttpStatusCode.InternalServerError to when (config.a) {
+                            is PubSubException.Deaf -> "Bot is completely offline, try again later."
+                            is PubSubException.Ignored -> "Bot could not find the requested guild. Is it a member?"
+                            else -> "Unknown error"
+                        }
+                        is Either.Right -> HttpStatusCode.OK to config.b
                     }
-                    is Either.Right -> HttpStatusCode.OK to config.b
+                    call.respond(response.first, response.second)
+                } else {
+                    call.respond(HttpStatusCode.Unauthorized)
                 }
-                call.respond(response.first, response.second)
-            } else {
-                call.respond(HttpStatusCode.Unauthorized)
             }
-        }
 
-        post("/data") {
-            val guildId = call.parameters["guildId"] ?: error("No guild id given")
+            post {
+                val guildId = call.parameters["guildId"] ?: error("No guild id given")
 //            val config = call.receiveText()
-            val session = call.sessions.getOption<ConfigSession>()
+                val session = call.sessions.getOption<ConfigSession>()
 
-            if (session.canManageGuild(guildId)) {
-                pubSub.publish(PubSubChannel.CONFIG_REFRESH, "GUILD ID GOES HERE")
-                call.respond(HttpStatusCode.Accepted)
-            } else {
-                call.respond(HttpStatusCode.Forbidden)
+                if (session.canManageGuild(guildId)) {
+                    pubSub.publish(PubSubChannel.CONFIG_REFRESH, guildId)
+                    call.respond(HttpStatusCode.Accepted)
+                } else {
+                    call.respond(HttpStatusCode.Forbidden, "You do not have permission to do that!")
+                }
             }
         }
     }

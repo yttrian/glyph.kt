@@ -1,5 +1,5 @@
 /*
- * WikiConfig.kt
+ * Config.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,20 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
-
-import me.ianmooreis.glyph.bot.database.config.Config
+package me.ianmooreis.glyph.shared.config
 
 /**
- * A configuration for wikis
+ * The definition of a config that can be modified by users
  */
-data class WikiConfig(
-    /**
-     * The list of wiki sources to search in order
-     */
-    val sources: List<String> = listOf("wikipedia", "masseffect", "avp"),
-    /**
-     * The minimum Wikia article quality to allow pass
-     */
-    val minimumQuality: Int = 50
-) : Config
+interface Config

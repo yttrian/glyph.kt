@@ -26,8 +26,8 @@ package me.ianmooreis.glyph.bot.skills.roles
 
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.messaging.Response
+import me.ianmooreis.glyph.shared.config.server.SelectableRolesConfig
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -46,6 +46,7 @@ object RoleSkillHelper {
     fun getInstance(
         event: MessageReceivedEvent,
         ai: AIResponse,
+        selectableRolesConfig: SelectableRolesConfig,
         success: (desiredRole: Role, selectableRoles: List<Role>, targets: List<Member>) -> Response
     ): Response {
         //Get the list of target(s) based on the mentions in the messages
@@ -57,7 +58,6 @@ object RoleSkillHelper {
         }
 
         //Extract the desired role name and make a list of all available selectable roles
-        val config = event.guild.config.selectableRoles
         val desiredRoleName: String = ai.result.getStringParameter("role")?.removeSurrounding("\"") ?: ""
         if (desiredRoleName.isEmpty()) {
             return Response.Volatile("I could not find a role name in your message!")
@@ -65,7 +65,7 @@ object RoleSkillHelper {
 
         val desiredRole = event.guild.getRolesByName(desiredRoleName, true).firstOrNull()
             ?: return Response.Volatile("Role `$desiredRoleName` does not exist!")
-        val selectableRoles = config.roles.mapNotNull { event.guild.getRoleById(it) }
+        val selectableRoles = selectableRolesConfig.roles.mapNotNull { event.guild.getRoleById(it) }
         if (selectableRoles.isEmpty()) {
             return Response.Volatile("There are no selectable roles configured for this server!")
         }

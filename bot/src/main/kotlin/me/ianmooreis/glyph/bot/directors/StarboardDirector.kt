@@ -27,7 +27,6 @@ package me.ianmooreis.glyph.bot.directors
 import com.vdurmont.emoji.EmojiParser
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.extensions.asPlainMention
-import me.ianmooreis.glyph.bot.extensions.config
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel

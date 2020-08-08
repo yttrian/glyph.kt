@@ -25,10 +25,9 @@
 package me.ianmooreis.glyph.bot.skills.wiki
 
 import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.database.config.server.WikiConfig
 import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.config
 import me.ianmooreis.glyph.bot.messaging.Response
+import me.ianmooreis.glyph.shared.config.server.WikiConfig
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Instant

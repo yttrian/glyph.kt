@@ -33,13 +33,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 /**
  * Manages all the available skills
  */
-object SkillDirector : Director() {
+class SkillDirector : Director() {
     private val skills: MutableMap<String, Skill> = mutableMapOf()
     private val cooldowns = mutableMapOf<Pair<Long, String>, SkillCooldown>()
 
     private fun addSkill(skill: Skill): SkillDirector {
         log.debug("Registered: $skill")
-        skills[skill.trigger] = skill
+        skills[skill.trigger] = skill.also { it.skillDirector = this }
         return this
     }
 
@@ -98,4 +98,3 @@ object SkillDirector : Director() {
         }
     }
 }
-

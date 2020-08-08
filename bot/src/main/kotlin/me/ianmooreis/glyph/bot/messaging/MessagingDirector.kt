@@ -27,8 +27,8 @@ package me.ianmooreis.glyph.bot.messaging
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.ai.AIAgent
-import me.ianmooreis.glyph.bot.database.Key
-import me.ianmooreis.glyph.bot.database.RedisAsync
+import me.ianmooreis.glyph.bot.directors.config.Key
+import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
 import me.ianmooreis.glyph.bot.extensions.contentClean
 import net.dv8tion.jda.api.MessageBuilder
@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit
 class MessagingDirector(
     private val aiAgent: AIAgent,
     private val redis: RedisAsync,
+    private val skillDirector: SkillDirector,
     configure: Config.() -> Unit = {}
 ) : Director() {
     /**
@@ -121,8 +122,8 @@ class MessagingDirector(
         }
 
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
-        SkillDirector.launch {
-            when (val response = SkillDirector.trigger(event, ai)) {
+        skillDirector.launch {
+            when (val response = skillDirector.trigger(event, ai)) {
                 is Response.Ephemeral -> message.reply(response.content, response.embed, ttl = response.ttl)
                 is Response.Volatile -> message.reply(response.content, response.embed, volatile = true)
                 is Response.Permanent -> message.reply(response.content, response.embed, volatile = false)
@@ -150,11 +151,11 @@ class MessagingDirector(
 
     private val MessageReceivedEvent.isIgnorable
         get() = author.isBot || // ignore other bots
-            (author == jda.selfUser) || // ignore self
-            isWebhookMessage || // ignore webhooks
-            (isFromGuild && !message.isMentioned(jda.selfUser)) || // require mention except in DMs
-            message.contentClean.isEmpty() || // ignore empty messages
-            (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id)) // must start with mention
+                (author == jda.selfUser) || // ignore self
+                isWebhookMessage || // ignore webhooks
+                (isFromGuild && !message.isMentioned(jda.selfUser)) || // require mention except in DMs
+                message.contentClean.isEmpty() || // ignore empty messages
+                (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id)) // must start with mention
 
     private fun Message.reply(
         content: String? = null,

@@ -1,5 +1,5 @@
 /*
- * QuickviewConfig.kt
+ * ServerSelectableRolesTable.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,24 +22,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
+package me.ianmooreis.glyph.shared.config.server
 
-import me.ianmooreis.glyph.bot.database.config.Config
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.Table
 
 /**
- * A configuration for QuickViews
+ * Database table to store server configured selectable roles
  */
-data class QuickviewConfig(
-    /**
-     * Whether or not FurAffinity QuickViews are enabled
-     */
-    val furaffinityEnabled: Boolean = true,
-    /**
-     * Whether or not FurAffinity QuickViews should show thumbnails
-     */
-    val furaffinityThumbnails: Boolean = false,
-    /**
-     * Whether or not Picarto QuickViews are enabled
-     */
-    val picartoEnabled: Boolean = true
-) : Config
+@Suppress("KDocMissingDocumentation")
+object ServerSelectableRolesTable : Table() {
+    val serverId: Column<Long> = long("ServerID")
+        .primaryKey(0)
+        .references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val roleId: Column<Long> = long("RoleID").primaryKey(1)
+}

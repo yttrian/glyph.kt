@@ -1,5 +1,5 @@
 /*
- * AuditingConfig.kt
+ * ServerConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,40 +22,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config.server
+package me.ianmooreis.glyph.shared.config.server
 
-import me.ianmooreis.glyph.bot.database.config.Config
+import me.ianmooreis.glyph.shared.config.Config
 
 /**
- * A configuration for auditing
+ * The holder of all the sub-configurations
  */
-data class AuditingConfig(
+data class ServerConfig(
     /**
-     * Whether or not to audit member joins
+     * The wiki config
      */
-    val joins: Boolean = false,
+    val wiki: WikiConfig = WikiConfig(),
     /**
-     * Whether or not to audit member leaves
+     * The selectable roles config
      */
-    val leaves: Boolean = false,
+    val selectableRoles: SelectableRolesConfig = SelectableRolesConfig(),
     /**
-     * Whether or not to purges
+     * The QuickView config
      */
-    val purge: Boolean = false,
+    val quickview: QuickviewConfig = QuickviewConfig(),
     /**
-     * Whether or not to audit kicks
+     * The auditing config
      */
-    val kicks: Boolean = false,
+    val auditing: AuditingConfig = AuditingConfig(),
     /**
-     * Whether or not to audit bans
+     * The starboard config
      */
-    val bans: Boolean = false,
-    /**
-     * Whether or not to audit username changes
-     */
-    val names: Boolean = false,
-    /**
-     * The channel to send audits to
-     */
-    val channel: Long? = null
+    val starboard: StarboardConfig = StarboardConfig()
 ) : Config

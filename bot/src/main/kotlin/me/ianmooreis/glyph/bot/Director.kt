@@ -27,6 +27,9 @@ package me.ianmooreis.glyph.bot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
+import me.ianmooreis.glyph.shared.config.server.ServerConfig
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,4 +46,9 @@ abstract class Director : ListenerAdapter(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + SupervisorJob()
+
+    lateinit var configDirector: ConfigDirector
+
+    protected val Guild.config: ServerConfig
+        get(): ServerConfig = configDirector.getServerConfig(this)
 }

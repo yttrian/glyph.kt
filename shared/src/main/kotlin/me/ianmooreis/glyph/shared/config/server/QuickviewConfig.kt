@@ -1,5 +1,5 @@
 /*
- * Config.kt
+ * QuickviewConfig.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,9 +22,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.database.config
+package me.ianmooreis.glyph.shared.config.server
+
+import me.ianmooreis.glyph.shared.config.Config
 
 /**
- * The definition of a config that can be modified by users
+ * A configuration for QuickViews
  */
-interface Config
+data class QuickviewConfig(
+    /**
+     * Whether or not FurAffinity QuickViews are enabled
+     */
+    val furaffinityEnabled: Boolean = true,
+    /**
+     * Whether or not FurAffinity QuickViews should show thumbnails
+     */
+    val furaffinityThumbnails: Boolean = false,
+    /**
+     * Whether or not Picarto QuickViews are enabled
+     */
+    val picartoEnabled: Boolean = true
+) : Config

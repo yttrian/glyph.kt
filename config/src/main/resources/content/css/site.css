@@ -111,9 +111,8 @@ ul.guilds li a {
 }
 
 .save-bar .save-bar-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 1rem;
+    display: flex;
+    justify-content: space-between;
 }
 
 .text-right {

@@ -112,7 +112,7 @@ fun Application.module(testing: Boolean = false) {
                 is Either.Left -> emptyMap()
                 is Either.Right -> mapOf("guilds" to user.b.guilds.mapNotNull {
                     if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
-                })
+                } + mapOf("id" to "logout", "name" to "Logout..."))
             }
 
             call.respond(MustacheContent("index.hbs", templateData))

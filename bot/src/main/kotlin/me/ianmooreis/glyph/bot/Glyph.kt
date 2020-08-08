@@ -123,7 +123,8 @@ object Glyph {
 
             it.setEnabledIntents(
                 GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_EMOJIS,
-                GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS
+                GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                GatewayIntent.GUILD_MEMBERS
             )
 
             val serverDirector = ServerDirector { id ->

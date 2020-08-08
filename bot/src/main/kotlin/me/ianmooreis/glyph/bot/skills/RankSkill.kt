@@ -24,6 +24,8 @@
 
 package me.ianmooreis.glyph.bot.skills
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.bot.directors.skills.Skill
@@ -45,13 +47,14 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
         if (event.guild.memberCount > GUILD_SIZE_LIMIT) {
             return Response.Volatile(
                 "Sorry, due to time constraints " +
-                    "I will not attempt to rank servers with more than $GUILD_SIZE_LIMIT members!"
+                        "I will not attempt to rank servers with more than $GUILD_SIZE_LIMIT members!"
             )
         }
 
         val property: String? = ai.result.getStringParameter("memberProperty")
 
         return if (property != null) {
+            withContext(Dispatchers.IO) { event.guild.retrieveMembers().get() }
             val members = event.guild.members
             when (property) {
                 "join" -> Response.Volatile(rankMembersByJoin(members, event.member ?: event.guild.selfMember))

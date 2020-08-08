@@ -163,11 +163,12 @@ Editor.prototype.save = function (config, callback) {
     }
     var myself = this;
     var xhr = new XMLHttpRequest();
+    myself.hinter.hint("Saving...");
     xhr.open("POST", myself.getKey() + "/data/");
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.onreadystatechange = function () {
         if (this.readyState === 4) {
-            if (this.status === 201) {
+            if (this.status === 200) {
                 myself.hinter.hint("Saved!");
                 callback.call(myself, myself.getKey());
             } else if (this.status === 400) {

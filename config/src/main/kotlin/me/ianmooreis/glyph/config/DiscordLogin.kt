@@ -30,7 +30,9 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.authentication
 import io.ktor.response.respondRedirect
 import io.ktor.routing.Route
+import io.ktor.routing.get
 import io.ktor.routing.route
+import io.ktor.sessions.clear
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
 import me.ianmooreis.glyph.config.session.ConfigSession
@@ -55,5 +57,10 @@ fun Route.discordLogin() {
                 call.respondRedirect("/")
             }
         }
+    }
+
+    get("/logout") {
+        call.sessions.clear<ConfigSession>()
+        call.respondRedirect("/")
     }
 }

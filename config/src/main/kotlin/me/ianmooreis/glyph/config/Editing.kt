@@ -96,7 +96,7 @@ fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
                     }
                     configManager.setServerConfig(guildId.toLong(), config)
                     pubSub.publish(PubSubChannel.CONFIG_REFRESH, guildId)
-                    call.respond(HttpStatusCode.Accepted)
+                    call.respond(HttpStatusCode.OK)
                 } else {
                     call.respond(HttpStatusCode.Unauthorized, "You do not have permission to do that!")
                 }

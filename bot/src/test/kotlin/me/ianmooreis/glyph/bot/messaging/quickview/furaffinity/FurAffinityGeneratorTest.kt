@@ -22,16 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package messaging.quickview.furaffinity
+package me.ianmooreis.glyph.bot.messaging.quickview.furaffinity
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import me.ianmooreis.glyph.messaging.quickview.furaffinity.FurAffinityGenerator
-import me.ianmooreis.glyph.messaging.quickview.furaffinity.SubmissionRating
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertNull
 
 /**
  * Tests for the FurAffinity QuickView generator
@@ -43,7 +42,7 @@ internal class FurAffinityGeneratorTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun findSubmissionId() = runBlocking {
+    fun `should find submission id from CDN id`() = runBlocking {
         // https://www.furaffinity.net/view/4483888/
         val submissionId = generator.findSubmissionId(1284661300, "Fender")
 
@@ -52,20 +51,23 @@ internal class FurAffinityGeneratorTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun findIds() = runBlocking {
+    fun `should find distinct ids in a message`() = runBlocking {
         // a regular message
         assert(generator.findIds("nothing of substance example.net/view/12345").count() == 0)
         // a message with a submission url
         assert(generator.findIds("https://www.furaffinity.net/view/12239491/").first() == 12239491)
         // there should be no duplicates
         assert(
-            generator.findIds("https://www.furaffinity.net/view/12239491/ http://www.furaffinity.net/view/9719932/ furaffinity.net/view/12239491/")
-                .count() == 2
+            generator.findIds(
+                "https://www.furaffinity.net/view/12239491/ " +
+                        "http://www.furaffinity.net/view/9719932/ " +
+                        "furaffinity.net/view/12239491/"
+            ).count() == 2
         )
     }
 
     @Test
-    fun findIdsOnline() = runBlocking {
+    fun `should find submission id from CDN url`() = runBlocking {
         // a message with a CDN url https://www.furaffinity.net/view/10796676/
         assert(
             generator.findIds("https://d.facdn.net/art/fender/1370725527/1370725527.fender_kyma_fau.jpg")
@@ -74,7 +76,7 @@ internal class FurAffinityGeneratorTest {
     }
 
     @Test
-    fun getSubmission() = runBlocking {
+    fun `should properly retrieve Applied Sciences Units 01 and 02`() = runBlocking {
         // https://www.furaffinity.net/view/9719932/
         val submission = generator.getSubmission(9719932)
 
@@ -87,5 +89,10 @@ internal class FurAffinityGeneratorTest {
         assert(submission?.gender == "Other / Not Specified")
         assert(submission?.resolution == "900x643")
         assert(submission?.rating == SubmissionRating.General)
+    }
+
+    @Test
+    fun `should return null on invalid submission id`() = runBlocking {
+        assertNull(generator.getSubmission(0))
     }
 }

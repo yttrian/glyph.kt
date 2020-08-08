@@ -29,6 +29,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonDecodingException
 
 /**
  * Grabs articles from Wikipedia
@@ -49,6 +53,7 @@ class WikipediaExtractor(
         /**
          * Represents a thumbnail result
          */
+        @Serializable
         data class Thumbnail(
             /**
              * URL of the thumbnail image
@@ -59,6 +64,7 @@ class WikipediaExtractor(
         /**
          * Represents a page on Wikipedia
          */
+        @Serializable
         data class Page(
             /**
              * Title of the page
@@ -71,7 +77,8 @@ class WikipediaExtractor(
             /**
              * URL linking to the page
              */
-            val fullurl: String,
+            @SerialName("fullurl")
+            val fullUrl: String,
             /**
              * Thumbnail, if any
              */
@@ -81,6 +88,7 @@ class WikipediaExtractor(
         /**
          * Represents the found pages in a search query listing on Wikipedia
          */
+        @Serializable
         data class Query(
             /**
              * Pages found by the query
@@ -91,6 +99,7 @@ class WikipediaExtractor(
         /**
          * Represents the result of a search query on Wikipedia
          */
+        @Serializable
         data class Result(
             /**
              * Query results
@@ -125,12 +134,15 @@ class WikipediaExtractor(
             if (id != INVALID_PAGE_ID) WikiArticle(
                 page.title,
                 page.extract,
-                page.fullurl,
+                page.fullUrl,
                 page.thumbnail?.source
             ) else null
         }
     } catch (e: ResponseException) {
         null
+    } catch (e: MissingFieldException) {
+        null
+    } catch (e: JsonDecodingException) {
+        null
     }
 }
-

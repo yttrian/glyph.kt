@@ -26,7 +26,10 @@ package me.ianmooreis.glyph.bot.messaging.quickview
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -40,7 +43,9 @@ abstract class QuickviewGenerator : Closeable {
      * HTTP client for making API requests
      */
     protected val client: HttpClient = HttpClient {
-        install(JsonFeature)
+        install(JsonFeature) {
+            serializer = KotlinxSerializer(Json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true)))
+        }
     }
 
     /**

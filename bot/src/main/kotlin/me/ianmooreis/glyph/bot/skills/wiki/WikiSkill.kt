@@ -38,7 +38,7 @@ import java.time.Instant
 class WikiSkill : Skill("skill.wiki") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val query: String = ai.result.getStringParameter("search_query") ?: ""
-        val config: WikiConfig = event.guild.config.wiki
+        val config: WikiConfig = if (event.isFromGuild) event.guild.config.wiki else defaultConfig.wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki")
         val sources: List<String> =
             if (requestedSource != null) listOf(requestedSource) else (config.sources + "wikipedia")

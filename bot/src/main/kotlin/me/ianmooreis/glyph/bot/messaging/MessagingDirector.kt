@@ -53,7 +53,7 @@ class MessagingDirector(
     configure: Config.() -> Unit = {}
 ) : Director() {
     /**
-     * HOCON-like config for the messaging director
+     * HOCON-like config for the me.ianmooreis.glyph.bot.quickview.messaging director
      */
     class Config {
         /**

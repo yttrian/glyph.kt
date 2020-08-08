@@ -117,4 +117,10 @@ abstract class Skill(
      */
     protected val Guild.config: ServerConfig
         get() = skillDirector.configDirector.getServerConfig(this)
+
+    /**
+     * Default configuration
+     */
+    protected val defaultConfig: ServerConfig
+        get() = skillDirector.configDirector.defaultConfig
 }

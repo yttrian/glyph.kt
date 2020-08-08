@@ -43,10 +43,12 @@ enum class SubmissionRating(
      * Suitable for all-ages
      */
     General(Color.GREEN, false),
+
     /**
      * Gore, violence or tasteful/artistic nudity or mature themes.
      */
     Mature(Color.BLUE, true),
+
     /**
      * Explicit or imagery otherwise geared towards adult audiences.
      */

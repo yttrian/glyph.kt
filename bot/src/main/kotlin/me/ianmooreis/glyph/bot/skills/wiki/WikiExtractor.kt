@@ -26,6 +26,9 @@ package me.ianmooreis.glyph.bot.skills.wiki
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 /**
  * Handle extracting articles from a specific wiki
@@ -35,7 +38,9 @@ abstract class WikiExtractor {
      * HTTP client for making API requests
      */
     val client: HttpClient = HttpClient {
-        install(JsonFeature)
+        install(JsonFeature) {
+            serializer = KotlinxSerializer(Json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true)))
+        }
     }
 
     /**

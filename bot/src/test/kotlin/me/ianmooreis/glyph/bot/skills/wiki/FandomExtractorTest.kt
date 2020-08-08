@@ -22,17 +22,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package skills.wiki
+package me.ianmooreis.glyph.bot.skills.wiki
 
 import kotlinx.coroutines.runBlocking
-import me.ianmooreis.glyph.skills.wiki.FandomExtractor
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 internal class FandomExtractorTest {
     private val extractor = FandomExtractor("masseffect", 0)
 
     @Test
-    fun getRealArticle() = runBlocking {
+    fun `should properly find Garrus on masseffect wiki`() = runBlocking {
         val garrus = extractor.getArticle("Garrus")
 
         assert(garrus != null)
@@ -45,7 +44,7 @@ internal class FandomExtractorTest {
     }
 
     @Test
-    fun getFakeArticle() = runBlocking {
+    fun `should return null on non-existent result`() = runBlocking {
         val fake = extractor.getArticle("realsnotreal")
 
         assert(fake == null)

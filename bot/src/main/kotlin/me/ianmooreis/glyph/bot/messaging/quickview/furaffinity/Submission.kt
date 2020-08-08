@@ -24,14 +24,17 @@
 
 package me.ianmooreis.glyph.bot.messaging.quickview.furaffinity
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
-import java.util.*
+import java.time.Instant
 
 /**
  * A FurAffinity submission
  */
+@Serializable
 data class Submission(
     /**
      * Title of the submission
@@ -56,7 +59,8 @@ data class Submission(
     /**
      * Date the submission was posted
      */
-    val posted_at: Date,
+    @SerialName("posted_at")
+    val postedAt: String,
     /**
      * Download URL of the content
      */
@@ -112,7 +116,8 @@ data class Submission(
      */
     fun getEmbed(thumbnail: Boolean): MessageEmbed {
         val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
-        val fancyKeywords = if (linkedKeywords.length < 1024) linkedKeywords else keywords.joinToString()
+        val fancyKeywords =
+            if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) linkedKeywords else keywords.joinToString()
         val fileType = download.substringAfterLast(".")
         val description = SimpleDescriptionBuilder()
 
@@ -137,7 +142,7 @@ data class Submission(
             .setFooter("FurAffinity")
             .setColor(rating.color)
             .setAuthor(name, profile, avatar)
-            .setTimestamp(posted_at.toInstant())
+            .setTimestamp(Instant.parse(postedAt))
             .build()
     }
 }

@@ -22,21 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package messaging.quickview.picarto
+package me.ianmooreis.glyph.bot.messaging.quickview.picarto
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import me.ianmooreis.glyph.messaging.quickview.picarto.PicartoGenerator
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 internal class PicartoGeneratorTest {
     private val generator = PicartoGenerator()
 
     @ExperimentalCoroutinesApi
     @Test
-    fun findChannelNames() = runBlocking {
+    fun `should detect Picarto link in message`() = runBlocking {
         assert(generator.findChannelNames("a regular message without picarto").count() == 0)
         assert(generator.findChannelNames("https://picarto.tv/channel").first() == "channel")
     }

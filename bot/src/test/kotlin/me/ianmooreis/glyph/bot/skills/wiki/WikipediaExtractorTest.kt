@@ -22,29 +22,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package skills.wiki
+package me.ianmooreis.glyph.bot.skills.wiki
 
 import kotlinx.coroutines.runBlocking
-import me.ianmooreis.glyph.skills.wiki.WikipediaExtractor
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertNotNull
 
 internal class WikipediaExtractorTest {
     private val extractor = WikipediaExtractor()
 
     @Test
-    fun getArticle() = runBlocking {
+    fun `should get article via query`() = runBlocking {
         val massEffect = extractor.getArticle("Mass Effect")
 
-        assert(massEffect != null)
-
-        if (massEffect != null) {
-            assert(massEffect.title == "Mass Effect")
-            assert(massEffect.abstract.startsWith("Mass Effect is a military science fiction media franchise"))
-        }
+        assertNotNull(massEffect)
+        assert(massEffect.title == "Mass Effect")
+        assert(massEffect.abstract.startsWith("Mass Effect is a military science fiction media franchise"))
     }
 
     @Test
-    fun getArticleWithThumbnail() = runBlocking {
+    fun `should get thumbnail for article with thumbnail`() = runBlocking {
         val einstein = extractor.getArticle("Einstein")
 
         assert(einstein != null)
@@ -56,7 +53,7 @@ internal class WikipediaExtractorTest {
     }
 
     @Test
-    fun getFakeArticle() = runBlocking {
+    fun `should return null on non-existent result`() = runBlocking {
         val fake = extractor.getArticle("Real's not real")
 
         assert(fake == null)

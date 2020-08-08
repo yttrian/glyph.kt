@@ -50,6 +50,8 @@ subprojects {
         implementation("io.arrow-kt:arrow-core:$arrow_version")
         implementation("io.arrow-kt:arrow-syntax:$arrow_version")
         kapt("io.arrow-kt:arrow-meta:$arrow_version")
+        testImplementation("org.jetbrains.kotlin:kotlin-test")
+        testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     }
 
     tasks.register("stage") {

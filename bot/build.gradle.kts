@@ -44,6 +44,10 @@ tasks.named("stage") {
     dependsOn("shadowJar")
 }
 
+plugins {
+    kotlin("plugin.serialization") version "1.3.72" apply true
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
@@ -56,9 +60,8 @@ dependencies {
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
+    implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
     implementation("com.vdurmont:emoji-java:4.0.0")
     implementation("net.jodah:expiringmap:0.5.9")
     implementation("commons-codec:commons-codec:1.14")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 }

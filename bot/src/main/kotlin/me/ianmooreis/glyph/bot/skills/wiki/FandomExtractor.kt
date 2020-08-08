@@ -29,6 +29,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonDecodingException
 
 /**
  * Grabs articles from Fandom wikis
@@ -37,7 +40,7 @@ class FandomExtractor(
     /**
      * The Fandom wiki to search
      */
-    val wiki: String,
+    private val wiki: String,
     /**
      * The minimum acceptable article quality
      */
@@ -60,16 +63,18 @@ class FandomExtractor(
         /**
          * Represents an item from a Fandom search
          */
+        @Serializable
         data class SearchResult(
             /**
              * Identity of search result
              */
-            val id: String
+            val id: Int
         )
 
         /**
          * Represents a Fandom search result listing
          */
+        @Serializable
         data class SearchListing(
             /**
              * Search result items
@@ -80,6 +85,7 @@ class FandomExtractor(
         /**
          * Represents a Fandom page
          */
+        @Serializable
         data class Page(
             /**
              * Title of the page
@@ -102,11 +108,12 @@ class FandomExtractor(
         /**
          * Represents the result of a details listing
          */
+        @Serializable
         data class DetailsListing(
             /**
              * Detail result items
              */
-            val items: Map<String, Page>
+            val items: Map<Int, Page>
         )
     }
 
@@ -123,7 +130,6 @@ class FandomExtractor(
             parameter("minArticleQuality", minimumQuality.toString())
             parameter("batch", "1")
             parameter("namespaces", NAMESPACES)
-            println(url.buildString())
         }
 
         searchResult.items.firstOrNull()?.let {
@@ -142,6 +148,10 @@ class FandomExtractor(
         }
     } catch (e: ResponseException) {
         e.printStackTrace()
+        null
+    } catch (e: MissingFieldException) {
+        null
+    } catch (e: JsonDecodingException) {
         null
     }
 }

@@ -24,23 +24,29 @@
 
 package me.ianmooreis.glyph.bot.messaging.quickview.picarto
 
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
-import java.net.URL
 import java.time.Instant
 
 /**
  * A Picarto channel
  */
+@Serializable
 data class Channel(
     /**
      * The channel name
      */
-    val name: String, private val avatar: URL,
-    private val viewers: Int, private val followers: Int, private val category: String, private val title: String,
-    private val online: Boolean, private val adult: Boolean,
+    val name: String,
+    private val avatar: String,
+    private val viewers: Int,
+    private val followers: Int,
+    private val category: String,
+    private val title: String,
+    private val online: Boolean,
+    private val adult: Boolean,
     private val tags: List<String>
 ) {
 
@@ -59,7 +65,7 @@ data class Channel(
             .setAuthor(this.name, url)
             .setDescription(description)
             .addField("Tags", tags.joinToString(), false)
-            .setThumbnail(avatar.toString())
+            .setThumbnail(avatar)
             .setColor(if (online) Color.GREEN else Color.RED)
             .setFooter("picarto", null)
             .setTimestamp(Instant.now())

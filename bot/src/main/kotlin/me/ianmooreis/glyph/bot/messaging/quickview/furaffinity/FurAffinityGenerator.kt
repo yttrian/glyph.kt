@@ -25,6 +25,7 @@
 package me.ianmooreis.glyph.bot.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.takeFrom
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.serialization.Serializable
 import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewGenerator
 import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -49,6 +51,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
         /**
          * Represents a user page in the API
          */
+        @Serializable
         data class UserPage(
             /**
              * Total number of submissions the user has
@@ -59,6 +62,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
         /**
          * Represents a submission excerpt from the submission listing endpoint of the API
          */
+        @Serializable
         data class SubmissionExcerpt(
             /**
              * Submission id
@@ -79,7 +83,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
             getSubmission(it)?.run {
                 // allow only SFW thumbnails in DMs, and all in enabled servers but only show NSFW in NSFW channels
                 val allowThumbnail = (!event.isFromGuild && !rating.nsfw) ||
-                    (config.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
+                        (config.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
 
                 getEmbed(allowThumbnail)
             }
@@ -130,7 +134,11 @@ class FurAffinityGenerator : QuickviewGenerator() {
     /**
      * Create a submission object given its ID
      */
-    suspend fun getSubmission(id: Int): Submission? = client.get {
-        url.takeFrom(API_BASE).path("submission", "$id.json")
+    suspend fun getSubmission(id: Int): Submission? = try {
+        client.get {
+            url.takeFrom(API_BASE).path("submission", "$id.json")
+        }
+    } catch (e: ClientRequestException) {
+        null
     }
 }

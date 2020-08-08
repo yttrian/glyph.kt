@@ -79,7 +79,11 @@ class ConfigManager(configure: Config.() -> Unit) {
     }
 
     private val configs = mutableMapOf<Long, ServerConfig>()
-    private val defaultConfig = ServerConfig()
+
+    /**
+     * The default config for when the server does not have one
+     */
+    val defaultConfig: ServerConfig = ServerConfig()
 
     // Some shorthand for long table names
     private val sct = ServerConfigsTable
@@ -156,7 +160,7 @@ class ConfigManager(configure: Config.() -> Unit) {
     /**
      * Delete a guild's configuration from the database
      *
-     * @param guild the guild who's configuration to delete
+     * @param guildId the guild who's configuration to delete
      */
     suspend fun deleteServerConfig(guildId: Long): Int = newSuspendedTransaction {
         sct.deleteIgnoreWhere {
@@ -167,7 +171,7 @@ class ConfigManager(configure: Config.() -> Unit) {
     /**
      * Get a guild's custom configuration or return the default if none found
      *
-     * @param guild the guild who's configuration to get
+     * @param guildId the guild who's configuration to get
      *
      * @return the configuration
      */
@@ -178,18 +182,9 @@ class ConfigManager(configure: Config.() -> Unit) {
     }
 
     /**
-     * Returns the default server configuration
-     *
-     * @return the default server configuration
-     */
-    fun getDefaultServerConfig(): ServerConfig {
-        return defaultConfig
-    }
-
-    /**
      * Sets a guild's custom configuration
      *
-     * @param guild the guild who's configuration should be updates
+     * @param guildId the guild who's configuration should be updates
      * @param config the new server config to try to apply
      */
     suspend fun setServerConfig(guildId: Long, config: ServerConfig) = newSuspendedTransaction {

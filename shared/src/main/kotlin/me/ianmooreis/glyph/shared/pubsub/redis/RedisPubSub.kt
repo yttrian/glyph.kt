@@ -109,8 +109,6 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
             }
             redisCommandsAsync.publish(responseChannel, result)
         }
-
-        redisPubSubConnection.async().subscribe(askChannelPrefix.asQuery)
     }
 
     private fun StatefulRedisPubSubConnection<String, String>.addListener(
@@ -122,7 +120,7 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
                 listener(message)
             }
         }
-    })
+    }).also { async().subscribe(listenChannel) }
 
     private val PubSubChannel.asQuery
         get() = this.value + ":Query"

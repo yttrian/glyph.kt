@@ -48,7 +48,7 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
     /**
      * The default server config
      */
-    val defaultConfig = configManager.getDefaultServerConfig()
+    val defaultConfig: ServerConfig = configManager.defaultConfig
 
     /**
      * JDA instance for grabbing Guild data
@@ -69,13 +69,14 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
     init {
         redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
             val guild = jda.getGuildById(guildId)
+            log.info("Responded to data request for guild $guildId")
             guild?.getServerConfigJson()
         }
 
         redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
             guildId.toLongOrNull()?.let {
-                log.info("Reloaded config for guild $guildId")
                 configManager.reloadServerConfig(it)
+                log.info("Reloaded config for guild $guildId")
             }
         }
     }

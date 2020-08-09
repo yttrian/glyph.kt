@@ -39,6 +39,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.features.AutoHeadResponse
 import io.ktor.features.CallLogging
 import io.ktor.features.DefaultHeaders
+import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.features.origin
 import io.ktor.mustache.Mustache
 import io.ktor.mustache.MustacheContent
@@ -75,6 +76,8 @@ fun Application.module(testing: Boolean = false) {
     install(AutoHeadResponse)
 
     install(DefaultHeaders)
+
+    install(XForwardedHeaderSupport)
 
     install(CallLogging) {
         level = Level.INFO

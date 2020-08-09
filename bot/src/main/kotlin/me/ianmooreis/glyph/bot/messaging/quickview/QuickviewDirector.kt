@@ -24,7 +24,8 @@
 
 package me.ianmooreis.glyph.bot.messaging.quickview
 
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import me.ianmooreis.glyph.bot.Director
@@ -32,6 +33,7 @@ import me.ianmooreis.glyph.bot.messaging.MessagingDirector
 import me.ianmooreis.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
 import me.ianmooreis.glyph.bot.messaging.quickview.picarto.PicartoGenerator
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 import java.time.Duration
 
 /**
@@ -58,15 +60,17 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
         launch {
             withTimeout(generatorTimeout) {
                 generators.forEach {
-                    it.generate(event, config.quickview).collect { embed ->
-                        event.channel.sendMessage(embed).queue { response ->
-                            messagingDirector.trackVolatile(event.messageId, response.id)
-                        }
+                    it.generate(event, config.quickview).fold(event.messageId) { messageId, embed ->
+                        val responseId = event.channel.sendMessage(embed).await().id
+                        messagingDirector.trackVolatile(messageId, responseId)
+                        responseId
                     }
                 }
             }
         }
     }
+
+    private suspend fun MessageAction.await() = this.submit().await()
 
     private val MessageReceivedEvent.isIgnorable
         get() = author.isBot || isWebhookMessage || (author == jda.selfUser)

@@ -24,6 +24,7 @@
 
 package me.ianmooreis.glyph.bot.messaging
 
+import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.ai.AIAgent
@@ -78,9 +79,8 @@ class MessagingDirector(
      * @param invokerId the message id the invoked the response message
      * @param responseId the message id of the response message to the invoking message
      */
-    fun trackVolatile(invokerId: String, responseId: String) {
+    fun trackVolatile(invokerId: String, responseId: String): RedisFuture<String> =
         redis.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
-    }
 
     /**
      * Log a failure to send a message, useful so figuring out the if someone complains Glyph won't respond
@@ -142,10 +142,10 @@ class MessagingDirector(
         val key = Key.VOLATILE_MESSAGE_PREFIX.value + event.messageId
         redis.get(key).thenAccept { responseId ->
             redis.del(key)
-            event.channel.retrieveMessageById(responseId).queue {
+            event.channel.retrieveMessageById(responseId).queue({
                 it.addReaction("❌").queue()
                 it.delete().queueAfter(1, TimeUnit.SECONDS)
-            }
+            }, {})
         }
     }
 

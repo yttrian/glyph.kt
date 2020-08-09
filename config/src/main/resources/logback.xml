@@ -10,4 +10,6 @@
     <logger name="io.netty" level="INFO"/>
     <logger name="io.lettuce" level="INFO"/>
     <logger name="Exposed" level="INFO"/>
+    <logger name="io.lettuce.core.protocol.ConnectionWatchdog" level="WARN"/>
+    <logger name="io.lettuce.core.protocol.ReconnectionHandler" level="WARN"/>
 </configuration>

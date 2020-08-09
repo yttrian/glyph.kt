@@ -33,14 +33,10 @@ import me.ianmooreis.glyph.bot.extensions.toDate
 import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Duration
 import java.time.OffsetDateTime
-import java.util.concurrent.CompletableFuture
 
 /**
  * A skill that allows privileged members to purge messages within a duration to the past
@@ -52,19 +48,27 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
 
         // Check that the user has permission within the channel
         if (!event.member!!.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            return Response.Volatile("You need permission to Manage Messages in this channel in order to purge messages!")
+            return Response.Volatile(
+                "You need permission to Manage Messages in this channel in order to purge messages!"
+            )
         }
 
         // Check that we have permission in the channel specifically, not the server as a whole
         if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
-            return Response.Volatile("I need permission to Manage Messages in this channel in order to purge messages!")
+            return Response.Volatile(
+                "I need permission to Manage Messages in this channel in order to purge messages!"
+            )
         } else if (!event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_HISTORY)) {
-            return Response.Volatile("I need permission to Read Message History in this channel in order to purge messages!")
+            return Response.Volatile(
+                "I need permission to Read Message History in this channel in order to purge messages!"
+            )
         }
 
         // Warn the user if we can't determine what time duration they want
         if (durationEntity == null) {
-            return Response.Volatile("That is an invalid time duration, try being less vague with abbreviations.")
+            return Response.Volatile(
+                "That is an invalid time duration, try being less vague with abbreviations."
+            )
         }
 
         val durationAmount = durationEntity.get("amount").asLong
@@ -77,41 +81,15 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
             null -> time
             else -> null
         }
-        if (duration === null || duration.isBefore(time.minusDays(14))) {
-            return Response.Volatile("Discord only allows me to purge up to 14 days!")
+        if (duration === null || duration.isBefore(time.minusDays(MAX_LOOKBACK_DAYS))) {
+            return Response.Volatile("Discord only allows me to purge up to $MAX_LOOKBACK_DAYS days!")
         } else if (duration.isAfter(time)) {
             return Response.Volatile("I cannot purge messages from the future!")
         }
 
         val prettyDuration = PrettyTime().format(duration.toDate())
-        event.textChannel.takeMessagesSince(duration).thenAcceptAsync {
-            // JDA now handles chunking for bulk deletion, so we'll let it deal with that
-            event.textChannel.purgeMessages(it)
-        }
 
-        // If purge auditing is enabled, log it
-        if (event.guild.config.auditing.purge) {
-            event.jda.addEventListener(object : ListenerAdapter() {
-                val blame = event.author.asMention
-                val channel = event.textChannel.asMention
-                val reason = ai.result.getStringParameter("reason") ?: "No reason provided"
-
-                override fun onMessageBulkDelete(event: MessageBulkDeleteEvent) {
-                    val total = event.messageIds.size
-
-                    val auditMessage = SimpleDescriptionBuilder()
-                        .addField("Total", "$total messages")
-                        .addField("Channel", channel)
-                        .addField("Blame", blame)
-                        .addField("Reason", reason)
-                        .build()
-
-                    event.guild.audit("Messages Purged", auditMessage)
-
-                    event.jda.removeEventListener(this)
-                }
-            })
-        }
+        delete(event, duration, ai.result.getStringParameter("reason") ?: "No reason provided")
 
         // Inform the user of a successful purge request
         return Response.Ephemeral(
@@ -120,7 +98,43 @@ class PurgeSkill : Skill("skill.moderation.purge", guildOnly = true) {
         )
     }
 
-    private fun TextChannel.takeMessagesSince(time: OffsetDateTime): CompletableFuture<List<Message>> {
-        return this.iterableHistory.takeWhileAsync { it.timeCreated.isAfter(time) }
+    private fun delete(event: MessageReceivedEvent, endTime: OffsetDateTime, reason: String) {
+        fun deleteLoop(beforeMessage: Message, count: Int = 0) {
+            event.textChannel.getHistoryBefore(beforeMessage, MESSAGE_RETRIEVAL_LIMIT).queue { messageHistory ->
+                val messages = messageHistory.retrievedHistory
+                if (messages.last().timeCreated.isAfter(endTime)) {
+                    event.textChannel.purgeMessages(messages)
+                    deleteLoop(messages.last(), count + messages.size)
+                } else {
+                    val remainingMessages = messages.takeWhile { it.timeCreated.isAfter(endTime) }
+                    event.textChannel.purgeMessages(remainingMessages)
+
+                    // If purge auditing is enabled, log it
+                    if (event.guild.config.auditing.purge) {
+                        val blame = event.author.asMention
+                        val channel = event.textChannel.asMention
+
+                        val auditMessage = SimpleDescriptionBuilder()
+                            .addField("Total", "${count + remainingMessages.size} messages")
+                            .addField("Channel", channel)
+                            .addField("Blame", blame)
+                            .addField("Reason", reason)
+                            .build()
+
+                        event.guild.audit("Messages Purged", auditMessage)
+                    }
+                }
+            }
+        }
+
+        event.message.apply {
+            delete().queue()
+            deleteLoop(this)
+        }
+    }
+
+    companion object {
+        private const val MESSAGE_RETRIEVAL_LIMIT: Int = 100
+        private const val MAX_LOOKBACK_DAYS: Long = 14
     }
 }

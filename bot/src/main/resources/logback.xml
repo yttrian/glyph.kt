@@ -33,4 +33,6 @@
     </root>
     <logger name="net.dv8tion.jda" level="INFO"/>
     <logger name="Exposed" level="INFO"/>
+    <logger name="io.lettuce.core.protocol.ConnectionWatchdog" level="WARN"/>
+    <logger name="io.lettuce.core.protocol.ReconnectionHandler" level="WARN"/>
 </configuration>

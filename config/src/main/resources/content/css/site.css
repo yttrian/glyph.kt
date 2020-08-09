@@ -1,0 +1,262 @@
+/*
+ * site.css
+ *
+ * Glyph, a Discord bot that uses natural language instead of commands
+ * powered by DialogFlow and Kotlin
+ *
+ * Copyright (C) 2017-2019 by Ian Moore
+ *
+ * This file is part of Glyph.
+ *
+ * Glyph is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+html {
+    background-color: #1c1c1c;
+}
+
+body {
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    color: white;
+    padding-bottom: 3rem;
+}
+
+body.invalid {
+    overflow: hidden;
+}
+
+nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    color: white;
+    background-color: #313131;
+    padding: .5rem 3rem .5rem 3rem;
+}
+
+nav .nav-branding h1, nav .nav-branding img {
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+nav .nav-branding h1 {
+    margin-left: .5rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+nav ul.nav-links {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    float: right;
+    display: table;
+    list-style: none;
+}
+
+nav ul.nav-links li {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+nav ul.nav-links li:not(:first-child) {
+    padding-left: 1rem;
+}
+
+.tagline {
+    font-style: italic;
+    font-size: small;
+    color: gray;
+}
+
+.container {
+    margin: 0 3rem 0 3rem;
+}
+
+ul.guilds li a {
+    color: wheat !important;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 1.5rem;
+}
+
+.save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #313131;
+}
+
+.save-bar .container {
+    padding: .5rem 0 .5rem 0;
+}
+
+.save-bar .save-bar-grid {
+    display: flex;
+    justify-content: space-between;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.server-info {
+    margin-top: 2rem;
+}
+
+.server-info #serverIcon {
+    display: inline-block;
+    max-width: 4rem;
+    vertical-align: middle;
+}
+
+.server-info #serverName {
+    display: inline-block;
+    margin: 0 1rem 0;
+    vertical-align: middle;
+}
+
+.options label {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    margin-bottom: .3rem;
+    padding-top: .3rem;
+}
+
+.options label:not(:first-child) {
+    border-top: #313131 1px solid;
+}
+
+.options span[data-ot]:after {
+    content: "?";
+}
+
+.emoji-selection {
+    display: flex;
+    align-items: center;
+}
+
+.emoji-selection img {
+    max-width: 2rem;
+    margin-right: .5rem;
+}
+
+button {
+    font-family: "Roboto", sans-serif;
+    min-width: 4rem;
+}
+
+input, select {
+    font-family: "Roboto", sans-serif;
+    border-radius: 0.125rem;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    outline: none;
+}
+
+.choices__inner, .choices__list {
+    box-sizing: border-box;
+}
+
+.choices__list {
+    color: black;
+}
+
+.choices__list--multiple .choices__item.choices__item--selectable {
+    background-color: #1c1c1c;
+    border-color: #313131;
+}
+
+.choices__item.choices__item--choice {
+    background-color: white;
+}
+
+.warning {
+    display: none;
+}
+
+.invalid .warning {
+    display: table;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: #1c1c1c;
+}
+
+.warning-text {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.warning-text a {
+    background-color: wheat;
+    padding: .2em .4rem;
+    border-radius: .2rem;
+    color: #1c1c1c;
+    text-decoration: none;
+}
+
+code {
+    background-color: #333;
+    padding: .3rem;
+    border-radius: .3rem;
+}
+
+@media screen and (max-width: 1000px) {
+    nav {
+        grid-template-columns: repeat(1, 1fr);
+        padding: .5rem;
+    }
+
+    nav .nav-right {
+        margin-top: .5rem;
+    }
+
+    nav ul.nav-links {
+        float: none;
+    }
+
+    .container {
+        margin: 0 1rem 0 1rem;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #hinter {
+        display: none;
+    }
+
+    .save-bar .save-bar-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}

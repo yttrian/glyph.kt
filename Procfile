@@ -1,1 +1,2 @@
-worker: java -jar build/libs/glyph-1.0-all.jar
+worker: java -jar build/shadow/glyph-bot.jar
+web: java -jar build/shadow/glyph-config.jar

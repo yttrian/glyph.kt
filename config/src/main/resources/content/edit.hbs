@@ -1,0 +1,192 @@
+<!--
+  ~ edit.hbs
+  ~
+  ~ Glyph, a Discord bot that uses natural language instead of commands
+  ~ powered by DialogFlow and Kotlin
+  ~
+  ~ Copyright (C) 2017-2019 by Ian Moore
+  ~
+  ~ This file is part of Glyph.
+  ~
+  ~ Glyph is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Affero General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Affero General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Glyph Config Editor</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/choices.js/3.0.4/styles/css/choices.min.css"
+          integrity="sha256-jbg41KhmvslUmx7YVxcvD8v05I1huEWmSSaE9vHczUk=" crossorigin="anonymous"/>
+    <link href="css/site.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/11.3.0/twemoji.min.js"
+            integrity="sha256-Y3KC8juDUsBOzJ3XtOH/sj+BAlF9AQr6pEey+4ibaJ4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/choices.js/3.0.4/choices.min.js"
+            integrity="sha256-fn42zDIZe73UQx/PAcZ9Wmq4/cUaiIzaW+wGLNuXMWI=" crossorigin="anonymous"></script>
+</head>
+<body>
+<nav>
+    <div class="nav-branding">
+        <a href="/">
+            <img src="img/glyph.png" alt="Glyph">
+            <h1>Glyph Config Editor
+                <small class="tagline">now 30% worse than before!</small>
+            </h1>
+        </a>
+    </div>
+    <div class="nav-right">
+        <ul class="nav-links">
+            <li><a href="https://github.com/glyph-discord/config">Editor Source</a></li>
+            <li><a href="https://glyph-discord.readthedocs.io/en/latest/skills.html">Documentation</a></li>
+            <li><a href="https://gl.yttr.org/server">Support Server</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="server-info" data-option="_data" data-handler="data">
+        <img id="serverIcon" src="img/default-icon.png" alt="server icon">
+        <h1 id="serverName">Invalid</h1>
+    </div>
+
+    <div class="grid">
+        <section class="config-section">
+            <h2>Wikis</h2>
+            <div class="options">
+                <label data-hint="A list of Fandom wikis or Wikipedia.">
+                    Sources
+                    <input data-option="wiki.sources" data-handler="wikiSources" multiple>
+                </label>
+                <label data-hint="The minimum acceptable article quality from Fandom (only seen in API).">
+                    Minimum quality
+                    <input data-option="wiki.minimumQuality" type="number" min="0" max="100" value="50">
+                </label>
+            </div>
+        </section>
+
+        <section class="config-section">
+            <h2>Selectable Roles</h2>
+            <div class="options">
+                <label data-hint="What roles can people ask Glyph to grant them? Often used for vanity or role play.">Roles
+                    <select data-option="selectableRoles.roles" data-handler="selectableRoles" multiple></select>
+                </label>
+                <label data-hint="How many roles is someone allowed to have? Use -1 for unlimited.">Limit
+                    <input data-option="selectableRoles.limit" type="number" min="-1" value="1">
+                </label>
+            </div>
+        </section>
+
+        <section class="config-section">
+            <h2>Quickviews</h2>
+
+            <h3>FurAffinity</h3>
+            <div class="options">
+                <label data-hint="Create embeds about Furaffinity submissions when links are posted?">Enabled
+                    <input data-option="quickview.furaffinityEnabled" type="checkbox" checked>
+                </label>
+                <label data-hint="Should the Furaffinity embeds include a thumbnail?">Show thumbnails
+                    <input data-option="quickview.furaffinityThumbnails" type="checkbox" checked>
+                </label>
+            </div>
+
+            <h3>Picarto</h3>
+            <div class="options">
+                <label data-hint="Created embeds about Picarto channels when links are posted?">Enabled
+                    <input data-option="quickview.picartoEnabled" type="checkbox" checked>
+                </label>
+            </div>
+        </section>
+
+        <section class="config-section">
+            <h2>Auditing</h2>
+
+            <div class="options">
+                <label>Joins
+                    <input data-option="auditing.joins" type="checkbox">
+                </label>
+                <label>Leaves
+                    <input data-option="auditing.leaves" type="checkbox">
+                </label>
+                <label>Purge
+                    <input data-option="auditing.purge" type="checkbox">
+                </label>
+                <label>Kicks
+                    <input data-option="auditing.kicks" type="checkbox">
+                </label>
+                <label>Bans
+                    <input data-option="auditing.bans" type="checkbox">
+                </label>
+                <label>Names
+                    <input data-option="auditing.names" type="checkbox">
+                </label>
+                <label data-hint="What channel should audits be sent to?">Audit channel
+                    <select data-option="auditing.channel" data-handler="channel"></select>
+                </label>
+            </div>
+        </section>
+
+        <section class="config-section">
+            <h2>Starboard</h2>
+            <div class="options">
+                <label data-hint="Should the Starboard feature be enabled?">Enabled
+                    <input data-option="starboard.enabled" type="checkbox">
+                </label>
+                <label data-hint="Should users be allowed to add stars to their own messages?">Allow self starring
+                    <input data-option="starboard.allowSelfStarring" type="checkbox">
+                </label>
+                <label data-hint="What emoji should be considered a star when counting reacts for starboarding?">Emoji
+                    <select data-option="starboard.emoji" data-handler="emoji"></select>
+                </label>
+                <label data-hint="What's the minimum number of stars (or chosen emoji) a message needs to be starboarded?">Threshold
+                    <input data-option="starboard.threshold" type="number" min="1" value="2">
+                </label>
+                <label data-hint="What channel should starred messages be sent to?">Star channel
+                    <select data-option="starboard.channel" data-handler="channel"></select>
+                </label>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="save-bar">
+    <div class="container save-bar-grid">
+        <span id="hinter"></span>
+        <div class="text-right">
+            <label>
+                <!-- This is only used to *know* what server you were editing, every request is validated regardless -->
+                <input id="key" type="hidden" value="{{guildId}}">
+            </label>
+            <button id="save">Save</button>
+            <button id="load">Reload</button>
+        </div>
+    </div>
+</div>
+
+<div class="warning">
+    <div class="warning-text">
+        <h1>Glyph Config Editor</h1>
+        <p>This server's config cannot be edited.</p>
+        <p id="warning-reason">The reason is unknown.</p>
+    </div>
+</div>
+
+<script src="js/populator.js" type="application/javascript"></script>
+<script src="js/hinter.js" type="application/javascript"></script>
+<script src="js/editor.js" type="application/javascript"></script>
+<script src="js/emoji.js" type="application/javascript"></script>
+<script src="js/handlers.js" type="application/javascript"></script>
+</body>
+</html>

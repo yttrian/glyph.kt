@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
@@ -56,18 +57,23 @@ class MessagingDirector(
     /**
      * HOCON-like config for the me.ianmooreis.glyph.bot.quickview.messaging director
      */
-    class Config {
+    data class Config(
         /**
          * How long associated messages should be remembered for DeleteWith functionality
          */
         var volatileTrackingExpiration: Duration = Duration.ofDays(DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS)
-    }
+    )
 
     companion object {
         /**
          * By default how long to track volatile messages for
          */
         const val DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS: Long = 14
+
+        /**
+         * Grabs the mention at the start of a message, if any
+         */
+        private val leadingMentionRegex: Regex = Regex("^<@!?(\\d+)>")
     }
 
     private val config = Config().also(configure)
@@ -149,13 +155,14 @@ class MessagingDirector(
         }
     }
 
+    private fun Message.startsWithMention(user: User) =
+        leadingMentionRegex.find(this.contentRaw)?.groups?.get(1)?.value == user.id
+
     private val MessageReceivedEvent.isIgnorable
-        get() = author.isBot || // ignore other bots
-                (author == jda.selfUser) || // ignore self
+        get() = author.isBot || // ignore other bots (which means us too, since we're a bot)
                 isWebhookMessage || // ignore webhooks
-                (isFromGuild && !message.isMentioned(jda.selfUser)) || // require mention except in DMs
                 message.contentClean.isEmpty() || // ignore empty messages
-                (isFromGuild && !message.contentRaw.startsWith("<@!" + jda.selfUser.id)) // must start with mention
+                (isFromGuild && !message.startsWithMention(jda.selfUser)) // must start with mention of us
 
     private fun Message.reply(
         content: String? = null,

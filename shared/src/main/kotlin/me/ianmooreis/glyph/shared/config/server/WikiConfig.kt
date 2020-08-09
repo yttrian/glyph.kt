@@ -35,7 +35,7 @@ data class WikiConfig(
     /**
      * The list of wiki sources to search in order
      */
-    val sources: List<String> = listOf("wikipedia", "masseffect", "avp"),
+    val sources: List<String> = listOf(),
     /**
      * The minimum Wikia article quality to allow pass
      */

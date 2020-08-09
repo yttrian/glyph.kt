@@ -84,8 +84,8 @@ fun Application.module(testing: Boolean = false) {
     install(Authentication) {
         oauth("discord-oauth") {
             val discordAuth = DiscordOAuth2.getProvider(
-                clientId = System.getenv("CLIENT_ID"),
-                clientSecret = System.getenv("CLIENT_SECRET"),
+                clientId = System.getenv("DISCORD_CLIENT_ID"),
+                clientSecret = System.getenv("DISCORD_CLIENT_SECRET"),
                 scopes = listOf("identify", "guilds")
             )
 

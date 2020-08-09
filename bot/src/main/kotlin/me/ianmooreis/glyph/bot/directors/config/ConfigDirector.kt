@@ -110,11 +110,13 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
 
         val textChannels = JsonArray()
         guild.textChannels.forEach {
-            val channelData = JsonObject()
-            channelData.addProperty("id", it.id)
-            channelData.addProperty("name", it.name)
-            channelData.addProperty("nsfw", it.isNSFW)
-            textChannels.add(channelData)
+            if (it.canTalk()) {
+                val channelData = JsonObject()
+                channelData.addProperty("id", it.id)
+                channelData.addProperty("name", it.name)
+                channelData.addProperty("nsfw", it.isNSFW)
+                textChannels.add(channelData)
+            }
         }
         serverData.add("textChannels", textChannels)
 

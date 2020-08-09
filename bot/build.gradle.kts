@@ -38,7 +38,7 @@ shadowJar {
         archiveName = "glyph-bot.jar"
         mainClass = "me.ianmooreis.glyph.bot.GlyphKt"
     }
-}
+}.task.mergeServiceFiles()
 
 tasks.named("stage") {
     dependsOn("shadowJar")

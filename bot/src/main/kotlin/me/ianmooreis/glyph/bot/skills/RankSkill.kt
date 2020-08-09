@@ -24,8 +24,7 @@
 
 package me.ianmooreis.glyph.bot.skills
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.bot.directors.skills.Skill
@@ -54,7 +53,7 @@ class RankSkill : Skill("skill.rank", guildOnly = true) {
         val property: String? = ai.result.getStringParameter("memberProperty")
 
         return if (property != null) {
-            withContext(Dispatchers.IO) { event.guild.retrieveMembers().get() }
+            event.guild.retrieveMembers().await()
             val members = event.guild.members
             when (property) {
                 "join" -> Response.Volatile(rankMembersByJoin(members, event.member ?: event.guild.selfMember))

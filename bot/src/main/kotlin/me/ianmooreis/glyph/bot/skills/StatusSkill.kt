@@ -24,8 +24,7 @@
 
 package me.ianmooreis.glyph.bot.skills
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.Glyph
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.config.Key
@@ -45,21 +44,24 @@ import java.util.*
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only
  */
-class StatusSkill(val redis: RedisAsync) : Skill("skill.status", cooldownTime = 5) {
+class StatusSkill(
+    /**
+     * Redis async connection
+     */
+    private val redis: RedisAsync
+) : Skill("skill.status", cooldownTime = 5) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         val jda = event.jda
         val name = jda.selfUser.name
         val discordDescription = SimpleDescriptionBuilder()
             .addField("Ping", "${jda.gatewayPing} ms")
-            .addField("Guilds", jda.guilds.count())
+            .addField("Guilds", jda.guilds.size)
             .addField(
                 "Shard",
-                "${jda.shardInfo.shardId}${if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""}"
+                "${jda.shardInfo.shardId}" + if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""
             )
-            .addField("Users", jda.users.size)
         if (event.author.isCreator) {
-            // TODO: User kotlinx coroutines await
-            val messageCount = withContext(Dispatchers.IO) { redis.get(Key.MESSAGE_COUNT.value).get() }
+            val messageCount = redis.get(Key.MESSAGE_COUNT.value).await()
             discordDescription.addField("Messages", messageCount ?: "?")
         }
         val embed = EmbedBuilder()

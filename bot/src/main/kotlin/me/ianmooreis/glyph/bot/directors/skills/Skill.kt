@@ -24,6 +24,7 @@
 
 package me.ianmooreis.glyph.bot.directors.skills
 
+import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.extensions.contentClean
 import me.ianmooreis.glyph.bot.extensions.isCreator
@@ -32,6 +33,7 @@ import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.requests.RestAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -111,6 +113,11 @@ abstract class Skill(
     }
 
     override fun toString(): String = trigger
+
+    /**
+     * Awaits on a RestAction
+     */
+    protected suspend fun <T> RestAction<T>.await(): T = this.submit().await()
 
     /**
      * Get the config for a server (or default if none)

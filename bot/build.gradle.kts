@@ -51,6 +51,7 @@ plugins {
 dependencies {
     implementation(project(":shared"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.7")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("net.dv8tion:JDA:$jda_version")
     implementation("club.minnced:discord-webhooks:0.3.0")

@@ -52,8 +52,12 @@ class GuildInfoSkill : Skill("skill.moderation.guildInfo", guildOnly = true) {
                 "name" -> "This guild is **${guild.name}**."
                 "id" -> "The id for ${guild.name} is **${guild.id}**."
                 "region" -> "${guild.name} is located in **${guild.regionRaw}**."
-                "created" -> "${guild.name} was created **${PrettyTime().format(guild.timeCreated.toDate())}** (${guild.timeCreated})."
-                "owner" -> "**${guild.owner?.asPlainMention ?: "?"}** is the owner of ${guild.name}."
+                "created" -> {
+                    val prettyCreated = PrettyTime().format(guild.timeCreated.toDate())
+                    "${guild.name} was created **$prettyCreated** (${guild.timeCreated})."
+                }
+                "owner" ->
+                    "**${guild.retrieveOwner().await().asPlainMention}** is the owner of ${guild.name}."
                 "members" -> "${guild.name} has **${guild.members.count()}** members."
                 "membersHumans" -> "${guild.name} has **${guild.members.count { !it.user.isBot }}** humans."
                 "membersBots" -> "${guild.name} has **${guild.members.count { it.user.isBot }}** bots."

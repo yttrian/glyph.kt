@@ -108,11 +108,13 @@ fun Application.module() {
         get("/") {
             val token = call.sessions.get<ConfigSession>()?.accessToken
 
-            val templateData = if (token == null) null else when (val user = User.getUser(token)) {
-                is Either.Left -> null
-                is Either.Right -> mapOf("guilds" to user().guilds.mapNotNull {
-                    if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
-                } + mapOf("id" to "logout", "name" to "Logout..."))
+            val templateData = token?.let {
+                when (val user = User.getUser(token)) {
+                    is Either.Left -> null
+                    is Either.Right -> mapOf("guilds" to user().guilds.mapNotNull {
+                        if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
+                    } + mapOf("id" to "logout", "name" to "Logout..."))
+                }
             } ?: emptyMap()
 
             call.respond(MustacheContent("index.hbs", templateData))

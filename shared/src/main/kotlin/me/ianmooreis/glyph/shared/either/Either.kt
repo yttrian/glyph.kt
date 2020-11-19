@@ -35,13 +35,8 @@ sealed class Either<out L, out R> {
         /**
          * Value of the Left
          */
-        private val v: L
-    ) : Either<L, Nothing>() {
-        /**
-         * Pull value for Left
-         */
-        operator fun invoke(): L = v
-    }
+        val l: L
+    ) : Either<L, Nothing>()
 
     /**
      * Right of an Either
@@ -50,13 +45,8 @@ sealed class Either<out L, out R> {
         /**
          * Value of the Right
          */
-        private val v: R
-    ) : Either<Nothing, R>() {
-        /**
-         * Pull value from Right
-         */
-        operator fun invoke(): R = v
-    }
+        val r: R
+    ) : Either<Nothing, R>()
 }
 
 /**

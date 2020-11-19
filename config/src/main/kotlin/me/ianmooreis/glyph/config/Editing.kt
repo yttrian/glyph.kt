@@ -70,12 +70,12 @@ fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
 
                 if (session.canManageGuild(guildId)) {
                     val response = when (val config = pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX)) {
-                        is Either.Left -> HttpStatusCode.InternalServerError to when (config()) {
+                        is Either.Left -> HttpStatusCode.InternalServerError to when (config.l) {
                             is PubSubException.Deaf -> "Bot is completely offline, try again later."
                             is PubSubException.Ignored -> "Bot could not find the requested guild. Is it a member?"
                             else -> "Unknown error"
                         }
-                        is Either.Right -> HttpStatusCode.OK to config()
+                        is Either.Right -> HttpStatusCode.OK to config.r
                     }
                     call.respond(response.first, response.second)
                 } else {
@@ -110,5 +110,5 @@ private fun User.canManageGuild(guildId: String): Boolean = this.guilds.any { it
 private suspend fun ConfigSession?.canManageGuild(guildId: String): Boolean =
     if (this == null) false else when (val user = User.getUser(accessToken)) {
         is Either.Left -> false
-        is Either.Right -> user().canManageGuild(guildId)
+        is Either.Right -> user.r.canManageGuild(guildId)
     }

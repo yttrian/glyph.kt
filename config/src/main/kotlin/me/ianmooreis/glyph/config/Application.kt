@@ -111,7 +111,7 @@ fun Application.module() {
             val templateData = token?.let {
                 when (val user = User.getUser(token)) {
                     is Either.Left -> null
-                    is Either.Right -> mapOf("guilds" to user().guilds.mapNotNull {
+                    is Either.Right -> mapOf("guilds" to user.r.guilds.mapNotNull {
                         if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
                     } + mapOf("id" to "logout", "name" to "Logout..."))
                 }

@@ -24,14 +24,12 @@
 
 package me.ianmooreis.glyph.config
 
-import arrow.core.Either
-import arrow.core.Option
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.ContentTransformationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.mustache.MustacheContent
-import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -39,12 +37,14 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.serialization.json
+import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.Json
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
 import me.ianmooreis.glyph.shared.config.ConfigManager
 import me.ianmooreis.glyph.shared.config.server.ServerConfig
+import me.ianmooreis.glyph.shared.either.Either
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
 import me.ianmooreis.glyph.shared.pubsub.PubSubException
@@ -54,7 +54,7 @@ import me.ianmooreis.glyph.shared.pubsub.PubSubException
  */
 fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
     install(ContentNegotiation) {
-        json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true))
+        json(Json { ignoreUnknownKeys = true })
     }
 
     route("/{guildId}") {
@@ -66,16 +66,16 @@ fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
         route("/data") {
             get {
                 val guildId = call.parameters["guildId"] ?: error("No guild id given")
-                val session = call.sessions.getOption<ConfigSession>()
+                val session = call.sessions.get<ConfigSession>()
 
                 if (session.canManageGuild(guildId)) {
                     val response = when (val config = pubSub.ask(guildId, PubSubChannel.CONFIG_PREFIX)) {
-                        is Either.Left -> HttpStatusCode.InternalServerError to when (config.a) {
+                        is Either.Left -> HttpStatusCode.InternalServerError to when (config.l) {
                             is PubSubException.Deaf -> "Bot is completely offline, try again later."
                             is PubSubException.Ignored -> "Bot could not find the requested guild. Is it a member?"
                             else -> "Unknown error"
                         }
-                        is Either.Right -> HttpStatusCode.OK to config.b
+                        is Either.Right -> HttpStatusCode.OK to config.r
                     }
                     call.respond(response.first, response.second)
                 } else {
@@ -85,7 +85,7 @@ fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
 
             post {
                 val guildId = call.parameters["guildId"] ?: error("No guild id given")
-                val session = call.sessions.getOption<ConfigSession>()
+                val session = call.sessions.get<ConfigSession>()
 
                 if (session.canManageGuild(guildId)) {
                     val config = try {
@@ -107,8 +107,8 @@ fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
 
 private fun User.canManageGuild(guildId: String): Boolean = this.guilds.any { it.id == guildId && it.hasManageGuild }
 
-private suspend fun Option<ConfigSession>.canManageGuild(guildId: String): Boolean =
-    when (val user = User.getUser(this.map { it.accessToken })) {
+private suspend fun ConfigSession?.canManageGuild(guildId: String): Boolean =
+    if (this == null) false else when (val user = User.getUser(accessToken)) {
         is Either.Left -> false
-        is Either.Right -> user.b.canManageGuild(guildId)
+        is Either.Right -> user.r.canManageGuild(guildId)
     }

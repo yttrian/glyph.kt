@@ -29,9 +29,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
 import io.ktor.http.takeFrom
-import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonDecodingException
+import kotlinx.serialization.SerializationException
 
 /**
  * Grabs articles from Fandom wikis
@@ -40,7 +39,7 @@ class FandomExtractor(
     /**
      * The Fandom wiki to search
      */
-    private val wiki: String,
+    wiki: String,
     /**
      * The minimum acceptable article quality
      */
@@ -149,9 +148,7 @@ class FandomExtractor(
     } catch (e: ResponseException) {
         e.printStackTrace()
         null
-    } catch (e: MissingFieldException) {
-        null
-    } catch (e: JsonDecodingException) {
+    } catch (e: SerializationException) {
         null
     }
 }

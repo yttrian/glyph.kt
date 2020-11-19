@@ -1,5 +1,5 @@
 /*
- * WikiExtractor.kt
+ * Either.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,30 +22,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.wiki
-
-import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
-import kotlinx.serialization.json.Json
+package me.ianmooreis.glyph.shared.either
 
 /**
- * Handle extracting articles from a specific wiki
+ * Either type, Left or Right
  */
-abstract class WikiExtractor {
+sealed class Either<out L, out R> {
     /**
-     * HTTP client for making API requests
+     * Left of an Either
      */
-    val client: HttpClient = HttpClient {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(Json { ignoreUnknownKeys = true })
-        }
-    }
+    data class Left<out L>(
+        /**
+         * Value of the Left
+         */
+        val l: L
+    ) : Either<L, Nothing>()
 
     /**
-     * Tries to find an article from a search
-     *
-     * @param query the search query
+     * Right of an Either
      */
-    abstract suspend fun getArticle(query: String): WikiArticle?
+    data class Right<out R>(
+        /**
+         * Value of the Right
+         */
+        val r: R
+    ) : Either<Nothing, R>()
 }
+
+/**
+ * Wrap value in Left
+ */
+fun <T> T.left(): Either.Left<T> = Either.Left(this)
+
+/**
+ * Wrap value in Right
+ */
+fun <T> T.right(): Either.Right<T> = Either.Right(this)

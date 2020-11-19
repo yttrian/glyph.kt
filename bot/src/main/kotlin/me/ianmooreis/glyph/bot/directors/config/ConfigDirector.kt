@@ -98,7 +98,7 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
         serverData.add("info", info)
 
         val roles = JsonArray()
-        guild.roles.filterNot { it.isPublicRole || it.isManaged }.forEach {
+        guild.roleCache.filterNot { it.isPublicRole || it.isManaged }.forEach {
             val roleData = JsonObject()
             roleData.addProperty("id", it.id)
             roleData.addProperty("name", it.name)
@@ -109,7 +109,7 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
         serverData.add("roles", roles)
 
         val textChannels = JsonArray()
-        guild.textChannels.forEach {
+        guild.textChannelCache.forEach {
             if (it.canTalk()) {
                 val channelData = JsonObject()
                 channelData.addProperty("id", it.id)
@@ -121,7 +121,7 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
         serverData.add("textChannels", textChannels)
 
         val emojis = JsonArray()
-        guild.emotes.forEach {
+        guild.emoteCache.forEach {
             val emojiData = JsonObject()
             emojiData.addProperty("id", it.id)
             emojiData.addProperty("name", it.name)

@@ -24,13 +24,12 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val kotlin_version: String by project.extra
-val arrow_version: String by project.extra
+val kotlinVersion: String by project.extra
 
 plugins {
-    kotlin("jvm") version "1.3.72" apply true
-    kotlin("kapt") version "1.3.72" apply true
-    id("tanvd.kosogor") version "1.0.9" apply true
+    kotlin("jvm") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
+    id("tanvd.kosogor") version "1.0.9"
 }
 
 allprojects {
@@ -41,15 +40,12 @@ allprojects {
 
 subprojects {
     apply(plugin = "kotlin")
-    apply(plugin = "kotlin-kapt")
+    apply(plugin = "kotlinx-serialization")
     apply(plugin = "tanvd.kosogor")
 
     dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+        implementation(kotlin("stdlib-jdk8", kotlinVersion))
         implementation("io.lettuce:lettuce-core:6.0.0.M1")
-        implementation("io.arrow-kt:arrow-core:$arrow_version")
-        implementation("io.arrow-kt:arrow-syntax:$arrow_version")
-        kapt("io.arrow-kt:arrow-meta:$arrow_version")
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     }

@@ -62,6 +62,7 @@ import me.ianmooreis.glyph.bot.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.bot.skills.wiki.WikiSkill
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.utils.cache.CacheFlag
 
 /**
  * The Glyph object to use when building the client
@@ -126,6 +127,8 @@ object Glyph {
                 GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MEMBERS
             )
+
+            it.enableCache(CacheFlag.EMOTE)
 
             val serverDirector = ServerDirector { id ->
                 val discordBotList = BotList(

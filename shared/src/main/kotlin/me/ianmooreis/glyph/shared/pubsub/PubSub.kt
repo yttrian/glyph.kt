@@ -24,7 +24,7 @@
 
 package me.ianmooreis.glyph.shared.pubsub
 
-import arrow.core.Either
+import me.ianmooreis.glyph.shared.either.Either
 
 /**
  * Generic interface for PubSub connectors

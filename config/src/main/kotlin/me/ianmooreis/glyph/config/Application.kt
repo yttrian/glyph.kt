@@ -24,9 +24,6 @@
 
 package me.ianmooreis.glyph.config
 
-import arrow.core.Either
-import arrow.core.Option
-import arrow.core.toOption
 import com.github.mustachejava.DefaultMustacheFactory
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -50,7 +47,6 @@ import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
-import io.ktor.sessions.CurrentSession
 import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
@@ -60,6 +56,7 @@ import me.ianmooreis.glyph.config.discord.DiscordOAuth2
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
 import me.ianmooreis.glyph.shared.config.ConfigManager
+import me.ianmooreis.glyph.shared.either.Either
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import org.slf4j.event.Level
@@ -72,7 +69,7 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 /**
  * The main main module to run
  */
-fun Application.module(testing: Boolean = false) {
+fun Application.module() {
     install(AutoHeadResponse)
 
     install(DefaultHeaders)
@@ -109,14 +106,16 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            val token = call.sessions.getOption<ConfigSession>().map { it.accessToken }
+            val token = call.sessions.get<ConfigSession>()?.accessToken
 
-            val templateData = when (val user = User.getUser(token)) {
-                is Either.Left -> emptyMap()
-                is Either.Right -> mapOf("guilds" to user.b.guilds.mapNotNull {
-                    if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
-                } + mapOf("id" to "logout", "name" to "Logout..."))
-            }
+            val templateData = token?.let {
+                when (val user = User.getUser(token)) {
+                    is Either.Left -> null
+                    is Either.Right -> mapOf("guilds" to user.r.guilds.mapNotNull {
+                        if (it.hasManageGuild) mapOf("id" to it.id, "name" to it.name) else null
+                    } + mapOf("id" to "logout", "name" to "Logout..."))
+                }
+            } ?: emptyMap()
 
             call.respond(MustacheContent("index.hbs", templateData))
         }
@@ -137,14 +136,12 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
+private const val HTTP_PORT: Int = 80
+private const val HTTPS_PORT: Int = 443
+
 private fun ApplicationCall.redirectUrl(path: String): String {
-    val defaultPort = if (request.origin.scheme == "http") 80 else 443
+    val defaultPort = if (request.origin.scheme == "http") HTTP_PORT else HTTPS_PORT
     val hostPort = request.host() + request.port().let { port -> if (port == defaultPort) "" else ":$port" }
     val protocol = request.origin.scheme
     return "$protocol://$hostPort$path"
 }
-
-/**
- * Retrieve a session object wrapped as an option
- */
-inline fun <reified T> CurrentSession.getOption(): Option<T> = this.get<T>().toOption()

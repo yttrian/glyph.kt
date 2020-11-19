@@ -27,8 +27,8 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.config"
 version = "1.0"
 
-val logback_version: String by project.extra
-val ktor_version: String by project.extra
+val logbackVersion: String by project.extra
+val ktorVersion: String by project.extra
 
 shadowJar {
     jar {
@@ -43,12 +43,12 @@ tasks.named("stage") {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-auth:$ktor_version")
-    implementation("io.ktor:ktor-serialization:$ktor_version")
-    implementation("io.ktor:ktor-mustache:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-gson:$ktor_version")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-auth:$ktorVersion")
+    implementation("io.ktor:ktor-serialization:$ktorVersion")
+    implementation("io.ktor:ktor-mustache:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-gson:$ktorVersion")
 }

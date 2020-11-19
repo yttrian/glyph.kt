@@ -27,11 +27,11 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.bot"
 version = "1.0"
 
-val kotlin_version: String by project.extra
-val logback_version: String by project.extra
-val jda_version: String by project.extra
-val exposed_version: String by project.extra
-val ktor_version: String by project.extra
+val coroutinesVersion: String by project.extra
+val logbackVersion: String by project.extra
+val jdaVersion: String by project.extra
+val exposedVersion: String by project.extra
+val ktorVersion: String by project.extra
 
 shadowJar {
     jar {
@@ -44,24 +44,19 @@ tasks.named("stage") {
     dependsOn("shadowJar")
 }
 
-plugins {
-    kotlin("plugin.serialization") version "1.3.72" apply true
-}
-
 dependencies {
     implementation(project(":shared"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.7")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("net.dv8tion:JDA:$jda_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("net.dv8tion:JDA:$jdaVersion")
     implementation("club.minnced:discord-webhooks:0.3.0")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")
     implementation("net.dean.jraw:JRAW:1.0.0")
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
     implementation("com.vdurmont:emoji-java:4.0.0")
     implementation("net.jodah:expiringmap:0.5.9")
     implementation("commons-codec:commons-codec:1.14")

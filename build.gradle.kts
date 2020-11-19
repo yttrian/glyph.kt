@@ -24,6 +24,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+val kotlinVersion: String by project.extra
+
 plugins {
     kotlin("jvm") version "1.4.10" apply true
     kotlin("plugin.serialization") version "1.4.10" apply true
@@ -41,7 +43,7 @@ subprojects {
     apply(plugin = "tanvd.kosogor")
 
     dependencies {
-        implementation(kotlin("stdlib-jdk8"))
+        implementation(kotlin("stdlib-jdk8", kotlinVersion))
         implementation("io.lettuce:lettuce-core:6.0.0.M1")
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

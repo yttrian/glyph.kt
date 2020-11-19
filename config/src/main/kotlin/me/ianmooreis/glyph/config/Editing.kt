@@ -39,7 +39,7 @@ import io.ktor.routing.route
 import io.ktor.serialization.json
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.Json
 import me.ianmooreis.glyph.config.discord.User
 import me.ianmooreis.glyph.config.session.ConfigSession
 import me.ianmooreis.glyph.shared.config.ConfigManager
@@ -54,7 +54,7 @@ import me.ianmooreis.glyph.shared.pubsub.PubSubException
  */
 fun Route.editing(pubSub: PubSub, configManager: ConfigManager) {
     install(ContentNegotiation) {
-        json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true))
+        json(Json { ignoreUnknownKeys = true })
     }
 
     route("/{guildId}") {

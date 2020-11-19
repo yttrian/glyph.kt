@@ -27,9 +27,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 val kotlinVersion: String by project.extra
 
 plugins {
-    kotlin("jvm") version "1.4.10" apply true
-    kotlin("plugin.serialization") version "1.4.10" apply true
-    id("tanvd.kosogor") version "1.0.9" apply true
+    kotlin("jvm") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
+    id("tanvd.kosogor") version "1.0.9"
 }
 
 allprojects {
@@ -40,6 +40,7 @@ allprojects {
 
 subprojects {
     apply(plugin = "kotlin")
+    apply(plugin = "kotlinx-serialization")
     apply(plugin = "tanvd.kosogor")
 
     dependencies {

@@ -24,13 +24,13 @@
 
 package me.ianmooreis.glyph.shared.pubsub.redis
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import kotlinx.coroutines.channels.Channel
+import me.ianmooreis.glyph.shared.either.Either
+import me.ianmooreis.glyph.shared.either.left
+import me.ianmooreis.glyph.shared.either.right
 import me.ianmooreis.glyph.shared.pubsub.PubSub
 import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
 import me.ianmooreis.glyph.shared.pubsub.PubSubException

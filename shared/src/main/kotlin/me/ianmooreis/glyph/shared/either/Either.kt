@@ -1,5 +1,5 @@
 /*
- * PubSub.kt
+ * Either.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,31 +22,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
-
-import me.ianmooreis.glyph.shared.either.Either
+package me.ianmooreis.glyph.shared.either
 
 /**
- * Generic interface for PubSub connectors
+ * Either type, Left or Right
  */
-interface PubSub {
+sealed class Either<out L, out R> {
     /**
-     * Publish a message
+     * Left of an Either
      */
-    fun publish(channel: PubSubChannel, message: String)
+    data class Left<out L>(
+        /**
+         * Value of the Left
+         */
+        private val v: L
+    ) : Either<L, Nothing>() {
+        /**
+         * Pull value for Left
+         */
+        operator fun invoke(): L = v
+    }
 
     /**
-     * Add an action-less listener
+     * Right of an Either
      */
-    fun addListener(listenChannel: PubSubChannel, action: (message: String) -> Unit)
-
-    /**
-     * Publish a message and listen for the response
-     */
-    suspend fun ask(query: String, askChannelPrefix: PubSubChannel): Either<PubSubException, String>
-
-    /**
-     * Add a responder for an ask
-     */
-    fun addResponder(askChannelPrefix: PubSubChannel, responder: (message: String) -> String?)
+    data class Right<out R>(
+        /**
+         * Value of the Right
+         */
+        private val v: R
+    ) : Either<Nothing, R>() {
+        /**
+         * Pull value from Right
+         */
+        operator fun invoke(): R = v
+    }
 }
+
+/**
+ * Wrap value in Left
+ */
+fun <T> T.left(): Either.Left<T> = Either.Left(this)
+
+/**
+ * Wrap value in Right
+ */
+fun <T> T.right(): Either.Right<T> = Either.Right(this)

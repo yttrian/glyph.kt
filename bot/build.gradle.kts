@@ -27,7 +27,7 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.bot"
 version = "1.0"
 
-val kotlinVersion: String by project.extra
+val coroutinesVersion: String by project.extra
 val logbackVersion: String by project.extra
 val jdaVersion: String by project.extra
 val exposedVersion: String by project.extra
@@ -46,7 +46,7 @@ tasks.named("stage") {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.dv8tion:JDA:$jdaVersion")
     implementation("club.minnced:discord-webhooks:0.3.0")

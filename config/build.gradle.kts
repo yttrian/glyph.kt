@@ -51,5 +51,4 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-gson:$ktorVersion")
-    implementation(kotlin("stdlib-jdk8"))
 }

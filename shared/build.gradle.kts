@@ -25,13 +25,13 @@
 group = "me.ianmooreis.glyph.shared"
 version = "1.0"
 
+val coroutinesVersion: String by project.extra
 val exposedVersion: String by project.extra
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.postgresql:postgresql:42.2.12")
-    implementation(kotlin("stdlib-jdk8"))
 }

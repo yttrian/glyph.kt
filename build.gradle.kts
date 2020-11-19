@@ -24,8 +24,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-val kotlinVersion: String by project.extra
-
 plugins {
     kotlin("jvm") version "1.4.10" apply true
     kotlin("plugin.serialization") version "1.4.10" apply true

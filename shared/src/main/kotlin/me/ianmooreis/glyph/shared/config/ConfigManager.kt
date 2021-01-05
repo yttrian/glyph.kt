@@ -124,7 +124,6 @@ class ConfigManager(configure: Config.() -> Unit) {
         }.firstOrNull()?.let { r ->
             val quickviewConfig = QuickviewConfig(
                 r[sct.quickviewFuraffinityEnabled],
-                r[sct.quickviewFuraffinityThumbnail],
                 r[sct.quickviewPicartoEnabled]
             )
             val auditingConfig = AuditingConfig(
@@ -201,7 +200,6 @@ class ConfigManager(configure: Config.() -> Unit) {
             it[sct.wikiMinQuality] = config.wiki.minimumQuality
             it[sct.selectableRolesLimit] = config.selectableRoles.limit
             it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
-            it[sct.quickviewFuraffinityThumbnail] = config.quickview.furaffinityThumbnails
             it[sct.quickviewPicartoEnabled] = config.quickview.picartoEnabled
             it[sct.logJoins] = config.auditing.joins
             it[sct.logLeaves] = config.auditing.leaves

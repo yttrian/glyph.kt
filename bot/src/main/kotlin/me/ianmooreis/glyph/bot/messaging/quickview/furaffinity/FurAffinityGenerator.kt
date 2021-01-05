@@ -82,8 +82,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
             getSubmission(it)?.run {
                 // allow only SFW thumbnails in DMs, and all in enabled servers but only show NSFW in NSFW channels
-                val allowThumbnail = (!event.isFromGuild && !rating.nsfw) ||
-                        (config.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
+                val allowThumbnail = !rating.nsfw || (event.isFromGuild && event.textChannel.isNSFW)
 
                 getEmbed(allowThumbnail)
             }

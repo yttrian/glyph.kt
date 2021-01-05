@@ -51,7 +51,7 @@ class WikiSkill : Skill("skill.wiki") {
             val article: WikiArticle? = if (source.equals("wikipedia", true)) {
                 WikipediaExtractor().getArticle(query)
             } else {
-                FandomExtractor(source, config.minimumQuality).getArticle(query)
+                FandomExtractor(source).getArticle(query)
             }
             if (article != null) {
                 return Response.Volatile(

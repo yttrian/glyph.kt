@@ -51,5 +51,4 @@ object ServerConfigsTable : Table() {
     val quickviewFuraffinityEnabled: Column<Boolean> = bool("QuickviewFuraffinityEnabled").default(true)
     val quickviewFuraffinityThumbnail: Column<Boolean> = bool("QuickviewFuraffinityThumbnail").default(true)
     val quickviewPicartoEnabled: Column<Boolean> = bool("QuickviewPicartoEnabled").default(true)
-    val wikiMinQuality: Column<Int> = integer("WikiMinQuality").default(50).check { it.between(0, 100) }
 }

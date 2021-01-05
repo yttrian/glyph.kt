@@ -28,7 +28,7 @@ import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 
 internal class FandomExtractorTest {
-    private val extractor = FandomExtractor("masseffect", 0)
+    private val extractor = FandomExtractor("masseffect")
 
     @Test
     fun `should properly find Garrus on masseffect wiki`() = runBlocking {

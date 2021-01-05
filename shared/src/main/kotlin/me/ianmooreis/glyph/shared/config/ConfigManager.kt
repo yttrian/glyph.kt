@@ -143,7 +143,7 @@ class ConfigManager(configure: Config.() -> Unit) {
                 r[sct.starboardThreshold],
                 r[sct.starboardAllowSelfStar]
             )
-            val wikiConfig = WikiConfig(wikiSources, r[sct.wikiMinQuality])
+            val wikiConfig = WikiConfig(wikiSources)
             val selectableRolesConfig = SelectableRolesConfig(selectableRoles, r[sct.selectableRolesLimit])
 
             ServerConfig(wikiConfig, selectableRolesConfig, quickviewConfig, auditingConfig, starboardConfig)
@@ -198,7 +198,6 @@ class ConfigManager(configure: Config.() -> Unit) {
 
         sct.update({ sct.serverId.eq(serverId) }) {
             it[sct.serverId] = serverId
-            it[sct.wikiMinQuality] = config.wiki.minimumQuality
             it[sct.selectableRolesLimit] = config.selectableRoles.limit
             it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
             it[sct.quickviewFuraffinityThumbnail] = config.quickview.furaffinityThumbnails

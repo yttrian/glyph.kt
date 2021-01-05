@@ -30,7 +30,9 @@ import kotlinx.coroutines.SupervisorJob
 import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
 import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.CoroutineContext
@@ -48,6 +50,12 @@ abstract class Director : ListenerAdapter(), CoroutineScope {
         get() = Dispatchers.Default + SupervisorJob()
 
     lateinit var configDirector: ConfigDirector
+
+    /**
+     * md5hex of the author id concatenated with the channel id to identify a context without being too revealing
+     */
+    protected val MessageReceivedEvent.contextHash: String
+        get() = DigestUtils.md5Hex(author.id + channel.id)
 
     protected val Guild.config: ServerConfig
         get(): ServerConfig = configDirector.getServerConfig(this)

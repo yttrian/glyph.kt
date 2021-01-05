@@ -135,7 +135,7 @@ data class Submission(
 
         return EmbedBuilder()
             .setTitle(title, link)
-            .setThumbnail(if (thumbnail) full else null)
+            .setImage(if (thumbnail) full else null)
             .setDescription(description.build())
             .addField("Keywords", fancyKeywords, false)
             .setFooter("FurAffinity")

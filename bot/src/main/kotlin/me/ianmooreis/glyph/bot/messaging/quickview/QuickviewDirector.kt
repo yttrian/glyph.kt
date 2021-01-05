@@ -61,6 +61,11 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
             withTimeout(generatorTimeout) {
                 generators.forEach {
                     it.generate(event, config.quickview).fold(event.messageId) { messageId, embed ->
+                        if (messageId == event.messageId) {
+                            event.message.suppressEmbeds(true).reason("Quickview").queue({}) {
+                                log.debug("Unable to suppress embeds for Quickviews in context ${event.contextHash}")
+                            }
+                        }
                         val responseId = event.channel.sendMessage(embed).await().id
                         messagingDirector.trackVolatile(messageId, responseId)
                         responseId

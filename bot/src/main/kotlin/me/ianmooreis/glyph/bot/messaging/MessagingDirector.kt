@@ -40,7 +40,6 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import org.apache.commons.codec.digest.DigestUtils
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -110,9 +109,8 @@ class MessagingDirector(
         val message: Message = event.message
 
         // Get ready to ask the DialogFlow agent
-        val sessionId = DigestUtils.md5Hex(event.author.id + event.channel.id)
         val ai = try {
-            aiAgent.request(event.message.contentClean, sessionId)
+            aiAgent.request(event.message.contentClean, event.contextHash)
         } catch (e: IllegalArgumentException) {
             message.addReaction("⁉").queue()
             return

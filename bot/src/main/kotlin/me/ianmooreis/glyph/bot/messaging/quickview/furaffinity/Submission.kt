@@ -125,7 +125,7 @@ data class Submission(
         val description = SimpleDescriptionBuilder()
 
         // Add the different fields to the quickview embed description
-        description.addField("Category", "$category / $theme (${rating.name})")
+        description.addField("Category", "$category - $theme (${rating.name})")
         species?.let { description.addField("Species", it) }
         gender?.let { description.addField("Gender", it) }
         description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
@@ -138,12 +138,9 @@ data class Submission(
                 embed.setImage(full)
             }
 
-            if (download != null) {
-                val fileType = download.substringAfterLast(".")
-                val downloadText = if (resolution != null) "$resolution (.$fileType)" else fileType
-                description.addField("Download", "[$downloadText]($download)")
-            }
+            addDownloadDescription(description)
 
+            // Try making all keywords linked, but if too long just make them truncated text
             val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
             val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {
                 linkedKeywords
@@ -151,9 +148,33 @@ data class Submission(
                 keywords.joinToString(limit = MessageEmbed.VALUE_MAX_LENGTH)
             }
 
-            embed.addField("Keywords", fancyKeywords, false)
+            // Only show keywords if there are any
+            if (fancyKeywords.isNotBlank()) {
+                embed.addField("Keywords", fancyKeywords, false)
+            }
         }
 
         return embed.setDescription(description.build()).build()
+    }
+
+    private fun addDownloadDescription(descriptionBuilder: SimpleDescriptionBuilder) {
+        // If there is a download link, add it
+        if (download != null) {
+            val fileType = download.substringAfterLast(".")
+            val validFileType = fileType.isNotBlank() && fileType.length <= MAX_FILE_EXTENSION_LENGTH
+            // Try to use the resolution and file extension when possible
+            val downloadText = when {
+                resolution != null && validFileType -> "$resolution (.$fileType)"
+                resolution != null -> resolution
+                validFileType -> fileType
+                else -> "Download"
+            }
+            descriptionBuilder.addField("Download", "[$downloadText]($download)")
+        }
+    }
+
+    companion object {
+        // Some files don't have a real extension, let's pretend proper files have at most 4 chars in their extension
+        private const val MAX_FILE_EXTENSION_LENGTH = 4
     }
 }

@@ -75,8 +75,10 @@ class FurAffinityGenerator : QuickviewGenerator() {
         )
     }
 
-    private val submissionUrlRegex =
-        Regex("(furaffinity.net/view/(\\d{8}))|(d.facdn.net/art/(\\w*)/(\\d{10}))", RegexOption.IGNORE_CASE)
+    private val submissionUrlRegex = Regex(
+        "(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/(\\w*)/(\\d+))",
+        RegexOption.IGNORE_CASE
+    )
 
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {

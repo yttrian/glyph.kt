@@ -156,7 +156,7 @@ object Glyph {
 
             addDirectors(
                 messagingDirector, AuditingDirector, skillDirector, configDirector,
-                serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector
+                serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector(redis)
             )
         }
 

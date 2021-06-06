@@ -64,11 +64,11 @@ data class Submission(
     /**
      * Download URL of the content
      */
-    val download: String,
+    val download: String?,
     /**
      * URL of the full resolution content
      */
-    val full: String,
+    val full: String?,
     /**
      * Category the submission is placed under
      */
@@ -114,14 +114,14 @@ data class Submission(
     /**
      * Creates an embed with the submission's info and a thumbnail if desired
      */
-    fun getEmbed(thumbnail: Boolean): MessageEmbed {
-        val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
-        val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {
-            linkedKeywords
-        } else {
-            keywords.joinToString(limit = MessageEmbed.VALUE_MAX_LENGTH)
-        }
-        val fileType = download.substringAfterLast(".")
+    fun getEmbed(nsfwAllowed: Boolean, thumbnailAllowed: Boolean): MessageEmbed {
+        val embed = EmbedBuilder()
+            .setAuthor(name, profile, avatar)
+            .setTitle(title, link)
+            .setColor(rating.color)
+            .setFooter("FurAffinity")
+            .setTimestamp(Instant.parse(postedAt))
+
         val description = SimpleDescriptionBuilder()
 
         // Add the different fields to the quickview embed description
@@ -129,19 +129,52 @@ data class Submission(
         species?.let { description.addField("Species", it) }
         gender?.let { description.addField("Gender", it) }
         description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
-        if ((thumbnail && rating.nsfw) || !rating.nsfw) {
-            description.addField("Download", "[${resolution ?: fileType}]($download)")
+
+        if (rating.nsfw && !nsfwAllowed) {
+            val warningText = "Submissions with a rating of $rating cannot be previewed outside of a NSFW channel!"
+            embed.addField("Warning", warningText, false)
+        } else {
+            if (thumbnailAllowed) {
+                embed.setImage(full)
+            }
+
+            addDownloadDescription(description)
+
+            // Try making all keywords linked, but if too long just make them truncated text
+            val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
+            val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {
+                linkedKeywords
+            } else {
+                keywords.joinToString(limit = MessageEmbed.VALUE_MAX_LENGTH)
+            }
+
+            // Only show keywords if there are any
+            if (fancyKeywords.isNotBlank()) {
+                embed.addField("Keywords", fancyKeywords, false)
+            }
         }
 
-        return EmbedBuilder()
-            .setTitle(title, link)
-            .setImage(if (thumbnail) full else null)
-            .setDescription(description.build())
-            .addField("Keywords", fancyKeywords, false)
-            .setFooter("FurAffinity")
-            .setColor(rating.color)
-            .setAuthor(name, profile, avatar)
-            .setTimestamp(Instant.parse(postedAt))
-            .build()
+        return embed.setDescription(description.build()).build()
+    }
+
+    private fun addDownloadDescription(descriptionBuilder: SimpleDescriptionBuilder) {
+        // If there is a download link, add it
+        if (download != null) {
+            val fileType = download.substringAfterLast(".")
+            val validFileType = fileType.isNotBlank() && fileType.length <= MAX_FILE_EXTENSION_LENGTH
+            // Try to use the resolution and file extension when possible
+            val downloadText = when {
+                resolution != null && validFileType -> "$resolution (.$fileType)"
+                resolution != null -> resolution
+                validFileType -> fileType
+                else -> "Download"
+            }
+            descriptionBuilder.addField("Download", "[$downloadText]($download)")
+        }
+    }
+
+    companion object {
+        // Some files don't have a real extension, let's pretend proper files have at most 4 chars in their extension
+        private const val MAX_FILE_EXTENSION_LENGTH = 4
     }
 }

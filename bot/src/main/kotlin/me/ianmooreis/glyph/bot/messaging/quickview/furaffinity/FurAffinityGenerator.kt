@@ -75,17 +75,20 @@ class FurAffinityGenerator : QuickviewGenerator() {
         )
     }
 
-    private val submissionUrlRegex =
-        Regex("(furaffinity.net/view/(\\d{8}))|(d.facdn.net/art/(\\w*)/(\\d{10}))", RegexOption.IGNORE_CASE)
+    private val submissionUrlRegex = Regex(
+        "(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/(\\w*)/(\\d+))",
+        RegexOption.IGNORE_CASE
+    )
 
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
             getSubmission(it)?.run {
-                // allow only SFW thumbnails in DMs, and all in enabled servers but only show NSFW in NSFW channels
-                val allowThumbnail = (!event.isFromGuild && !rating.nsfw) ||
-                        (config.furaffinityThumbnails && (event.textChannel.isNSFW || !rating.nsfw))
+                // allow NSFW quickviews only in NSFW channels, never SFW channels or DMs
+                val nsfwAllowed = event.isFromGuild && event.textChannel.isNSFW
+                // allow thumbnails in DMs and in enabled servers
+                val thumbnailAllowed = !event.isFromGuild || config.furaffinityThumbnails
 
-                getEmbed(allowThumbnail)
+                getEmbed(nsfwAllowed, thumbnailAllowed)
             }
         } else emptyFlow()
 

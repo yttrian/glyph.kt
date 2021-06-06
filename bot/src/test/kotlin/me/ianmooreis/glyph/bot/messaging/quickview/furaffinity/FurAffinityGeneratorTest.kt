@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
@@ -53,16 +54,17 @@ internal class FurAffinityGeneratorTest {
     @Test
     fun `should find distinct ids in a message`() = runBlocking {
         // a regular message
-        assert(generator.findIds("nothing of substance example.net/view/12345").count() == 0)
+        assertEquals(0, generator.findIds("nothing of substance example.net/view/12345").count())
         // a message with a submission url
-        assert(generator.findIds("https://www.furaffinity.net/view/12239491/").first() == 12239491)
+        assertEquals(12239491, generator.findIds("https://www.furaffinity.net/view/12239491/").first())
         // there should be no duplicates
-        assert(
+        assertEquals(
+            2,
             generator.findIds(
                 "https://www.furaffinity.net/view/12239491/ " +
                         "http://www.furaffinity.net/view/9719932/ " +
                         "furaffinity.net/view/12239491/"
-            ).count() == 2
+            ).count()
         )
     }
 
@@ -82,13 +84,16 @@ internal class FurAffinityGeneratorTest {
 
         assertNotNull(submission)
 
-        assert(submission?.title == "Applied Sciences Units 01 and 02")
-        assert(submission?.name == "Fender")
-        assert(submission?.download == "https://d.facdn.net/art/fender/1358541618/1358541618.fender_kiryu_promoart.jpg")
+        assertEquals("Applied Sciences Units 01 and 02", submission?.title)
+        assertEquals("Fender", submission?.name)
+        assertEquals(
+            "https://d.furaffinity.net/art/fender/1358541618/1358541618.fender_kiryu_promoart.jpg",
+            submission?.download
+        )
         assert(submission?.keywords?.containsAll(listOf("mecha", "robots", "rednef")) ?: false)
-        assert(submission?.gender == "Other / Not Specified")
-        assert(submission?.resolution == "900x643")
-        assert(submission?.rating == SubmissionRating.General)
+        assertEquals("Other / Not Specified", submission?.gender)
+        assertEquals("900x643", submission?.resolution)
+        assertEquals(SubmissionRating.General, submission?.rating)
     }
 
     @Test

@@ -49,7 +49,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.dv8tion:JDA:$jdaVersion")
-    implementation("club.minnced:discord-webhooks:0.3.0")
+    implementation("club.minnced:discord-webhooks:0.5.7")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")
     implementation("net.dean.jraw:JRAW:1.0.0")

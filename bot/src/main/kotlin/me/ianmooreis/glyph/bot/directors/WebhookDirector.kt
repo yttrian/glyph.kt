@@ -26,10 +26,14 @@ package me.ianmooreis.glyph.bot.directors
 
 import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.WebhookClientBuilder
+import club.minnced.discord.webhook.receive.ReadonlyMessage
 import club.minnced.discord.webhook.send.WebhookEmbed
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
 import net.dv8tion.jda.api.entities.TextChannel
@@ -128,34 +132,66 @@ object WebhookDirector : Director() {
      * @param embed the embed to send
      */
     fun send(channel: TextChannel, embed: MessageEmbed) {
-        getWebhookClient(channel) { client, base ->
-            client.send(base.addEmbeds(embed.toWebhookEmbed()).build())
+        launch {
+            getWebhookClient(channel) { client, base ->
+                client.send(base.addEmbeds(embed.toWebhookEmbed()).build())
+            }
         }
     }
 
-    private fun getWebhookClient(channel: TextChannel, success: (WebhookClient, WebhookMessageBuilder) -> Unit) {
+    /**
+     * Send a webhook to a channel and get the sent message data
+     *
+     * @param channel the channel to send the webhook message to
+     * @param message the message to send
+     */
+    suspend fun send(channel: TextChannel, message: Message): ReadonlyMessage {
+        return getWebhookClient(channel) { client, base ->
+            base.setContent(message.contentRaw)
+            base.addEmbeds(message.embeds.map { it.toWebhookEmbed() })
+            client.send(base.build())
+        }.await()
+    }
+
+    /**
+     * Send a webhook to a channel
+     *
+     * @param channel the channel to send the webhook message to
+     * @param webhookMessageId the webhook message to update
+     * @param message the message to send
+     */
+    suspend fun update(channel: TextChannel, webhookMessageId: Long, message: Message): ReadonlyMessage {
+        return getWebhookClient(channel) { client, base ->
+            base.setContent(message.contentRaw)
+            base.addEmbeds(message.embeds.map { it.toWebhookEmbed() })
+            client.edit(webhookMessageId, base.build())
+        }.await()
+    }
+
+    private suspend fun <T> getWebhookClient(
+        channel: TextChannel,
+        success: (WebhookClient, WebhookMessageBuilder) -> T
+    ): T {
         val selfUser = channel.jda.selfUser
         val baseMessage = WebhookMessageBuilder().setUsername(selfUser.name).setAvatarUrl(selfUser.avatarUrl)
         val key = channel.id
         val existingClient: WebhookClient? = cachedClients[key]
 
         // If there's no client cached, make one
-        if (existingClient == null) {
-            channel.retrieveWebhooks().queue { webhooks ->
-                // If the channel has no webhooks then create one, otherwise steal one
-                if (webhooks.isEmpty()) {
-                    channel.createWebhook(selfUser.name).queue { webhook ->
-                        val newClient = WebhookClientBuilder(webhook.url).build()
-                        cachedClients[key] = newClient
+        return if (existingClient == null) {
+            val webhooks = channel.retrieveWebhooks().await()
+            // If the channel has no webhooks then create one, otherwise steal one
+            if (webhooks.isEmpty()) {
+                val webhook = channel.createWebhook(selfUser.name).await()
+                val newClient = WebhookClientBuilder(webhook.url).build()
+                cachedClients[key] = newClient
 
-                        success(newClient, baseMessage)
-                    }
-                } else {
-                    val newClient = WebhookClientBuilder(webhooks.first().url).build()
-                    cachedClients[key] = newClient
+                success(newClient, baseMessage)
+            } else {
+                val newClient = WebhookClientBuilder(webhooks.first().url).build()
+                cachedClients[key] = newClient
 
-                    success(newClient, baseMessage)
-                }
+                success(newClient, baseMessage)
             }
         } else {
             success(existingClient, baseMessage)

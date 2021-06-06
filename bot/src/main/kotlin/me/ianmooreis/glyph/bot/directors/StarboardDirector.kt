@@ -25,12 +25,14 @@
 package me.ianmooreis.glyph.bot.directors
 
 import com.vdurmont.emoji.EmojiParser
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.extensions.asPlainMention
 import me.ianmooreis.glyph.shared.config.server.StarboardConfig
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageReaction
@@ -38,6 +40,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import org.apache.commons.lang3.StringUtils
 import java.awt.Color
+import java.lang.Integer.min
 
 /**
  * Manages starboards in guilds with them configured
@@ -61,7 +64,8 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
                 val message = event.channel.retrieveMessageById(event.messageId).await()
 
                 // Check that the number of reactions needed has been met
-                val reactionThresholdMet = message.hasEnoughStarboardReactions(starboardConfig)
+                val reactionCount = message.starboardReactionCount(starboardConfig)
+                val reactionThresholdMet = reactionCount >= min(1, starboardConfig.threshold)
 
                 // Check if NSFW and if so whether or not it is allowed
                 val isSafe = !message.textChannel.isNSFW || starboardChannel.isNSFW
@@ -72,16 +76,16 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
                     } else {
                         message.addReaction(event.reactionEmote.emoji)
                     }.await()
-                    message.sendToStarboard(starboardChannel)
+                    message.sendToStarboard(reactionCount, starboardChannel)
                 }
             }
         }
     }
 
-    private suspend fun Message.hasEnoughStarboardReactions(starboardConfig: StarboardConfig): Boolean {
+    private suspend fun Message.starboardReactionCount(starboardConfig: StarboardConfig): Int {
         val starboardReactions = reactions.find {
             it.isCorrectEmote(starboardConfig)
-        } ?: return false
+        } ?: return 0
 
         // Check that the number of reactions needed has been met
         return starboardReactions.retrieveUsers().await().count {
@@ -91,7 +95,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
             val notIllegalSelfStar = it == author && !starboardConfig.allowSelfStarring
 
             notBot && notIllegalSelfStar
-        } >= starboardConfig.threshold
+        }
     }
 
     private fun MessageReaction.isCorrectEmote(starboardConfig: StarboardConfig): Boolean {
@@ -100,7 +104,9 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         return correctEmoteName && emoteBelongsToGuild
     }
 
-    private fun Message.sendToStarboard(starboardChannel: TextChannel) {
+    private suspend fun Message.sendToStarboard(reactionCount: Int, starboardChannel: TextChannel) {
+        val starboardMessageBuilder = MessageBuilder()
+        starboardMessageBuilder.setContent("⭐ $reactionCount | [Jump to $id]($jumpUrl) in #${textChannel.name}")
         val firstEmbed = embeds.getOrNull(0)
         // Set-up the base embed
         val embed = EmbedBuilder().setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
@@ -122,11 +128,23 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
                 embed.addField(title, StringUtils.abbreviate(value, MessageEmbed.TITLE_MAX_LENGTH), false)
             }
         }
+        starboardMessageBuilder.setEmbed(embed.build())
         // Send the starboard embed to the starboard
-        WebhookDirector.send(starboardChannel, embed.build())
+        val trackingKey = STARBOARD_TRACK_PREFIX + id
+        val trackedMessageId = redis.get(trackingKey).await()?.toLong()
+        if (trackedMessageId == null) {
+            val starboardMessage = WebhookDirector.send(starboardChannel, starboardMessageBuilder.build())
+            redis.set(trackingKey, starboardMessage.id.toString())
+        } else {
+            WebhookDirector.update(starboardChannel, trackedMessageId, starboardMessageBuilder.build())
+        }
     }
 
     private fun emojiAlias(emoji: String): String {
         return EmojiParser.parseToAliases(emoji).removeSurrounding(":")
+    }
+
+    companion object {
+        private const val STARBOARD_TRACK_PREFIX = "Glyph:Starboard:"
     }
 }

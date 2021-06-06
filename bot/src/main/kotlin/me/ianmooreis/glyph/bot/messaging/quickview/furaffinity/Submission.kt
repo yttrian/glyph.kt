@@ -114,34 +114,43 @@ data class Submission(
     /**
      * Creates an embed with the submission's info and a thumbnail if desired
      */
-    fun getEmbed(thumbnail: Boolean): MessageEmbed {
-        val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
-        val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {
-            linkedKeywords
-        } else {
-            keywords.joinToString(limit = MessageEmbed.VALUE_MAX_LENGTH)
-        }
-        val fileType = download.substringAfterLast(".")
-        val description = SimpleDescriptionBuilder()
-
-        // Add the different fields to the quickview embed description
-        description.addField("Category", "$category - $theme (${rating.name})")
-        species?.let { description.addField("Species", it) }
-        gender?.let { description.addField("Gender", it) }
-        description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
-        if ((thumbnail && rating.nsfw) || !rating.nsfw) {
-            description.addField("Download", "[${resolution ?: fileType}]($download)")
-        }
-
-        return EmbedBuilder()
-            .setTitle(title, link)
-            .setImage(if (thumbnail) full else null)
-            .setDescription(description.build())
-            .addField("Keywords", fancyKeywords, false)
+    fun getEmbed(nsfwAllowed: Boolean, thumbnailAllowed: Boolean): MessageEmbed {
+        val embed = EmbedBuilder()
             .setFooter("FurAffinity")
             .setColor(rating.color)
             .setAuthor(name, profile, avatar)
             .setTimestamp(Instant.parse(postedAt))
-            .build()
+
+        if (rating.nsfw && !nsfwAllowed) {
+            embed.setDescription("Submissions with a rating of $rating cannot be previewed outside of a NSFW channel!")
+        } else {
+            val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
+            val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {
+                linkedKeywords
+            } else {
+                keywords.joinToString(limit = MessageEmbed.VALUE_MAX_LENGTH)
+            }
+            val fileType = download.substringAfterLast(".")
+            val description = SimpleDescriptionBuilder()
+
+            // Add the different fields to the quickview embed description
+            description.addField("Category", "$category - $theme (${rating.name})")
+            species?.let { description.addField("Species", it) }
+            gender?.let { description.addField("Gender", it) }
+            description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
+            description.addField("Download", "[${resolution ?: fileType}]($download)")
+
+            if (thumbnailAllowed) {
+                embed.setImage(full)
+            }
+
+            embed
+                .setTitle(title, link)
+                .setDescription(description.build())
+                .addField("Keywords", fancyKeywords, false)
+                .build()
+        }
+
+        return embed.build()
     }
 }

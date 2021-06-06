@@ -64,11 +64,11 @@ data class Submission(
     /**
      * Download URL of the content
      */
-    val download: String,
+    val download: String?,
     /**
      * URL of the full resolution content
      */
-    val full: String,
+    val full: String?,
     /**
      * Category the submission is placed under
      */
@@ -125,7 +125,7 @@ data class Submission(
         val description = SimpleDescriptionBuilder()
 
         // Add the different fields to the quickview embed description
-        description.addField("Category", "$category - $theme (${rating.name})")
+        description.addField("Category", "$category / $theme (${rating.name})")
         species?.let { description.addField("Species", it) }
         gender?.let { description.addField("Gender", it) }
         description.addField(null, "**Favorites** $favorites | **Comments** $comments | **Views** $views")
@@ -138,8 +138,11 @@ data class Submission(
                 embed.setImage(full)
             }
 
-            val fileType = download.substringAfterLast(".")
-            description.addField("Download", "[${resolution ?: fileType}]($download)")
+            if (download != null) {
+                val fileType = download.substringAfterLast(".")
+                val downloadText = if (resolution != null) "$resolution (.$fileType)" else fileType
+                description.addField("Download", "[$downloadText]($download)")
+            }
 
             val linkedKeywords = keywords.joinToString { "[$it](https://www.furaffinity.net/search/@keywords%20$it)" }
             val fancyKeywords = if (linkedKeywords.length < MessageEmbed.VALUE_MAX_LENGTH) {

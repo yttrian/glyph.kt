@@ -92,7 +92,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
             // Bots should not count, including us
             val notBot = !it.isBot
             // Prevent self-starring if disallowed
-            val notIllegalSelfStar = it == author && !starboardConfig.allowSelfStarring
+            val notIllegalSelfStar = it != author || starboardConfig.allowSelfStarring
 
             notBot && notIllegalSelfStar
         }
@@ -111,7 +111,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         // Set-up the base embed
         val embed = EmbedBuilder().setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
             .setDescription(contentRaw)
-            .setFooter("Starboard | $id in #${textChannel.name}", null)
+            .setFooter("Starboard", null)
             .setColor(Color.YELLOW)
             .setTimestamp(timeCreated)
         // Add images
@@ -131,11 +131,12 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         starboardMessageBuilder.setEmbed(embed.build())
         // Send the starboard embed to the starboard
         val trackingKey = STARBOARD_TRACK_PREFIX + id
-        val trackedMessageId = redis.get(trackingKey).await()?.toLong()
-        if (trackedMessageId == null) {
+        val firstTry = redis.setnx(trackingKey, "PENDING").await()
+        val trackedMessageId = redis.get(trackingKey).await().toLongOrNull()
+        if (firstTry) {
             val starboardMessage = WebhookDirector.send(starboardChannel, starboardMessageBuilder.build())
             redis.set(trackingKey, starboardMessage.id.toString())
-        } else {
+        } else if (trackedMessageId != null) {
             WebhookDirector.update(starboardChannel, trackedMessageId, starboardMessageBuilder.build())
         }
     }

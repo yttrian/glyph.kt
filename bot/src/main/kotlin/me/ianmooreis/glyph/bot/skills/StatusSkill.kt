@@ -28,18 +28,18 @@ import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.Glyph
 import me.ianmooreis.glyph.bot.ai.AIResponse
 import me.ianmooreis.glyph.bot.directors.config.Key
-import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import me.ianmooreis.glyph.bot.directors.skills.Skill
 import me.ianmooreis.glyph.bot.extensions.isCreator
 import me.ianmooreis.glyph.bot.messaging.Response
+import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDAInfo
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import java.lang.management.ManagementFactory
 import java.time.Instant
-import java.util.*
+import java.util.Date
 
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only

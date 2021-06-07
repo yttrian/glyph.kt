@@ -148,10 +148,12 @@ object WebhookDirector : Director() {
         // If there's no client cached, make one
         return if (existingClient == null) {
             val webhooks = channel.retrieveWebhooks().await()
-            val stealableWebhook = webhooks.find { it.type == WebhookType.INCOMING && !it.isFake }
-            // If the channel has no webhooks then create one, otherwise steal one
-            if (stealableWebhook != null) {
-                val newClient = WebhookClientBuilder(stealableWebhook.url).buildJDA()
+            val ourWebhook = webhooks.find {
+                it.type == WebhookType.INCOMING && !it.isFake && it.owner == channel.guild.selfMember
+            }
+            // If the channel has no webhooks then create one, otherwise use ours
+            if (ourWebhook != null) {
+                val newClient = WebhookClientBuilder(ourWebhook.url).buildJDA()
                 cachedClients[key] = newClient
 
                 success(newClient, baseMessage)

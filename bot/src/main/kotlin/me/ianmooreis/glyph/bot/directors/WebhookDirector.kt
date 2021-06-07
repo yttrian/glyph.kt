@@ -50,13 +50,9 @@ object WebhookDirector : Director() {
     private const val CLIENT_CACHE_EXPIRATION_MINUTES = 10L
 
     /**
-     * Convert a MessageEmbed into a WebhookEmbed
-     */
-    private fun MessageEmbed.toWebhookEmbed(): WebhookEmbed = WebhookEmbedBuilder.fromJDA(this).build()
-
-    /**
      * Cache webhook clients so we don't continuously recreate them (like when a lot of people leave a server)
-     * and can obey rate limits by reusing a client. Though, don't keep them forever because memory.
+     * and can obey rate limits by reusing a client. Though, don't keep them forever because memory and webhooks could
+     * be deleted.
      */
     private val cachedClients: MutableMap<String, JDAWebhookClient> = ExpiringMap.builder()
         .expiration(CLIENT_CACHE_EXPIRATION_MINUTES, TimeUnit.MINUTES)
@@ -65,6 +61,11 @@ object WebhookDirector : Director() {
             client.close()
         }
         .build()
+
+    /**
+     * Convert a MessageEmbed into a WebhookEmbed
+     */
+    private fun MessageEmbed.toWebhookEmbed(): WebhookEmbed = WebhookEmbedBuilder.fromJDA(this).build()
 
     /**
      * Send a webhook as self
@@ -149,7 +150,7 @@ object WebhookDirector : Director() {
         return if (existingClient == null) {
             val webhooks = channel.retrieveWebhooks().await()
             val ourWebhook = webhooks.find {
-                it.type == WebhookType.INCOMING && !it.isFake && it.owner == channel.guild.selfMember
+                it.type == WebhookType.INCOMING && it.owner == channel.guild.selfMember
             }
             // If the channel has no webhooks then create one, otherwise use ours
             if (ourWebhook != null) {

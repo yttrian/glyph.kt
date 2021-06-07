@@ -144,6 +144,7 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
         val trackedMessageId = redis.get(trackingKey).await().toLongOrNull()
 
         return when {
+            // A starboard message must be created because one does not exist
             mustCreate -> {
                 try {
                     // Send the message and retrieve the ID
@@ -162,6 +163,7 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
                     false
                 }
             }
+            // Tracking reports a linked starboard message
             trackedMessageId != null -> {
                 try {
                     // Update the existing starboard message with a new one
@@ -180,7 +182,7 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
                     // Failed to update the message. Was it deleted?
                     log.trace(e.stackTraceToString())
                     // If the starboard message is missing
-                    if (e.code == MISSING_MESSAGE_CODE && !retry) {
+                    if (e.body.contains("Unknown Message") && !retry) {
                         // Delete the tracking if a retry hasn't already been started
                         redis.redlockUnlock(trackingKey, trackedMessageId.toString())
                         log.info("Starboard message $trackedMessageId is missing, recreating")
@@ -196,6 +198,7 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
                     false
                 }
             }
+            // We should not create a starboard message but there's also no tracking info because it likely expired
             else -> false
         }
     }
@@ -214,9 +217,6 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
 
         // Timeout first try lock after 30 seconds if the attempt that failed oddly
         private const val FIRST_TRY_TTL_SECONDS = 30L
-
-        // Response code when a message does not exist to edit
-        private const val MISSING_MESSAGE_CODE = 404
 
         private val log = LoggerFactory.getLogger(StarboardDirector::class.java.simpleName)
     }

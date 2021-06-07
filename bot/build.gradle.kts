@@ -27,11 +27,14 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.bot"
 version = "1.0"
 
-val coroutinesVersion: String by project.extra
-val logbackVersion: String by project.extra
-val jdaVersion: String by project.extra
-val exposedVersion: String by project.extra
-val ktorVersion: String by project.extra
+internal val coroutinesVersion: String by project.extra
+internal val logbackVersion: String by project.extra
+internal val jdaVersion: String by project.extra
+internal val ktorVersion: String by project.extra
+
+repositories {
+    maven("https://m2.dv8tion.net/releases")
+}
 
 shadowJar {
     jar {

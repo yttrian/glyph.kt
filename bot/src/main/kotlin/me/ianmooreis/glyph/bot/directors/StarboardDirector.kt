@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
 import org.apache.commons.lang3.StringUtils
 import java.awt.Color
 import java.lang.Integer.min
@@ -49,7 +49,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
     /**
      * When a message is reacted upon in a guild
      */
-    override fun onGuildMessageReactionAdd(event: GuildMessageReactionAddEvent) {
+    override fun onGenericGuildMessageReaction(event: GenericGuildMessageReactionEvent) {
         val starboardConfig = event.guild.config.starboard
 
         if (!starboardConfig.enabled) return
@@ -106,12 +106,11 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
 
     private suspend fun Message.sendToStarboard(reactionCount: Int, starboardChannel: TextChannel) {
         val starboardMessageBuilder = MessageBuilder()
-        starboardMessageBuilder.setContent("⭐ $reactionCount | [Jump to $id]($jumpUrl) in #${textChannel.name}")
         val firstEmbed = embeds.getOrNull(0)
         // Set-up the base embed
         val embed = EmbedBuilder().setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
             .setDescription(contentRaw)
-            .setFooter("Starboard", null)
+            .setFooter("$reactionCount ⭐ in #${textChannel.name}", null)
             .setColor(Color.YELLOW)
             .setTimestamp(timeCreated)
         // Add images

@@ -39,9 +39,9 @@ suspend fun RedisAsync.redlockLock(key: String, value: String, ttlSeconds: Long)
  * Unlock a Redlock locked value if it still matches the expected value.
  * https://redis.io/topics/distlock
  */
-suspend fun RedisAsync.redlockUnlock(key: String, expectedValue: String): Boolean = eval<String>(
+suspend fun RedisAsync.redlockUnlock(key: String, expectedValue: String): Boolean = eval<Long>(
     """
-        if redis.call("get",KEYS[1]) == ARGV[1]
+        if redis.call("get", KEYS[1]) == ARGV[1]
         then
             return redis.call("del", KEYS[1])
         else
@@ -49,6 +49,6 @@ suspend fun RedisAsync.redlockUnlock(key: String, expectedValue: String): Boolea
         end
     """.trimIndent(),
     ScriptOutputType.INTEGER,
-    key,
+    arrayOf(key),
     expectedValue
-).await() == "1"
+).await() != 0L

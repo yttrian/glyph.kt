@@ -135,7 +135,8 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
          * that it is the first attempt to post a starboard image. A timeout is added in case the bot dies before
          * completion while still hold the "lock".
          */
-        val firstTry = redis.redlockLock(trackingKey, pendingToken, FIRST_TRY_TTL_SECONDS) && !starUsers.selfReacted
+        val pending = redis.redlockLock(trackingKey, pendingToken, FIRST_TRY_TTL_SECONDS)
+        val mustCreate = pending && (!starUsers.selfReacted || retry)
 
         /**
          * The tracked message id which will be valid if not currently pending.
@@ -143,7 +144,7 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
         val trackedMessageId = redis.get(trackingKey).await().toLongOrNull()
 
         return when {
-            firstTry -> {
+            mustCreate -> {
                 try {
                     // Send the message and retrieve the ID
                     val starboardMessageId = WebhookDirector.send(starboardChannel, starboardMessage).id

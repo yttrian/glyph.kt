@@ -38,6 +38,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
+import net.dv8tion.jda.api.exceptions.PermissionException
 import org.apache.commons.lang3.StringUtils
 import java.awt.Color
 import java.lang.Integer.min
@@ -133,8 +134,14 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         val firstTry = redis.setnx(trackingKey, "PENDING").await()
         val trackedMessageId = redis.get(trackingKey).await().toLongOrNull()
         if (firstTry) {
-            val starboardMessage = WebhookDirector.send(starboardChannel, starboardMessageBuilder.build())
-            redis.set(trackingKey, starboardMessage.id.toString())
+            try {
+                val starboardMessage = WebhookDirector.send(starboardChannel, starboardMessageBuilder.build())
+                redis.set(trackingKey, starboardMessage.id.toString())
+            } catch (e: PermissionException) {
+                log.trace(e.stackTraceToString())
+                log.warn("Permission error sending to starboard channel $starboardChannel")
+                redis.del(trackingKey)
+            }
         } else if (trackedMessageId != null) {
             WebhookDirector.update(starboardChannel, trackedMessageId, starboardMessageBuilder.build())
         }

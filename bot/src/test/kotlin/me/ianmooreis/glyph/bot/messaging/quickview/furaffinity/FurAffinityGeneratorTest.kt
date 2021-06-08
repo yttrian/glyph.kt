@@ -28,9 +28,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 /**
@@ -84,16 +84,16 @@ internal class FurAffinityGeneratorTest {
 
         assertNotNull(submission)
 
-        assertEquals("Applied Sciences Units 01 and 02", submission?.title)
-        assertEquals("Fender", submission?.name)
+        assertEquals("Applied Sciences Units 01 and 02", submission.title)
+        assertEquals("Fender", submission.name)
         assertEquals(
             "https://d.furaffinity.net/art/fender/1358541618/1358541618.fender_kiryu_promoart.jpg",
-            submission?.download
+            submission.download
         )
-        assert(submission?.keywords?.containsAll(listOf("mecha", "robots", "rednef")) ?: false)
-        assertEquals("Other / Not Specified", submission?.gender)
-        assertEquals("900x643", submission?.resolution)
-        assertEquals(SubmissionRating.General, submission?.rating)
+        assert(submission.keywords.containsAll(listOf("mecha", "robots", "rednef")))
+        assertEquals("Other / Not Specified", submission.gender)
+        assertEquals("900x643", submission.resolution)
+        assertEquals(SubmissionRating.General, submission.rating)
     }
 
     @Test

@@ -80,6 +80,6 @@ object KickBanSkillHelper {
     }
 
     private fun maxRolePosition(member: Member): Int {
-        return member.roles.map { it.position }.max() ?: 0
+        return member.roles.map { it.position }.maxOrNull() ?: 0
     }
 }

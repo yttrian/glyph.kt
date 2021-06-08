@@ -44,6 +44,7 @@ import io.ktor.request.host
 import io.ktor.request.path
 import io.ktor.request.port
 import io.ktor.response.respond
+import io.ktor.routing.IgnoreTrailingSlash
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
@@ -103,6 +104,8 @@ fun Application.module() {
         // TODO: Replace with a more robust storage method, do not currently trust SessionStorageRedis
         cookie<ConfigSession>("GlyphConfigSession", SessionStorageMemory())
     }
+
+    install(IgnoreTrailingSlash)
 
     routing {
         get("/") {

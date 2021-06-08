@@ -50,93 +50,134 @@ import java.time.Instant
 /**
  * Represents a message with stars that can be sent to the starboard
  */
-class StarredMessage(message: Message, private val starboardConfig: StarboardConfig) : Message by message {
+sealed class StarredMessage(message: Message) : Message by message {
+    /**
+     * A regular message to be placed on the starboard
+     */
+    class Alive(message: Message) : StarredMessage(message) {
+        override suspend fun checkAndSend(
+            starboardConfig: StarboardConfig,
+            starboardChannel: TextChannel,
+            redis: RedisAsync
+        ): Boolean {
+            val starUsers = getStarUsers(starboardConfig)
+
+            // Check that the number of reactions needed has been met
+            val reactionCount = starUsers.validStarCount
+            val reactionThresholdMet = reactionCount >= Integer.min(1, starboardConfig.threshold)
+
+            // Check if NSFW and if so whether or not it is allowed
+            val isSafe = !textChannel.isNSFW || starboardChannel.isNSFW
+
+            return if (reactionThresholdMet && isSafe) {
+                sendToStarboard(redis, starUsers, starboardChannel)
+            } else false
+        }
+
+        override fun buildStarboardMessage(starUsers: StarUsers): Message {
+            val starboardMessageBuilder = MessageBuilder()
+            val firstEmbed = embeds.getOrNull(0)
+
+            // Set-up the base embed
+            val embed = EmbedBuilder()
+                .setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
+                .setDescription(contentRaw.tml)
+                .setFooter("${starUsers.validStarCount} ⭐ in #${textChannel.name}", null)
+                .setColor(Color.YELLOW)
+                .setTimestamp(timeCreated)
+
+            // Add images
+            embed.setImage(
+                attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
+                ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null
+            ).setThumbnail(if (firstEmbed?.title != null) embeds.getOrNull(0)?.thumbnail?.url else null)
+
+            // Add the contents of embeds on the original message to the starboard embed
+            embeds.foldIndexed(embed.length()) { runningLength, index, subEmbed ->
+                val title = subEmbed.title ?: subEmbed.author?.name ?: "Embed $index"
+                val valueBuilder = StringBuilder()
+                subEmbed.description?.let { valueBuilder.appendLine(it) }
+                subEmbed.fields.forEach {
+                    valueBuilder.appendLine("**__${it.name}__**")
+                    valueBuilder.appendLine(it.value)
+                }
+                valueBuilder.trim()
+                val value = valueBuilder.toString().tml
+
+                val addedLength = title.length + value.length
+                if (valueBuilder.isNotBlank() && runningLength + addedLength < MessageEmbed.EMBED_MAX_LENGTH_BOT) {
+                    embed.addField(title, value, false)
+                    runningLength + addedLength
+                } else runningLength
+            }
+
+            starboardMessageBuilder.setEmbed(embed.build())
+
+            return starboardMessageBuilder.build()
+        }
+    }
+
+    /**
+     * A tampered message to be permanently marked on the starboard
+     */
+    class Dead(message: Message) : StarredMessage(message) {
+        override suspend fun checkAndSend(
+            starboardConfig: StarboardConfig,
+            starboardChannel: TextChannel,
+            redis: RedisAsync
+        ): Boolean = sendToStarboard(redis, getStarUsers(starboardConfig), starboardChannel)
+
+        override fun buildStarboardMessage(starUsers: StarUsers): Message {
+            val starboardMessageBuilder = MessageBuilder()
+
+            // Set-up the base embed
+            val embed = EmbedBuilder()
+                .setAuthor(author.asPlainMention, null, author.avatarUrl)
+                .setDescription("Editing messages already sent to the starboard is not allowed.")
+                .setFooter("❌ in #${textChannel.name}", null)
+                .setColor(Color.YELLOW)
+            starboardMessageBuilder.setEmbed(embed.build())
+
+            return starboardMessageBuilder.build()
+        }
+    }
+
     /**
      * Check if valid starring and send to starboard
      */
-    suspend fun checkAndSend(redis: RedisAsync, starboardChannel: TextChannel): Boolean {
-        val starUsers = getStarUsers()
+    abstract suspend fun checkAndSend(
+        starboardConfig: StarboardConfig,
+        starboardChannel: TextChannel,
+        redis: RedisAsync
+    ): Boolean
 
-        // Check that the number of reactions needed has been met
-        val reactionCount = starUsers.validStarCount
-        val reactionThresholdMet = reactionCount >= Integer.min(1, starboardConfig.threshold)
-
-        // Check if NSFW and if so whether or not it is allowed
-        val isSafe = !textChannel.isNSFW || starboardChannel.isNSFW
-
-        return if (reactionThresholdMet && isSafe) {
-            sendToStarboard(redis, starUsers, starboardChannel)
-        } else false
-    }
-
-    private class StarUsers(starredMessage: StarredMessage, users: List<User>) : List<User> by users {
-        val validStarCount = count {
-            // Bots should not count, including us
-            val notBot = !it.isBot
-            // Prevent self-starring if disallowed
-            val notIllegalSelfStar = it != starredMessage.author || starredMessage.starboardConfig.allowSelfStarring
-
-            notBot && notIllegalSelfStar
-        }
-
-        val selfReacted = contains(starredMessage.jda.selfUser)
-    }
-
-    private suspend fun getStarUsers(): StarUsers {
+    /**
+     * Retrieve info about the star reactions on a message
+     */
+    protected suspend fun getStarUsers(starboardConfig: StarboardConfig): StarUsers {
         val starboardReactions = reactions.find {
             it.isCorrectEmote(starboardConfig)
-        } ?: return StarUsers(this, emptyList())
+        } ?: return StarUsers(starboardConfig, this, emptyList())
 
         // Check that the number of reactions needed has been met
-        return StarUsers(this, starboardReactions.retrieveUsers().submit().await())
+        return StarUsers(starboardConfig, this, starboardReactions.retrieveUsers().submit().await())
     }
 
-    private fun buildStarboardMessage(starUsers: StarUsers): Message {
-        val starboardMessageBuilder = MessageBuilder()
-        val firstEmbed = embeds.getOrNull(0)
+    /**
+     * Build the content of the message to place on the starboard
+     */
+    protected abstract fun buildStarboardMessage(starUsers: StarUsers): Message
 
-        // Set-up the base embed
-        val embed = EmbedBuilder()
-            .setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
-            .setDescription(contentRaw.tml)
-            .setFooter("${starUsers.validStarCount} ⭐ in #${textChannel.name}", null)
-            .setColor(Color.YELLOW)
-            .setTimestamp(timeCreated)
-
-        // Add images
-        embed.setImage(
-            attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
-            ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null
-        ).setThumbnail(if (firstEmbed?.title != null) embeds.getOrNull(0)?.thumbnail?.url else null)
-
-        // Add the contents of embeds on the original message to the starboard embed
-        embeds.foldIndexed(embed.length()) { runningLength, index, subEmbed ->
-            val title = subEmbed.title ?: subEmbed.author?.name ?: "Embed $index"
-            val valueBuilder = StringBuilder()
-            subEmbed.description?.let { valueBuilder.appendLine(it) }
-            subEmbed.fields.forEach {
-                valueBuilder.appendLine("**__${it.name}__**")
-                valueBuilder.appendLine(it.value)
-            }
-            valueBuilder.trim()
-            val value = valueBuilder.toString().tml
-
-            val addedLength = title.length + value.length
-            if (valueBuilder.isNotBlank() && runningLength + addedLength < MessageEmbed.EMBED_MAX_LENGTH_BOT) {
-                embed.addField(title, value, false)
-                runningLength + addedLength
-            } else runningLength
-        }
-
-        starboardMessageBuilder.setEmbed(embed.build())
-
-        return starboardMessageBuilder.build()
-    }
-
-    private val String.tml
+    /**
+     * String abbreviated to MessageEmbed.TEXT_MAX_LENGTH
+     */
+    protected val String.tml: String
         get() = StringUtils.abbreviate(this, MessageEmbed.TEXT_MAX_LENGTH)
 
-    private suspend fun sendToStarboard(
+    /**
+     * Attempt to send to or update the starboard
+     */
+    protected suspend fun sendToStarboard(
         redis: RedisAsync,
         starUsers: StarUsers,
         starboardChannel: TextChannel,
@@ -225,6 +266,32 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
         val correctEmoteName = emojiAlias(reactionEmote.name) == starboardConfig.emoji
         val emoteBelongsToGuild = reactionEmote.isEmoji || reactionEmote.emote.guild == guild
         return correctEmoteName && emoteBelongsToGuild
+    }
+
+    /**
+     * Info about users who star reacted a message
+     */
+    protected class StarUsers(
+        starboardConfig: StarboardConfig,
+        starredMessage: StarredMessage,
+        users: List<User>
+    ) : List<User> by users {
+        /**
+         * Number of valid star reactions
+         */
+        val validStarCount: Int = count {
+            // Bots should not count, including us
+            val notBot = !it.isBot
+            // Prevent self-starring if disallowed
+            val notIllegalSelfStar = it != starredMessage.author || starboardConfig.allowSelfStarring
+
+            notBot && notIllegalSelfStar
+        }
+
+        /**
+         * Did we react as well?
+         */
+        val selfReacted: Boolean = contains(starredMessage.jda.selfUser)
     }
 
     companion object {

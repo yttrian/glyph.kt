@@ -125,7 +125,7 @@ sealed class StarredMessage(message: Message) : Message by message {
             starboardConfig: StarboardConfig,
             starboardChannel: TextChannel,
             redis: RedisAsync
-        ): Boolean = sendToStarboard(redis, getStarUsers(starboardConfig), starboardChannel)
+        ): Boolean = sendToStarboard(redis, getStarUsers(starboardConfig), starboardChannel, true)
 
         override fun buildStarboardMessage(starUsers: StarUsers): Message {
             val starboardMessageBuilder = MessageBuilder()
@@ -195,6 +195,13 @@ sealed class StarredMessage(message: Message) : Message by message {
          * completion while still hold the "lock".
          */
         val pending = redis.redlockLock(trackingKey, pendingToken, FIRST_TRY_TTL_SECONDS)
+
+        /**
+         * If we acquired the lock (pending) and have not reacted on the message yet or are in a retry, we must create
+         * a starboard message. Our self react is used to remember a message was sent to the starboard even after Redis
+         * tracking expires. Retry is used when an edit fails to attempt to recreate, or when warning about editing to
+         * not recreate... which I guess is kind of confusing, since it depends on pending.
+         */
         val mustCreate = pending && (!starUsers.selfReacted || retry)
 
         /**
@@ -248,8 +255,8 @@ sealed class StarredMessage(message: Message) : Message by message {
                         // Retry sending to the starboard by recreating the message
                         sendToStarboard(redis, starUsers, starboardChannel, true)
                     } else if (retry) {
-                        // Not sure how this would be reached because you can only retry once and retry should send
-                        log.warn("Somehow almost slipped into a retry loop. How?")
+                        // This is likely only reached when a deleted starboard message is edited
+                        log.debug("Attempted to edit on a retry but failed")
                     } else {
                         log.warn("HTTP exception updating message $trackedMessageId in $starboardChannel")
                     }

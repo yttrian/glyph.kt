@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -50,11 +51,11 @@ import java.time.Instant
 /**
  * Represents a message with stars that can be sent to the starboard
  */
-sealed class StarredMessage(message: Message) : Message by message {
+sealed class StarredMessage(private val messageId: Long) {
     /**
      * A regular message to be placed on the starboard
      */
-    class Alive(message: Message) : StarredMessage(message) {
+    class Alive(message: Message) : StarredMessage(message.idLong), Message by message {
         override suspend fun checkAndSend(
             starboardConfig: StarboardConfig,
             starboardChannel: TextChannel,
@@ -120,20 +121,21 @@ sealed class StarredMessage(message: Message) : Message by message {
     /**
      * A tampered message to be permanently marked on the starboard
      */
-    class Dead(message: Message) : StarredMessage(message) {
+    class Dead(event: GenericGuildMessageEvent, private val reason: String) : StarredMessage(event.messageIdLong) {
+        private val textChannel = event.channel
+
         override suspend fun checkAndSend(
             starboardConfig: StarboardConfig,
             starboardChannel: TextChannel,
             redis: RedisAsync
-        ): Boolean = sendToStarboard(redis, getStarUsers(starboardConfig), starboardChannel, true)
+        ): Boolean = sendToStarboard(redis, StarUsers.Fake, starboardChannel, true)
 
         override fun buildStarboardMessage(starUsers: StarUsers): Message {
             val starboardMessageBuilder = MessageBuilder()
 
             // Set-up the base embed
             val embed = EmbedBuilder()
-                .setAuthor(author.asPlainMention, null, author.avatarUrl)
-                .setDescription("Editing messages already sent to the starboard is not allowed.")
+                .setDescription(reason)
                 .setFooter("❌ in #${textChannel.name}", null)
                 .setColor(Color.YELLOW)
             starboardMessageBuilder.setEmbed(embed.build())
@@ -154,13 +156,13 @@ sealed class StarredMessage(message: Message) : Message by message {
     /**
      * Retrieve info about the star reactions on a message
      */
-    protected suspend fun getStarUsers(starboardConfig: StarboardConfig): StarUsers {
+    protected suspend fun Message.getStarUsers(starboardConfig: StarboardConfig): StarUsers {
         val starboardReactions = reactions.find {
             it.isCorrectEmote(starboardConfig)
-        } ?: return StarUsers(starboardConfig, this, emptyList())
+        } ?: return StarUsers.Real(starboardConfig, this, emptyList())
 
         // Check that the number of reactions needed has been met
-        return StarUsers(starboardConfig, this, starboardReactions.retrieveUsers().submit().await())
+        return StarUsers.Real(starboardConfig, this, starboardReactions.retrieveUsers().submit().await())
     }
 
     /**
@@ -186,7 +188,7 @@ sealed class StarredMessage(message: Message) : Message by message {
         val starboardMessage = buildStarboardMessage(starUsers)
 
         // Send the starboard embed to the starboard
-        val trackingKey = TRACKING_PREFIX + id
+        val trackingKey = TRACKING_PREFIX + messageId
         val pendingToken = "PENDING-${Instant.now().toEpochMilli()}"
 
         /**
@@ -278,27 +280,40 @@ sealed class StarredMessage(message: Message) : Message by message {
     /**
      * Info about users who star reacted a message
      */
-    protected class StarUsers(
-        starboardConfig: StarboardConfig,
-        starredMessage: StarredMessage,
-        users: List<User>
-    ) : List<User> by users {
+    protected sealed class StarUsers {
         /**
          * Number of valid star reactions
          */
-        val validStarCount: Int = count {
-            // Bots should not count, including us
-            val notBot = !it.isBot
-            // Prevent self-starring if disallowed
-            val notIllegalSelfStar = it != starredMessage.author || starboardConfig.allowSelfStarring
-
-            notBot && notIllegalSelfStar
-        }
+        abstract val validStarCount: Int
 
         /**
          * Did we react as well?
          */
-        val selfReacted: Boolean = contains(starredMessage.jda.selfUser)
+        abstract val selfReacted: Boolean
+
+        /**
+         * Real StarUsers for normal usage
+         */
+        class Real(starboardConfig: StarboardConfig, message: Message, users: List<User>) : StarUsers() {
+            override val validStarCount: Int = users.count {
+                // Bots should not count, including us
+                val notBot = !it.isBot
+                // Prevent self-starring if disallowed
+                val notIllegalSelfStar = it != message.author || starboardConfig.allowSelfStarring
+
+                notBot && notIllegalSelfStar
+            }
+
+            override val selfReacted: Boolean = users.contains(message.jda.selfUser)
+        }
+
+        /**
+         * Fake StarUsers for dead stars
+         */
+        object Fake : StarUsers() {
+            override val validStarCount: Int = 0
+            override val selfReacted: Boolean = false
+        }
     }
 
     companion object {

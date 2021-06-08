@@ -28,9 +28,9 @@ import com.vdurmont.emoji.EmojiParser
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.directors.WebhookDirector
 import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
@@ -69,32 +69,24 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
     }
 
     /**
-     * When a message is deleted, check if there's an associated starboard message to delete
+     * When a message is deleted, check if there's an associated starboard message to mark as deleted
      */
     override fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
-        launch { deleteDeletedMessage(event) }
+        launch { killMessage(event, "Original message was deleted.") }
     }
 
     /**
-     * When a message is edited, check if there's an associated starboard message to kill
+     * When a message is edited, check if there's an associated starboard message to mark as edited
      */
     override fun onGuildMessageUpdate(event: GuildMessageUpdateEvent) {
-        launch { killEditedMessage(event) }
+        launch { killMessage(event, "Original message was edited.") }
     }
 
-    private suspend fun deleteDeletedMessage(event: GuildMessageDeleteEvent) {
-        val trackingKey = TRACKING_PREFIX + event.messageId
-        val starboardMessageId = redis.get(trackingKey).await()?.toLongOrNull() ?: return
-        val starboardChannel = event.guild.getStarboardChannel() ?: return
-        WebhookDirector.delete(starboardChannel, starboardMessageId)
-        redis.del(trackingKey)
-    }
-
-    private suspend fun killEditedMessage(event: GuildMessageUpdateEvent) {
+    private suspend fun killMessage(event: GenericGuildMessageEvent, reason: String) {
         val trackingKey = TRACKING_PREFIX + event.messageId
         if (redis.exists(trackingKey).await() == 0L) return
         val starboardChannel = event.guild.getStarboardChannel() ?: return
-        StarredMessage.Dead(event.message).checkAndSend(event.guild.config.starboard, starboardChannel, redis)
+        StarredMessage.Dead(event, reason).checkAndSend(event.guild.config.starboard, starboardChannel, redis)
         redis.del(trackingKey)
     }
 

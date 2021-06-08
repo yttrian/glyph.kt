@@ -29,9 +29,9 @@ import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
 import me.ianmooreis.glyph.bot.ai.AIAgent
 import me.ianmooreis.glyph.bot.directors.config.Key
-import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
 import me.ianmooreis.glyph.bot.extensions.contentClean
+import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed

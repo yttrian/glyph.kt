@@ -27,11 +27,13 @@ package me.ianmooreis.glyph.bot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
 import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.requests.RestAction
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,4 +61,9 @@ abstract class Director : ListenerAdapter(), CoroutineScope {
 
     protected val Guild.config: ServerConfig
         get(): ServerConfig = configDirector.getServerConfig(this)
+
+    /**
+     * Submit and await a RestAction in a suspending context
+     */
+    protected suspend fun <T> RestAction<T>.await(): T = submit().await()
 }

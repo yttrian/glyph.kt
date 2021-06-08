@@ -27,11 +27,14 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.bot"
 version = "1.0"
 
-val coroutinesVersion: String by project.extra
-val logbackVersion: String by project.extra
-val jdaVersion: String by project.extra
-val exposedVersion: String by project.extra
-val ktorVersion: String by project.extra
+internal val coroutinesVersion: String by project.extra
+internal val logbackVersion: String by project.extra
+internal val jdaVersion: String by project.extra
+internal val ktorVersion: String by project.extra
+
+repositories {
+    maven("https://m2.dv8tion.net/releases")
+}
 
 shadowJar {
     jar {
@@ -49,7 +52,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.dv8tion:JDA:$jdaVersion")
-    implementation("club.minnced:discord-webhooks:0.3.0")
+    implementation("club.minnced:discord-webhooks:0.5.7")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")
     implementation("net.dean.jraw:JRAW:1.0.0")

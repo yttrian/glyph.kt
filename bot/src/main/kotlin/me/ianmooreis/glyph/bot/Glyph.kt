@@ -29,13 +29,12 @@ import io.lettuce.core.RedisURI
 import me.ianmooreis.glyph.bot.ai.AIAgent
 import me.ianmooreis.glyph.bot.ai.dialogflow.Dialogflow
 import me.ianmooreis.glyph.bot.directors.AuditingDirector
-import me.ianmooreis.glyph.bot.directors.StarboardDirector
 import me.ianmooreis.glyph.bot.directors.StatusDirector
 import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
-import me.ianmooreis.glyph.bot.directors.config.RedisAsync
 import me.ianmooreis.glyph.bot.directors.servers.BotList
 import me.ianmooreis.glyph.bot.directors.servers.ServerDirector
 import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
+import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector
 import me.ianmooreis.glyph.bot.messaging.MessagingDirector
 import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewDirector
 import me.ianmooreis.glyph.bot.skills.DoomsdayClockSkill
@@ -60,6 +59,7 @@ import me.ianmooreis.glyph.bot.skills.roles.RoleListSkill
 import me.ianmooreis.glyph.bot.skills.roles.RoleSetSkill
 import me.ianmooreis.glyph.bot.skills.roles.RoleUnsetSkill
 import me.ianmooreis.glyph.bot.skills.wiki.WikiSkill
+import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.utils.cache.CacheFlag
@@ -156,7 +156,7 @@ object Glyph {
 
             addDirectors(
                 messagingDirector, AuditingDirector, skillDirector, configDirector,
-                serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector
+                serverDirector, QuickviewDirector(messagingDirector), StatusDirector, StarboardDirector(redis)
             )
         }
 

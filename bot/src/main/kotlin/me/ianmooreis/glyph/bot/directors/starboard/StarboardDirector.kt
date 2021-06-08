@@ -25,9 +25,13 @@
 package me.ianmooreis.glyph.bot.directors.starboard
 
 import com.vdurmont.emoji.EmojiParser
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import me.ianmooreis.glyph.bot.Director
+import me.ianmooreis.glyph.bot.directors.WebhookDirector
 import me.ianmooreis.glyph.shared.redis.RedisAsync
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
 
 /**
@@ -42,7 +46,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
 
         if (!starboardConfig.enabled) return
 
-        val starboardChannel = starboardConfig.channel?.let { event.guild.getTextChannelById(it) } ?: return
+        val starboardChannel = event.guild.getStarboardChannel() ?: return
         val correctEmoteName = emojiAlias(event.reactionEmote.name) == starboardConfig.emoji
         val emoteBelongsToGuild = event.reactionEmote.isEmoji || event.reactionEmote.emote.guild == event.guild
         val channelIsNotStarboard = event.channel != starboardChannel
@@ -63,7 +67,32 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         }
     }
 
+    /**
+     * When a message is deleted, check if there's an associated starboard message to delete
+     */
+    override fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
+        launch { checkDeletedMessage(event) }
+    }
+
+    private suspend fun checkDeletedMessage(event: GuildMessageDeleteEvent) {
+        val trackingKey = TRACKING_PREFIX + event.messageId
+        val starboardMessageId = redis.get(trackingKey).await()?.toLongOrNull() ?: return
+        val starboardChannel = event.guild.getStarboardChannel() ?: return
+        WebhookDirector.delete(starboardChannel, starboardMessageId)
+        redis.del(trackingKey)
+    }
+
+    private fun Guild.getStarboardChannel() = config.starboard.channel?.let { getTextChannelById(it) }
+
     companion object {
+        /**
+         * Redis key prefix for starboard tracking
+         */
+        const val TRACKING_PREFIX: String = "Glyph:Starboard:"
+
+        /**
+         * Parse an emoji to its name
+         */
         fun emojiAlias(emoji: String): String {
             return EmojiParser.parseToAliases(emoji).removeSurrounding(":")
         }

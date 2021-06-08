@@ -27,6 +27,7 @@ package me.ianmooreis.glyph.bot.directors.starboard
 import club.minnced.discord.webhook.exception.HttpException
 import kotlinx.coroutines.future.await
 import me.ianmooreis.glyph.bot.directors.WebhookDirector
+import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector.Companion.TRACKING_PREFIX
 import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector.Companion.emojiAlias
 import me.ianmooreis.glyph.bot.extensions.asPlainMention
 import me.ianmooreis.glyph.shared.config.server.StarboardConfig
@@ -210,8 +211,6 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
     }
 
     companion object {
-        private const val TRACKING_PREFIX = "Glyph:Starboard:"
-
         // Remember for 120 days since last star
         private const val TRACKING_TTL_SECONDS = 120L * 60 * 60 * 24
 

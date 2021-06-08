@@ -137,6 +137,18 @@ object WebhookDirector : Director() {
         }.await()
     }
 
+    /**
+     * Deletes a webhook message
+     *
+     * @param channel the channel to delete the webhook message from
+     * @param webhookMessageId the webhook message to delete
+     */
+    suspend fun delete(channel: TextChannel, webhookMessageId: Long) {
+        return getWebhookClient(channel) { client, _ ->
+            client.delete(webhookMessageId)
+        }
+    }
+
     private suspend fun <T> getWebhookClient(
         channel: TextChannel,
         success: (JDAWebhookClient, WebhookMessageBuilder) -> T

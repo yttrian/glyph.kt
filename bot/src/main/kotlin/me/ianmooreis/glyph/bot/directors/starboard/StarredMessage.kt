@@ -94,30 +94,47 @@ class StarredMessage(message: Message, private val starboardConfig: StarboardCon
     private fun buildStarboardMessage(starUsers: StarUsers): Message {
         val starboardMessageBuilder = MessageBuilder()
         val firstEmbed = embeds.getOrNull(0)
+
         // Set-up the base embed
-        val embed = EmbedBuilder().setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
-            .setDescription(contentRaw)
+        val embed = EmbedBuilder()
+            .setAuthor(author.asPlainMention, jumpUrl, author.avatarUrl)
+            .setDescription(contentRaw.tml)
             .setFooter("${starUsers.validStarCount} ⭐ in #${textChannel.name}", null)
             .setColor(Color.YELLOW)
             .setTimestamp(timeCreated)
+
         // Add images
         embed.setImage(
             attachments.getOrNull(0)?.url ?: firstEmbed?.image?.url
             ?: if (firstEmbed?.title == null) firstEmbed?.thumbnail?.url else null
         ).setThumbnail(if (firstEmbed?.title != null) embeds.getOrNull(0)?.thumbnail?.url else null)
+
         // Add the contents of embeds on the original message to the starboard embed
-        embeds.forEach { subEmbed ->
-            val title = subEmbed.title ?: subEmbed.author?.name ?: ""
-            val value = (subEmbed?.description ?: "") +
-                    subEmbed.fields.joinToString("") { "\n**__${it.name}__**\n${it.value}" }
-            if (value.isNotBlank()) {
-                embed.addField(title, StringUtils.abbreviate(value, MessageEmbed.TITLE_MAX_LENGTH), false)
+        embeds.foldIndexed(embed.length()) { runningLength, index, subEmbed ->
+            val title = subEmbed.title ?: subEmbed.author?.name ?: "Embed $index"
+            val valueBuilder = StringBuilder()
+            subEmbed.description?.let { valueBuilder.appendLine(it) }
+            subEmbed.fields.forEach {
+                valueBuilder.appendLine("**__${it.name}__**")
+                valueBuilder.appendLine(it.value)
             }
+            valueBuilder.trim()
+            val value = valueBuilder.toString().tml
+
+            val addedLength = title.length + value.length
+            if (valueBuilder.isNotBlank() && runningLength + addedLength < MessageEmbed.EMBED_MAX_LENGTH_BOT) {
+                embed.addField(title, value, false)
+                runningLength + addedLength
+            } else runningLength
         }
+
         starboardMessageBuilder.setEmbed(embed.build())
 
         return starboardMessageBuilder.build()
     }
+
+    private val String.tml
+        get() = StringUtils.abbreviate(this, MessageEmbed.TEXT_MAX_LENGTH)
 
     private suspend fun sendToStarboard(
         redis: RedisAsync,

@@ -54,9 +54,9 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         if (correctEmoteName && emoteBelongsToGuild && channelIsNotStarboard) {
             launch {
                 val message = event.channel.retrieveMessageById(event.messageId).await()
-                val sent = StarredMessage(message, starboardConfig).checkAndSend(redis, starboardChannel)
+                val successful = StarredMessage(message, starboardConfig).checkAndSend(redis, starboardChannel)
 
-                if (sent) {
+                if (successful) {
                     if (event.reactionEmote.isEmote) {
                         message.addReaction(event.reactionEmote.emote)
                     } else {

@@ -12,6 +12,3 @@ Setting a configuration
   .. note::
     If the configuration has an error, Glyph will fallback to using the previous error-free configuration.
     Additionally, if Glyph is removed from the server, the server's configuration will be deleted from the database.
-
-  .. warning::
-    Currently there's a bug where the dropdowns only trigger if you click the label.

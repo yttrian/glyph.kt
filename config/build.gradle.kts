@@ -27,8 +27,8 @@ import tanvd.kosogor.proxy.shadowJar
 group = "me.ianmooreis.glyph.config"
 version = "1.0"
 
-val logbackVersion: String by project.extra
-val ktorVersion: String by project.extra
+internal val logbackVersion: String by project.extra
+internal val ktorVersion: String by project.extra
 
 shadowJar {
     jar {

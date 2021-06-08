@@ -44,7 +44,7 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
     override fun onGenericGuildMessageReaction(event: GenericGuildMessageReactionEvent) {
         val starboardConfig = event.guild.config.starboard
 
-        if (!starboardConfig.enabled) return
+        if (!starboardConfig.enabled || event.user?.isBot == true) return
 
         val starboardChannel = event.guild.getStarboardChannel() ?: return
         val correctEmoteName = emojiAlias(event.reactionEmote.name) == starboardConfig.emoji

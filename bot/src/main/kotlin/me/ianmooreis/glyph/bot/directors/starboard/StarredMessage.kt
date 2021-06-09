@@ -65,7 +65,7 @@ sealed class StarredMessage(private val messageId: Long) {
 
             // Check that the number of reactions needed has been met
             val reactionCount = starUsers.validStarCount
-            val reactionThresholdMet = reactionCount >= Integer.min(1, starboardConfig.threshold)
+            val reactionThresholdMet = reactionCount >= starboardConfig.threshold.coerceAtLeast(1)
 
             // Check if NSFW and if so whether or not it is allowed
             val isSafe = !textChannel.isNSFW || starboardChannel.isNSFW

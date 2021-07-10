@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,7 +24,10 @@
 
 package org.yttr.glyph.bot.messaging.quickview
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -44,7 +47,12 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
         /**
          * The maximum amount of time the generators are allowed to process a message for
          */
-        const val GENERATOR_TIMEOUT_SECONDS: Long = 15
+        private const val GENERATOR_TIMEOUT_SECONDS: Long = 15
+
+        /**
+         * Maximum number of embeds that should be generated
+         */
+        private const val EMBED_LIMIT: Int = 5
     }
 
     private val generators = setOf(PicartoGenerator(), FurAffinityGenerator())
@@ -53,14 +61,15 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
     /**
      * Check for quickviews when a message is received
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.isIgnorable) return
         val config = if (event.channelType.isGuild) event.guild.config else configDirector.defaultConfig
 
         launch {
             withTimeout(generatorTimeout) {
-                generators.forEach {
-                    it.generate(event, config.quickview).fold(event.messageId) { messageId, embed ->
+                generators.map { it.generate(event, config.quickview) }.merge().take(EMBED_LIMIT)
+                    .fold(event.messageId) { messageId, embed ->
                         if (messageId == event.messageId) {
                             event.message.suppressEmbeds(true).reason("Quickview").queue({}) {
                                 log.debug("Unable to suppress embeds for Quickviews in context ${event.contextHash}")
@@ -70,7 +79,6 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
                         messagingDirector.trackVolatile(messageId, responseId)
                         responseId
                     }
-                }
             }
         }
     }

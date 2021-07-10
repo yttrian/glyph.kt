@@ -22,6 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 import tanvd.kosogor.proxy.shadowJar
 
 /*
@@ -69,6 +70,12 @@ shadowJar {
 
 tasks.named("stage") {
     dependsOn("shadowJar")
+}
+
+tasks.withType(KotlinJvmCompile::class) {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+    }
 }
 
 dependencies {

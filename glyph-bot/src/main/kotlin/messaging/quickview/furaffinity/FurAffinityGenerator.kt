@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -48,6 +48,17 @@ class FurAffinityGenerator : QuickviewGenerator() {
         private const val API_BASE: String = "https://faexport.spangle.org.uk"
         private const val GALLERY_LISTING_SIZE: Int = 72
 
+        private val submissionUrlRegex = Regex(
+            "\\b(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/([\\w-]+)/(\\d+))\\b",
+            RegexOption.IGNORE_CASE
+        )
+
+        private const val SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP: Int = 2
+        private const val SUBMISSION_URL_REGEX_CDN_ID_GROUP: Int = 5
+        private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
+
+        private val escapedLinkRegex = Regex("<\\S+>|`.+`", RegexOption.DOT_MATCHES_ALL)
+
         /**
          * Represents a user page in the API
          */
@@ -75,11 +86,6 @@ class FurAffinityGenerator : QuickviewGenerator() {
         )
     }
 
-    private val submissionUrlRegex = Regex(
-        "(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/(\\w*)/(\\d+))",
-        RegexOption.IGNORE_CASE
-    )
-
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
             getSubmission(it)?.run {
@@ -92,18 +98,21 @@ class FurAffinityGenerator : QuickviewGenerator() {
             }
         } else emptyFlow()
 
+    private data class SubmissionUrlData(val submissionId: Int?, val cdnId: Int?, val username: String?)
+
     /**
      * Attempts to find ids associated with FurAffinity submissions, if there are any
      */
     fun findIds(content: String): Flow<Int> =
-        submissionUrlRegex.findAll(content).distinct().asFlow().mapNotNull {
-            val submissionId = it.groups[2]?.value?.toInt()
-            val cdnId = it.groups[5]?.value?.toInt()
-            val username = it.groups[4]?.value
-
+        submissionUrlRegex.findAll(content.replace(escapedLinkRegex, "")).map {
+            val submissionId = it.groups[SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP]?.value?.toInt()
+            val cdnId = it.groups[SUBMISSION_URL_REGEX_CDN_ID_GROUP]?.value?.toInt()
+            val username = it.groups[SUBMISSION_URL_REGEX_USERNAME_GROUP]?.value
+            SubmissionUrlData(submissionId, cdnId, username)
+        }.distinct().asFlow().mapNotNull {
             when {
-                submissionId != null -> submissionId
-                cdnId != null && username != null -> findSubmissionId(cdnId, username)
+                it.submissionId != null -> it.submissionId
+                it.cdnId != null && it.username != null -> findSubmissionId(it.cdnId, it.username)
                 else -> null
             }
         }
@@ -142,6 +151,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
             url.takeFrom(API_BASE).path("submission", "$id.json")
         }
     } catch (e: ClientRequestException) {
+        log.debug("Error getting submission data", e)
         null
     }
 }

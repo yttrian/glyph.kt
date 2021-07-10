@@ -36,7 +36,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
-import org.yttr.glyph.bot.directors.config.Key
 import org.yttr.glyph.bot.extensions.contentClean
 import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
@@ -70,6 +69,13 @@ class MessagingDirector(
         const val DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS: Long = 14
 
         /**
+         * Number of messages Glyph has triggered a skill for since we started tracking
+         */
+        const val MESSAGE_COUNT_KEY: String = "Glyph:Messages:Count"
+
+        private const val VOLATILE_MESSAGE_PREFIX: String = "Glyph:Message:Volatile:"
+
+        /**
          * Grabs the mention at the start of a message, if any
          */
         private val leadingMentionRegex: Regex = Regex("^<@!?(\\d+)>")
@@ -85,7 +91,7 @@ class MessagingDirector(
      * @param responseId the message id of the response message to the invoking message
      */
     fun trackVolatile(invokerId: String, responseId: String): RedisFuture<String> =
-        redis.setex(Key.VOLATILE_MESSAGE_PREFIX.value + invokerId, volatileTrackingExpirationSeconds, responseId)
+        redis.setex(VOLATILE_MESSAGE_PREFIX + invokerId, volatileTrackingExpirationSeconds, responseId)
 
     /**
      * Log a failure to send a message, useful so figuring out the if someone complains Glyph won't respond
@@ -135,7 +141,7 @@ class MessagingDirector(
             }
 
             // Increment the total message count for curiosity's sake
-            redis.incr(Key.MESSAGE_COUNT.value)
+            redis.incr(MESSAGE_COUNT_KEY)
         }
     }
 
@@ -143,7 +149,7 @@ class MessagingDirector(
      * When a message is deleted anywhere, remove the invoking message if considered volatile
      */
     override fun onMessageDelete(event: MessageDeleteEvent) {
-        val key = Key.VOLATILE_MESSAGE_PREFIX.value + event.messageId
+        val key = VOLATILE_MESSAGE_PREFIX + event.messageId
         redis.get(key).thenAccept { responseId ->
             redis.del(key)
             event.channel.retrieveMessageById(responseId).queue({

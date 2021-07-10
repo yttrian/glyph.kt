@@ -1,5 +1,5 @@
 /*
- * AuditingExt.kt
+ * SelfUserExt.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin

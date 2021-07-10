@@ -31,9 +31,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.config.Key
 import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import org.yttr.glyph.bot.extensions.isCreator
+import org.yttr.glyph.bot.messaging.MessagingDirector
 import org.yttr.glyph.bot.messaging.Response
 import org.yttr.glyph.bot.skills.Skill
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
@@ -61,7 +61,7 @@ class StatusSkill(
                 "${jda.shardInfo.shardId}" + if (event.author.isCreator) "/${jda.shardInfo.shardTotal}" else ""
             )
         if (event.author.isCreator) {
-            val messageCount = redis.get(Key.MESSAGE_COUNT.value).await()
+            val messageCount = redis.get(MessagingDirector.MESSAGE_COUNT_KEY).await()
             discordDescription.addField("Messages", messageCount ?: "?")
         }
         val embed = EmbedBuilder()

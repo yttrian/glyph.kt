@@ -1,5 +1,5 @@
 /*
- * Auditing.kt
+ * AuditingExt.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.entities.SelfUser
 import org.yttr.glyph.bot.messaging.WebhookDirector
 import java.awt.Color
 import java.time.Instant
-
 
 /**
  * Sends an embed to the global log webhook

@@ -49,13 +49,15 @@ class FurAffinityGenerator : QuickviewGenerator() {
         private const val GALLERY_LISTING_SIZE: Int = 72
 
         private val submissionUrlRegex = Regex(
-            "(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/(\\w*)/(\\d+))",
+            "\\b(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/([\\w-]+)/(\\d+))\\b",
             RegexOption.IGNORE_CASE
         )
 
         private const val SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP: Int = 2
         private const val SUBMISSION_URL_REGEX_CDN_ID_GROUP: Int = 5
         private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
+
+        private val escapedLinkRegex = Regex("<\\S+>")
 
         /**
          * Represents a user page in the API
@@ -102,7 +104,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
      * Attempts to find ids associated with FurAffinity submissions, if there are any
      */
     fun findIds(content: String): Flow<Int> =
-        submissionUrlRegex.findAll(content).map {
+        submissionUrlRegex.findAll(content.replace(escapedLinkRegex, "")).map {
             val submissionId = it.groups[SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP]?.value?.toInt()
             val cdnId = it.groups[SUBMISSION_URL_REGEX_CDN_ID_GROUP]?.value?.toInt()
             val username = it.groups[SUBMISSION_URL_REGEX_USERNAME_GROUP]?.value

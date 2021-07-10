@@ -57,7 +57,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
         private const val SUBMISSION_URL_REGEX_CDN_ID_GROUP: Int = 5
         private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
 
-        private val escapedLinkRegex = Regex("<\\S+>")
+        private val escapedLinkRegex = Regex("<\\S+>|`.+`", RegexOption.DOT_MATCHES_ALL)
 
         /**
          * Represents a user page in the API

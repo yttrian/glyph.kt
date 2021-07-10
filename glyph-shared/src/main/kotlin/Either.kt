@@ -1,5 +1,5 @@
 /*
- * RedisAsync.kt
+ * Either.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,11 +22,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yttr.glyph.shared.redis
-
-import io.lettuce.core.api.async.RedisAsyncCommands
+package org.yttr.glyph.shared
 
 /**
- * Reduces the need to type out the long type for Redis Async String Commands
+ * Either type, Left or Right
  */
-typealias RedisAsync = RedisAsyncCommands<String, String>
+sealed class Either<out L, out R> {
+    /**
+     * Left of an Either
+     */
+    data class Left<out L>(
+        /**
+         * Value of the Left
+         */
+        val l: L
+    ) : Either<L, Nothing>()
+
+    /**
+     * Right of an Either
+     */
+    data class Right<out R>(
+        /**
+         * Value of the Right
+         */
+        val r: R
+    ) : Either<Nothing, R>()
+}
+
+/**
+ * Wrap value in Left
+ */
+fun <T> T.left(): Either.Left<T> = Either.Left(this)
+
+/**
+ * Wrap value in Right
+ */
+fun <T> T.right(): Either.Right<T> = Either.Right(this)

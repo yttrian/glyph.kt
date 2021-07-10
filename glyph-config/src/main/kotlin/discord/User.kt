@@ -1,10 +1,10 @@
 /*
- * DiscordUser.kt
+ * User.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -30,9 +30,9 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import org.yttr.glyph.shared.either.Either
-import org.yttr.glyph.shared.either.left
-import org.yttr.glyph.shared.either.right
+import org.yttr.glyph.shared.Either
+import org.yttr.glyph.shared.left
+import org.yttr.glyph.shared.right
 
 /**
  * Represents a Discord user

@@ -1,5 +1,5 @@
 /*
- * StarboardMessage.kt
+ * StarredMessage.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -42,7 +42,7 @@ import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.TRACKI
 import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.emojiAlias
 import org.yttr.glyph.bot.extensions.asPlainMention
 import org.yttr.glyph.shared.config.server.StarboardConfig
-import org.yttr.glyph.shared.redis.RedisAsync
+import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import org.yttr.glyph.shared.redis.redlockLock
 import org.yttr.glyph.shared.redis.redlockUnlock
 import java.awt.Color

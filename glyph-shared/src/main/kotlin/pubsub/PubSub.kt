@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,7 +24,7 @@
 
 package org.yttr.glyph.shared.pubsub
 
-import org.yttr.glyph.shared.either.Either
+import org.yttr.glyph.shared.Either
 
 /**
  * Generic interface for PubSub connectors

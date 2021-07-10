@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
 import org.yttr.glyph.bot.Director
-import org.yttr.glyph.shared.redis.RedisAsync
+import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured

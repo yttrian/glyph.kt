@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -26,14 +26,13 @@ package org.yttr.glyph.shared.pubsub.redis
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import kotlinx.coroutines.channels.Channel
-import org.yttr.glyph.shared.either.Either
-import org.yttr.glyph.shared.either.left
-import org.yttr.glyph.shared.either.right
+import org.yttr.glyph.shared.Either
+import org.yttr.glyph.shared.left
 import org.yttr.glyph.shared.pubsub.PubSub
 import org.yttr.glyph.shared.pubsub.PubSubChannel
 import org.yttr.glyph.shared.pubsub.PubSubException
+import org.yttr.glyph.shared.right
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -53,7 +52,7 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
     private val config = Config().also(configure)
     private val redis = RedisClient.create(RedisURI.create(config.redisConnectionUri).apply { username = null })
     private val redisCommandsAsync = redis.connect().async()
-    private val redisPubSubConnection = redis.connectPubSub()
+    private val redisPubSubConnection: StatefulRedisPubSub = redis.connectPubSub()
 
     override fun publish(channel: PubSubChannel, message: String) {
         redisCommandsAsync.publish(channel.value, message)
@@ -111,7 +110,7 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
         }
     }
 
-    private fun StatefulRedisPubSubConnection<String, String>.addListener(
+    private fun StatefulRedisPubSub.addListener(
         listenChannel: String,
         listener: (message: String) -> Unit
     ) = this.addListener(object : SimplifiedListener() {

@@ -1,10 +1,10 @@
 /*
- * Either.kt
+ * RedisTypeAlias.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,39 +22,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yttr.glyph.shared.either
+package org.yttr.glyph.shared.pubsub.redis
+
+import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 
 /**
- * Either type, Left or Right
+ * Reduces the need to type out the long type for Redis Async String Commands
  */
-sealed class Either<out L, out R> {
-    /**
-     * Left of an Either
-     */
-    data class Left<out L>(
-        /**
-         * Value of the Left
-         */
-        val l: L
-    ) : Either<L, Nothing>()
-
-    /**
-     * Right of an Either
-     */
-    data class Right<out R>(
-        /**
-         * Value of the Right
-         */
-        val r: R
-    ) : Either<Nothing, R>()
-}
+typealias RedisAsync = RedisAsyncCommands<String, String>
 
 /**
- * Wrap value in Left
+ * Reduces the need to type out the long type for Stateful Redis PubSub Connection
  */
-fun <T> T.left(): Either.Left<T> = Either.Left(this)
-
-/**
- * Wrap value in Right
- */
-fun <T> T.right(): Either.Right<T> = Either.Right(this)
+typealias StatefulRedisPubSub = StatefulRedisPubSubConnection<String, String>

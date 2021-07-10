@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -42,9 +42,9 @@ import io.ktor.sessions.sessions
 import kotlinx.serialization.json.Json
 import org.yttr.glyph.config.discord.User
 import org.yttr.glyph.config.session.ConfigSession
+import org.yttr.glyph.shared.Either
 import org.yttr.glyph.shared.config.ConfigManager
 import org.yttr.glyph.shared.config.server.ServerConfig
-import org.yttr.glyph.shared.either.Either
 import org.yttr.glyph.shared.pubsub.PubSub
 import org.yttr.glyph.shared.pubsub.PubSubChannel
 import org.yttr.glyph.shared.pubsub.PubSubException

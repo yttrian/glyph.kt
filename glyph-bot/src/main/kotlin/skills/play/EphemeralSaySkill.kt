@@ -20,7 +20,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */kage org.yttr.glyph.bot.skills.`fun`
+ */
+
+package org.yttr.glyph.bot.skills.play
 
 import com.google.gson.JsonObject
 import net.dv8tion.jda.api.EmbedBuilder

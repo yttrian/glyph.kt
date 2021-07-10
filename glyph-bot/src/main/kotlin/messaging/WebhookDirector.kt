@@ -20,7 +20,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */kage org.yttr.glyph.bot.messaging
+ */
+
+package org.yttr.glyph.bot.messaging
 
 import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.WebhookClientBuilder

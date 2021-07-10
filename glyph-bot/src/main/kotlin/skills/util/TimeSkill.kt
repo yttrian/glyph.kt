@@ -1,10 +1,10 @@
 /*
- * SourceSkill.kt
+ * TimeSkill.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -20,33 +20,33 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package org.yttr.glyph.bot.skills
+ */kage org.yttr.glyph.bot.skills.util
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.skills.Skill
 import org.yttr.glyph.bot.messaging.Response
-import java.awt.Color
+import org.yttr.glyph.bot.skills.Skill
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.util.Date
+import java.util.TimeZone
 
 /**
- * A skill that allows users to see the license and link to the source code
+ * A skill that attempts to show the time in other timezones
  */
-class SourceSkill : Skill("skill.source") {
+class TimeSkill : Skill("skill.time") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        val name = event.jda.selfUser.name
-        val embed = EmbedBuilder()
-            .setTitle("$name Source")
-            .setDescription(ai.result.fulfillment.speech)
-            .setFooter("$name-Kotlin-${Glyph.version}", null)
-            .setTimestamp(Instant.now())
-            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
-            .build()
+        val df = SimpleDateFormat("**HH:mm:ss** 'on' EEEE, MMMM dd, yyyy")
+        df.timeZone = TimeZone.getTimeZone(ai.result.getStringParameter("timezone"))
 
-        return Response.Volatile(embed)
+        return Response.Volatile(
+            EmbedBuilder()
+                .setTitle(df.timeZone.displayName)
+                .setDescription(df.format(Date()))
+                .setFooter("Time", null)
+                .setTimestamp(Instant.now())
+                .build()
+        )
     }
 }

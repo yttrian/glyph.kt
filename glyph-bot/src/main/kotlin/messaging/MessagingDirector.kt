@@ -37,8 +37,8 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
 import org.yttr.glyph.bot.directors.config.Key
-import org.yttr.glyph.bot.directors.skills.SkillDirector
 import org.yttr.glyph.bot.extensions.contentClean
+import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import java.time.Duration
 import java.util.concurrent.TimeUnit

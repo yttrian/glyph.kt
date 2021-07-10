@@ -37,10 +37,10 @@ import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.bot.directors.WebhookDirector
 import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.TRACKING_PREFIX
 import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.emojiAlias
 import org.yttr.glyph.bot.extensions.asPlainMention
+import org.yttr.glyph.bot.messaging.WebhookDirector
 import org.yttr.glyph.shared.config.server.StarboardConfig
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import org.yttr.glyph.shared.redis.redlockLock

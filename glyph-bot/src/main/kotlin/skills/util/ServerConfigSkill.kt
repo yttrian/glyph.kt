@@ -1,10 +1,10 @@
 /*
- * HelpSkill.kt
+ * ServerConfigSkill.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -20,29 +20,24 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ */kage org.yttr.glyph.bot.skills.util
 
-package org.yttr.glyph.bot.skills
-
-import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.skills.Skill
 import org.yttr.glyph.bot.messaging.Response
-import java.awt.Color
+import org.yttr.glyph.bot.skills.Skill
 
 /**
- * A skill that shows users a help messgae
+ * Tells people to use the config website to edit their config
  */
-class HelpSkill : Skill("skill.help") {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        val name = event.jda.selfUser.name
-        val embed = EmbedBuilder()
-            .setTitle("$name Help")
-            .setDescription(ai.result.fulfillment.speech)
-            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
-            .build()
-
-        return Response.Volatile(embed)
-    }
+class ServerConfigSkill : Skill(
+    "skill.config.server",
+    cooldownTime = 15,
+    guildOnly = true,
+    requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
+    requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
+) {
+    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
+        Response.Volatile("To edit your config, visit https://gl.yttr.org/config")
 }

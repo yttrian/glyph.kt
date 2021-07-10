@@ -20,9 +20,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package org.yttr.glyph.bot.skills
+ */kage org.yttr.glyph.bot.skills.util
 
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.EmbedBuilder
@@ -33,9 +31,9 @@ import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.ai.AIResponse
 import org.yttr.glyph.bot.directors.config.Key
 import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import org.yttr.glyph.bot.directors.skills.Skill
 import org.yttr.glyph.bot.extensions.isCreator
 import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.bot.skills.Skill
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import java.lang.management.ManagementFactory
 import java.time.Instant

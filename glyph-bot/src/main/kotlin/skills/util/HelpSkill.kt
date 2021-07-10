@@ -1,10 +1,10 @@
 /*
- * TimeSkill.kt
+ * HelpSkill.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -22,33 +22,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yttr.glyph.bot.skills
+package org.yttr.glyph.bot.skills.util
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.skills.Skill
 import org.yttr.glyph.bot.messaging.Response
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.util.Date
-import java.util.TimeZone
+import org.yttr.glyph.bot.skills.Skill
+import java.awt.Color
 
 /**
- * A skill that attempts to show the time in other timezones
+ * A skill that shows users a help messgae
  */
-class TimeSkill : Skill("skill.time") {
+class HelpSkill : Skill("skill.help") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
-        val df = SimpleDateFormat("**HH:mm:ss** 'on' EEEE, MMMM dd, yyyy")
-        df.timeZone = TimeZone.getTimeZone(ai.result.getStringParameter("timezone"))
+        val name = event.jda.selfUser.name
+        val embed = EmbedBuilder()
+            .setTitle("$name Help")
+            .setDescription(ai.result.fulfillment.speech)
+            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
+            .build()
 
-        return Response.Volatile(
-            EmbedBuilder()
-                .setTitle(df.timeZone.displayName)
-                .setDescription(df.format(Date()))
-                .setFooter("Time", null)
-                .setTimestamp(Instant.now())
-                .build()
-        )
+        return Response.Volatile(embed)
     }
 }

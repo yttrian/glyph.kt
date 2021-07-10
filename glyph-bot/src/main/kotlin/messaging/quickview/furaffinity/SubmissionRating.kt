@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -42,15 +42,15 @@ enum class SubmissionRating(
     /**
      * Suitable for all-ages
      */
-    General(Color.GREEN, false),
+    General(Color.decode("#79A977"), false),
 
     /**
      * Gore, violence or tasteful/artistic nudity or mature themes.
      */
-    Mature(Color.BLUE, true),
+    Mature(Color.decode("#697CC1"), true),
 
     /**
      * Explicit or imagery otherwise geared towards adult audiences.
      */
-    Adult(Color.RED, true)
+    Adult(Color.decode("#992D22"), true)
 }

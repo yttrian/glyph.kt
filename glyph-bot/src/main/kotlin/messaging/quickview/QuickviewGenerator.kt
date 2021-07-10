@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.yttr.glyph.shared.config.server.QuickviewConfig
 import java.io.Closeable
 
@@ -38,6 +40,11 @@ import java.io.Closeable
  * Handle extract data from websites to build relevant QuickViews
  */
 abstract class QuickviewGenerator : Closeable {
+    /**
+     * Logger
+     */
+    protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+
     /**
      * HTTP client for making API requests
      */

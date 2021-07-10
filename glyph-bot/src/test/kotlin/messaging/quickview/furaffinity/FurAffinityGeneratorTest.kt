@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,7 +24,6 @@
 
 package org.yttr.glyph.bot.messaging.quickview.furaffinity
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -38,10 +37,10 @@ import kotlin.test.assertNull
  *
  * All tests use the "Fender" mascot account
  */
+@Suppress("HttpUrlsUsage")
 internal class FurAffinityGeneratorTest {
     private val generator = FurAffinityGenerator()
 
-    @ExperimentalCoroutinesApi
     @Test
     fun `should find submission id from CDN id`() = runBlocking {
         // https://www.furaffinity.net/view/4483888/
@@ -50,7 +49,6 @@ internal class FurAffinityGeneratorTest {
         assert(submissionId == 4483888)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun `should find distinct ids in a message`() = runBlocking {
         // a regular message

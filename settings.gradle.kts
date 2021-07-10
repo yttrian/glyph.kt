@@ -1,5 +1,5 @@
 rootProject.name = "glyph"
 
-include("bot")
-include("config")
-include("shared")
+include("glyph-bot")
+include("glyph-config")
+include("glyph-shared")

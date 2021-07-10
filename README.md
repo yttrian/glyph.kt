@@ -1,13 +1,14 @@
 [![GitHub](https://img.shields.io/github/license/glyph-discord/glyph.kt)](https://github.com/glyph-discord/glyph.kt/blob/master/LICENSE)
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/glyph-discord/glyph.kt/Java%20CI/master)](https://github.com/glyph-discord/glyph.kt/actions)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/yttrian)](https://github.com/sponsors/yttrian)
 [![Discord Bots](https://discordbots.org/api/widget/status/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
 [![Discord Bots](https://discordbots.org/api/widget/servers/248186527161516032.svg?noavatar=true)](https://discordbots.org/bot/248186527161516032)
 
 # glyph.kt
 
-The Kotlin rewrite of the Glyph Discord bot
+The Kotlin rewrite of the Glyph Discord bot.
 
-Glyph is an experimental Discord bot that uses [DialogFlow](https://dialogflow.com/) to attempt to understand and process natural language requests as opposed to a traditional command based bot.
+Glyph is an experimental Discord bot that uses [DialogFlow](https://dialogflow.com/) to attempt to understand and
+process natural language requests as opposed to a traditional command based bot.
 
 To learn more about how to use Glyph, check out the documentation [here](https://gl.yttr.org/).
 
@@ -15,4 +16,15 @@ To learn more about how to use Glyph, check out the documentation [here](https:/
 
 In order to host your own copy of Glyph, some set up will be required.
 
-This will be further documented in detail later, but the basic idea is that you will need to create and train an agent on DialogFlow to respond to different prompts, and set all the needed environmental variables used in the code.
+1. Create and train a [DialogFlow](https://dialogflow.cloud.google.com/) agent that understands all actions Glyph's
+   skills refer to
+   - Action is in the format "skill.feedback"
+   - All references entities must be understood too
+   - A free ("Trial") plan is sufficient
+   - You should disable "Log interaction to Dialogflow"
+2. Create a Reddit application for the Reddit skill
+3. Create a PostgreSQL database and Redis data store
+4. Set the needed environment variables as seen in the application.conf files
+5. Build and start the bot and config website
+
+If you modify Glyph, [you must make your source code and changes publicly available](LICENSE).

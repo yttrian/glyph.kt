@@ -22,16 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.servers
+package org.yttr.glyph.bot.directors.servers
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import kotlinx.coroutines.launch
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.bot.extensions.log
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
@@ -39,6 +36,9 @@ import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import org.json.JSONObject
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.bot.extensions.log
 import java.awt.Color
 import java.time.Instant
 

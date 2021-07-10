@@ -22,10 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.config.server
+package org.yttr.glyph.shared.config.server
 
 import kotlinx.serialization.Serializable
-import me.ianmooreis.glyph.shared.config.Config
+import org.yttr.glyph.shared.config.Config
 
 /**
  * The holder of all the sub-configurations

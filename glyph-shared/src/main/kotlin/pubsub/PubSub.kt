@@ -22,9 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
+package org.yttr.glyph.shared.pubsub
 
-import me.ianmooreis.glyph.shared.either.Either
+import org.yttr.glyph.shared.either.Either
 
 /**
  * Generic interface for PubSub connectors

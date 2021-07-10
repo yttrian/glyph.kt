@@ -22,14 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.extensions
+package org.yttr.glyph.bot.extensions
 
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import org.ocpsoft.prettytime.PrettyTime
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import java.awt.Color
 import java.time.Instant
 

@@ -22,14 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors
+package org.yttr.glyph.bot.directors
 
 import com.google.gson.JsonParser
-import me.ianmooreis.glyph.bot.Director
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.ReadyEvent
+import org.yttr.glyph.bot.Director
 import java.util.Timer
 import kotlin.concurrent.schedule
 

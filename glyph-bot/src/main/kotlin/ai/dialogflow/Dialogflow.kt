@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.ai.dialogflow
+package org.yttr.glyph.bot.ai.dialogflow
 
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.api.gax.rpc.InvalidArgumentException
@@ -34,8 +34,8 @@ import com.google.cloud.dialogflow.v2.SessionName
 import com.google.cloud.dialogflow.v2.SessionsClient
 import com.google.cloud.dialogflow.v2.SessionsSettings
 import com.google.cloud.dialogflow.v2.TextInput
-import me.ianmooreis.glyph.bot.ai.AIAgent
-import me.ianmooreis.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.ai.AIAgent
+import org.yttr.glyph.bot.ai.AIResponse
 import java.io.ByteArrayInputStream
 import java.net.UnknownHostException
 

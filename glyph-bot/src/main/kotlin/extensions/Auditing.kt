@@ -22,12 +22,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.extensions
+package org.yttr.glyph.bot.extensions
 
-import me.ianmooreis.glyph.bot.directors.WebhookDirector
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
+import org.yttr.glyph.bot.directors.WebhookDirector
 import java.awt.Color
 import java.time.Instant
 

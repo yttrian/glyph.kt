@@ -22,10 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.ai.dialogflow
+package org.yttr.glyph.bot.ai.dialogflow
 
 import com.google.cloud.dialogflow.v2.QueryResult
-import me.ianmooreis.glyph.bot.ai.AIFulfillment
+import org.yttr.glyph.bot.ai.AIFulfillment
 
 /**
  * A wrapper for the new DialogFlow API v2 fulfillment

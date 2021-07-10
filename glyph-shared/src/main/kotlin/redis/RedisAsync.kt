@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.redis
+package org.yttr.glyph.shared.redis
 
 import io.lettuce.core.api.async.RedisAsyncCommands
 

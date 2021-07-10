@@ -22,18 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.starboard
+package org.yttr.glyph.bot.directors.starboard
 
 import club.minnced.discord.webhook.exception.HttpException
 import kotlinx.coroutines.future.await
-import me.ianmooreis.glyph.bot.directors.WebhookDirector
-import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector.Companion.TRACKING_PREFIX
-import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector.Companion.emojiAlias
-import me.ianmooreis.glyph.bot.extensions.asPlainMention
-import me.ianmooreis.glyph.shared.config.server.StarboardConfig
-import me.ianmooreis.glyph.shared.redis.RedisAsync
-import me.ianmooreis.glyph.shared.redis.redlockLock
-import me.ianmooreis.glyph.shared.redis.redlockUnlock
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
@@ -45,6 +37,14 @@ import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
+import org.yttr.glyph.bot.directors.WebhookDirector
+import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.TRACKING_PREFIX
+import org.yttr.glyph.bot.directors.starboard.StarboardDirector.Companion.emojiAlias
+import org.yttr.glyph.bot.extensions.asPlainMention
+import org.yttr.glyph.shared.config.server.StarboardConfig
+import org.yttr.glyph.shared.redis.RedisAsync
+import org.yttr.glyph.shared.redis.redlockLock
+import org.yttr.glyph.shared.redis.redlockUnlock
 import java.awt.Color
 import java.time.Instant
 

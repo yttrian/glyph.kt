@@ -22,18 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging.quickview
+package org.yttr.glyph.bot.messaging.quickview
 
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.messaging.MessagingDirector
-import me.ianmooreis.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
-import me.ianmooreis.glyph.bot.messaging.quickview.picarto.PicartoGenerator
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.restaction.MessageAction
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.bot.messaging.MessagingDirector
+import org.yttr.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
+import org.yttr.glyph.bot.messaging.quickview.picarto.PicartoGenerator
 import java.time.Duration
 
 /**

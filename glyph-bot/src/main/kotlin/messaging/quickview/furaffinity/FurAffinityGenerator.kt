@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.bot.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
 import io.ktor.client.features.ClientRequestException
@@ -34,10 +34,10 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.Serializable
-import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewGenerator
-import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
+import org.yttr.glyph.shared.config.server.QuickviewConfig
 import java.math.RoundingMode
 
 /**

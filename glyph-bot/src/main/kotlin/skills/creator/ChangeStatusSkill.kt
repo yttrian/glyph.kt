@@ -22,15 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.creator
+package org.yttr.glyph.bot.skills.creator
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.StatusDirector
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.StatusDirector
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.messaging.Response
 
 /**
  * A skill that allows the creator to change the client status

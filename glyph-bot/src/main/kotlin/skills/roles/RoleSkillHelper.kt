@@ -22,15 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.roles
+package org.yttr.glyph.bot.skills.roles
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.bot.messaging.Response
-import me.ianmooreis.glyph.shared.config.server.SelectableRolesConfig
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.extensions.cleanMentionedMembers
+import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.shared.config.server.SelectableRolesConfig
 
 /**
  * Helps find a selectable role a member is asking about

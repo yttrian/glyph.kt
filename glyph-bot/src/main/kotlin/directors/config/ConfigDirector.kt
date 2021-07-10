@@ -22,22 +22,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.config
+package org.yttr.glyph.bot.directors.config
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.LongSerializationPolicy
 import kotlinx.coroutines.launch
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.shared.config.ConfigManager
-import me.ianmooreis.glyph.shared.config.server.ServerConfig
-import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
-import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.shared.config.ConfigManager
+import org.yttr.glyph.shared.config.server.ServerConfig
+import org.yttr.glyph.shared.pubsub.PubSubChannel
+import org.yttr.glyph.shared.pubsub.redis.RedisPubSub
 
 /**
  * Manages the configuration database

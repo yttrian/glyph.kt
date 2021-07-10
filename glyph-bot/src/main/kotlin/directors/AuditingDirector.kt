@@ -22,17 +22,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors
+package org.yttr.glyph.bot.directors
 
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.bot.extensions.getInfoEmbed
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.bot.extensions.getInfoEmbed
 import java.awt.Color
 import java.time.Instant
 

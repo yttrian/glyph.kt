@@ -22,13 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills
+package org.yttr.glyph.bot.skills
 
 import com.squareup.moshi.JsonDataException
-import me.ianmooreis.glyph.bot.Glyph
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dean.jraw.ApiException
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.NetworkException
@@ -43,6 +39,10 @@ import net.dean.jraw.references.SubredditReference
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.jodah.expiringmap.ExpiringMap
+import org.yttr.glyph.bot.Glyph
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.messaging.Response
 import java.time.Instant
 import java.util.LinkedList
 import java.util.Queue

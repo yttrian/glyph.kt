@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
+package org.yttr.glyph.config
 
 import com.github.mustachejava.DefaultMustacheFactory
 import io.ktor.application.Application
@@ -53,14 +53,14 @@ import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import me.ianmooreis.glyph.config.discord.DiscordOAuth2
-import me.ianmooreis.glyph.config.discord.User
-import me.ianmooreis.glyph.config.session.ConfigSession
-import me.ianmooreis.glyph.shared.config.ConfigManager
-import me.ianmooreis.glyph.shared.either.Either
-import me.ianmooreis.glyph.shared.pubsub.PubSub
-import me.ianmooreis.glyph.shared.pubsub.redis.RedisPubSub
 import org.slf4j.event.Level
+import org.yttr.glyph.config.discord.DiscordOAuth2
+import org.yttr.glyph.config.discord.User
+import org.yttr.glyph.config.session.ConfigSession
+import org.yttr.glyph.shared.config.ConfigManager
+import org.yttr.glyph.shared.either.Either
+import org.yttr.glyph.shared.pubsub.PubSub
+import org.yttr.glyph.shared.pubsub.redis.RedisPubSub
 
 /**
  * The entry point of the Ktor webs server

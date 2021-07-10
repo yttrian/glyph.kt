@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging.quickview.picarto
+package org.yttr.glyph.bot.messaging.quickview.picarto
 
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
@@ -31,10 +31,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
-import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewGenerator
-import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
+import org.yttr.glyph.shared.config.server.QuickviewConfig
 
 /**
  * Handles the creation of QuickViews for picarto.tv links

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.wiki
+package org.yttr.glyph.bot.skills.wiki
 
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test

@@ -24,7 +24,7 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "me.ianmooreis.glyph.bot"
+group = "org.yttr.glyph.bot"
 version = "1.0"
 
 internal val coroutinesVersion: String by project.extra
@@ -39,7 +39,7 @@ repositories {
 shadowJar {
     jar {
         archiveName = "glyph-bot.jar"
-        mainClass = "me.ianmooreis.glyph.bot.GlyphKt"
+        mainClass = "org.yttr.glyph.bot.GlyphKt"
     }
 }.task.mergeServiceFiles()
 

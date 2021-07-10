@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub
+package org.yttr.glyph.shared.pubsub
 
 /**
  * An issue with PubSub

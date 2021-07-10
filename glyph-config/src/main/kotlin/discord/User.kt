@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config.discord
+package org.yttr.glyph.config.discord
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ClientRequestException
@@ -30,9 +30,9 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import me.ianmooreis.glyph.shared.either.Either
-import me.ianmooreis.glyph.shared.either.left
-import me.ianmooreis.glyph.shared.either.right
+import org.yttr.glyph.shared.either.Either
+import org.yttr.glyph.shared.either.left
+import org.yttr.glyph.shared.either.right
 
 /**
  * Represents a Discord user

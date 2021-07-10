@@ -22,16 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging
+package org.yttr.glyph.bot.messaging
 
 import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.launch
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.bot.ai.AIAgent
-import me.ianmooreis.glyph.bot.directors.config.Key
-import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
-import me.ianmooreis.glyph.bot.extensions.contentClean
-import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -40,6 +34,12 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.bot.ai.AIAgent
+import org.yttr.glyph.bot.directors.config.Key
+import org.yttr.glyph.bot.directors.skills.SkillDirector
+import org.yttr.glyph.bot.extensions.contentClean
+import org.yttr.glyph.shared.redis.RedisAsync
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -54,7 +54,7 @@ class MessagingDirector(
     configure: Config.() -> Unit = {}
 ) : Director() {
     /**
-     * HOCON-like config for the me.ianmooreis.glyph.bot.quickview.messaging director
+     * HOCON-like config for the org.yttr.glyph.bot.quickview.messaging director
      */
     data class Config(
         /**

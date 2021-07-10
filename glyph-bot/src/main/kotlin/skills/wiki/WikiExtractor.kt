@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.wiki
+package org.yttr.glyph.bot.skills.wiki
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature

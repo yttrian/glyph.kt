@@ -17,22 +17,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *     
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.config
+package org.yttr.glyph.shared.config
 
-import me.ianmooreis.glyph.shared.config.server.AuditingConfig
-import me.ianmooreis.glyph.shared.config.server.QuickviewConfig
-import me.ianmooreis.glyph.shared.config.server.SelectableRolesConfig
-import me.ianmooreis.glyph.shared.config.server.ServerConfig
-import me.ianmooreis.glyph.shared.config.server.ServerConfigsTable
-import me.ianmooreis.glyph.shared.config.server.ServerSelectableRolesTable
-import me.ianmooreis.glyph.shared.config.server.ServerWikiSourcesTable
-import me.ianmooreis.glyph.shared.config.server.StarboardConfig
-import me.ianmooreis.glyph.shared.config.server.WikiConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.batchInsert
@@ -43,6 +34,15 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.yttr.glyph.shared.config.server.AuditingConfig
+import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.shared.config.server.SelectableRolesConfig
+import org.yttr.glyph.shared.config.server.ServerConfig
+import org.yttr.glyph.shared.config.server.ServerConfigsTable
+import org.yttr.glyph.shared.config.server.ServerSelectableRolesTable
+import org.yttr.glyph.shared.config.server.ServerWikiSourcesTable
+import org.yttr.glyph.shared.config.server.StarboardConfig
+import org.yttr.glyph.shared.config.server.WikiConfig
 import java.net.URI
 
 /**

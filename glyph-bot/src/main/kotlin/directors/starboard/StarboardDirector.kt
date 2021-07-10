@@ -22,18 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.starboard
+package org.yttr.glyph.bot.directors.starboard
 
 import com.vdurmont.emoji.EmojiParser
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import me.ianmooreis.glyph.bot.Director
-import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
+import org.yttr.glyph.bot.Director
+import org.yttr.glyph.shared.redis.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured

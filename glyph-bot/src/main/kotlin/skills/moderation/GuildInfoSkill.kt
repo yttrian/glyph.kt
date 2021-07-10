@@ -22,20 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.moderation
+package org.yttr.glyph.bot.skills.moderation
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.asPlainMention
-import me.ianmooreis.glyph.bot.extensions.toDate
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.extensions.asPlainMention
+import org.yttr.glyph.bot.extensions.toDate
+import org.yttr.glyph.bot.messaging.Response
 import java.awt.Color
 import java.time.Instant
 

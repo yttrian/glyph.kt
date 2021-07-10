@@ -22,14 +22,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot
+package org.yttr.glyph.bot
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.future.await
-import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
-import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -37,6 +35,8 @@ import net.dv8tion.jda.api.requests.RestAction
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.yttr.glyph.bot.directors.config.ConfigDirector
+import org.yttr.glyph.shared.config.server.ServerConfig
 import kotlin.coroutines.CoroutineContext
 
 /**

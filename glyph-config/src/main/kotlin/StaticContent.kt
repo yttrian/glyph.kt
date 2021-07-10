@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
+package org.yttr.glyph.config
 
 import io.ktor.http.content.resources
 import io.ktor.http.content.static

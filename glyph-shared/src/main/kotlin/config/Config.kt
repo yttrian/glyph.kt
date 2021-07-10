@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.config
+package org.yttr.glyph.shared.config
 
 /**
  * The definition of a config that can be modified by users

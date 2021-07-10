@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.skills
+package org.yttr.glyph.bot.directors.skills
 
 import java.time.Duration
 import java.time.Instant

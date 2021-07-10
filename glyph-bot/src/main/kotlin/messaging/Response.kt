@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging
+package org.yttr.glyph.bot.messaging
 
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.time.Duration

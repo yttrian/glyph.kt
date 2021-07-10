@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config.session
+package org.yttr.glyph.config.session
 
 import io.ktor.sessions.SessionStorage
 import io.ktor.util.toByteArray

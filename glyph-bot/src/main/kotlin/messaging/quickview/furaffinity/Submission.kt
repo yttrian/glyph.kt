@@ -22,13 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.bot.messaging.quickview.furaffinity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import java.time.Instant
 
 /**

@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.config
+package org.yttr.glyph.bot.directors.config
 
 /**
  * Key names for standardizing statistics storage (likely in Redis)

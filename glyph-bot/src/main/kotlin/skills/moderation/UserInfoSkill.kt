@@ -22,15 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.moderation
+package org.yttr.glyph.bot.skills.moderation
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.cleanMentionedMembers
-import me.ianmooreis.glyph.bot.extensions.getInfoEmbed
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.extensions.cleanMentionedMembers
+import org.yttr.glyph.bot.extensions.getInfoEmbed
+import org.yttr.glyph.bot.messaging.Response
 
 /**
  * A skill that allows users to get an info embed about other or themselves

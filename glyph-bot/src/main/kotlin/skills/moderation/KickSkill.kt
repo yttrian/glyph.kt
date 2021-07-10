@@ -22,17 +22,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.moderation
+package org.yttr.glyph.bot.skills.moderation
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.AuditingDirector.audit
-import me.ianmooreis.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.asPlainMention
-import me.ianmooreis.glyph.bot.extensions.sendDeathPM
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.AuditingDirector.audit
+import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.extensions.asPlainMention
+import org.yttr.glyph.bot.extensions.sendDeathPM
+import org.yttr.glyph.bot.messaging.Response
 
 /**
  * A skill that allows privileged members to kick other members

@@ -22,14 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills.wiki
+package org.yttr.glyph.bot.skills.wiki
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.messaging.Response
-import me.ianmooreis.glyph.shared.config.server.WikiConfig
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.shared.config.server.WikiConfig
 import java.time.Instant
 
 /**

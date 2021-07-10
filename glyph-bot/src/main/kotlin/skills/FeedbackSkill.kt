@@ -22,13 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.skills
+package org.yttr.glyph.bot.skills
 
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.directors.skills.Skill
-import me.ianmooreis.glyph.bot.extensions.log
-import me.ianmooreis.glyph.bot.messaging.Response
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.directors.skills.Skill
+import org.yttr.glyph.bot.extensions.log
+import org.yttr.glyph.bot.messaging.Response
 
 /**
  * A skill that allows users to send anonymous feedback via the global log webhook

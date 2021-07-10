@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config.discord
+package org.yttr.glyph.config.discord
 
 /**
  * Discord API related exceptions

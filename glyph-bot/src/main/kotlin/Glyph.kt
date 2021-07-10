@@ -22,47 +22,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot
+package org.yttr.glyph.bot
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
-import me.ianmooreis.glyph.bot.ai.AIAgent
-import me.ianmooreis.glyph.bot.ai.dialogflow.Dialogflow
-import me.ianmooreis.glyph.bot.directors.AuditingDirector
-import me.ianmooreis.glyph.bot.directors.StatusDirector
-import me.ianmooreis.glyph.bot.directors.config.ConfigDirector
-import me.ianmooreis.glyph.bot.directors.servers.BotList
-import me.ianmooreis.glyph.bot.directors.servers.ServerDirector
-import me.ianmooreis.glyph.bot.directors.skills.SkillDirector
-import me.ianmooreis.glyph.bot.directors.starboard.StarboardDirector
-import me.ianmooreis.glyph.bot.messaging.MessagingDirector
-import me.ianmooreis.glyph.bot.messaging.quickview.QuickviewDirector
-import me.ianmooreis.glyph.bot.skills.DoomsdayClockSkill
-import me.ianmooreis.glyph.bot.skills.EphemeralSaySkill
-import me.ianmooreis.glyph.bot.skills.FallbackSkill
-import me.ianmooreis.glyph.bot.skills.FeedbackSkill
-import me.ianmooreis.glyph.bot.skills.HelpSkill
-import me.ianmooreis.glyph.bot.skills.RankSkill
-import me.ianmooreis.glyph.bot.skills.RedditSkill
-import me.ianmooreis.glyph.bot.skills.ServerConfigSkill
-import me.ianmooreis.glyph.bot.skills.SnowstampSkill
-import me.ianmooreis.glyph.bot.skills.SourceSkill
-import me.ianmooreis.glyph.bot.skills.StatusSkill
-import me.ianmooreis.glyph.bot.skills.TimeSkill
-import me.ianmooreis.glyph.bot.skills.creator.ChangeStatusSkill
-import me.ianmooreis.glyph.bot.skills.moderation.BanSkill
-import me.ianmooreis.glyph.bot.skills.moderation.GuildInfoSkill
-import me.ianmooreis.glyph.bot.skills.moderation.KickSkill
-import me.ianmooreis.glyph.bot.skills.moderation.PurgeSkill
-import me.ianmooreis.glyph.bot.skills.moderation.UserInfoSkill
-import me.ianmooreis.glyph.bot.skills.roles.RoleListSkill
-import me.ianmooreis.glyph.bot.skills.roles.RoleSetSkill
-import me.ianmooreis.glyph.bot.skills.roles.RoleUnsetSkill
-import me.ianmooreis.glyph.bot.skills.wiki.WikiSkill
-import me.ianmooreis.glyph.shared.redis.RedisAsync
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.yttr.glyph.bot.ai.AIAgent
+import org.yttr.glyph.bot.ai.dialogflow.Dialogflow
+import org.yttr.glyph.bot.directors.AuditingDirector
+import org.yttr.glyph.bot.directors.StatusDirector
+import org.yttr.glyph.bot.directors.config.ConfigDirector
+import org.yttr.glyph.bot.directors.servers.BotList
+import org.yttr.glyph.bot.directors.servers.ServerDirector
+import org.yttr.glyph.bot.directors.skills.SkillDirector
+import org.yttr.glyph.bot.directors.starboard.StarboardDirector
+import org.yttr.glyph.bot.messaging.MessagingDirector
+import org.yttr.glyph.bot.messaging.quickview.QuickviewDirector
+import org.yttr.glyph.bot.skills.DoomsdayClockSkill
+import org.yttr.glyph.bot.skills.EphemeralSaySkill
+import org.yttr.glyph.bot.skills.FallbackSkill
+import org.yttr.glyph.bot.skills.FeedbackSkill
+import org.yttr.glyph.bot.skills.HelpSkill
+import org.yttr.glyph.bot.skills.RankSkill
+import org.yttr.glyph.bot.skills.RedditSkill
+import org.yttr.glyph.bot.skills.ServerConfigSkill
+import org.yttr.glyph.bot.skills.SnowstampSkill
+import org.yttr.glyph.bot.skills.SourceSkill
+import org.yttr.glyph.bot.skills.StatusSkill
+import org.yttr.glyph.bot.skills.TimeSkill
+import org.yttr.glyph.bot.skills.creator.ChangeStatusSkill
+import org.yttr.glyph.bot.skills.moderation.BanSkill
+import org.yttr.glyph.bot.skills.moderation.GuildInfoSkill
+import org.yttr.glyph.bot.skills.moderation.KickSkill
+import org.yttr.glyph.bot.skills.moderation.PurgeSkill
+import org.yttr.glyph.bot.skills.moderation.UserInfoSkill
+import org.yttr.glyph.bot.skills.roles.RoleListSkill
+import org.yttr.glyph.bot.skills.roles.RoleSetSkill
+import org.yttr.glyph.bot.skills.roles.RoleUnsetSkill
+import org.yttr.glyph.bot.skills.wiki.WikiSkill
+import org.yttr.glyph.shared.redis.RedisAsync
 
 /**
  * The Glyph object to use when building the client

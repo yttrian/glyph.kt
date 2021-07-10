@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.extensions
+package org.yttr.glyph.bot.extensions
 
 import java.time.OffsetDateTime
 import java.util.Date

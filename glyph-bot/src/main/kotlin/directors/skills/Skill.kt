@@ -22,20 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.bot.directors.skills
+package org.yttr.glyph.bot.directors.skills
 
 import kotlinx.coroutines.future.await
-import me.ianmooreis.glyph.bot.ai.AIResponse
-import me.ianmooreis.glyph.bot.extensions.contentClean
-import me.ianmooreis.glyph.bot.extensions.isCreator
-import me.ianmooreis.glyph.bot.messaging.Response
-import me.ianmooreis.glyph.shared.config.server.ServerConfig
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.RestAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.bot.extensions.contentClean
+import org.yttr.glyph.bot.extensions.isCreator
+import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.shared.config.server.ServerConfig
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 

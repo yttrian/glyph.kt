@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.either
+package org.yttr.glyph.shared.either
 
 /**
  * Either type, Left or Right

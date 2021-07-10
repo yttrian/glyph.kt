@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
+package org.yttr.glyph.config
 
 import io.ktor.application.call
 import io.ktor.auth.OAuthAccessTokenResponse
@@ -35,7 +35,7 @@ import io.ktor.routing.route
 import io.ktor.sessions.clear
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
-import me.ianmooreis.glyph.config.session.ConfigSession
+import org.yttr.glyph.config.session.ConfigSession
 import java.time.Instant
 
 /**

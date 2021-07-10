@@ -22,18 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.shared.pubsub.redis
+package org.yttr.glyph.shared.pubsub.redis
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import kotlinx.coroutines.channels.Channel
-import me.ianmooreis.glyph.shared.either.Either
-import me.ianmooreis.glyph.shared.either.left
-import me.ianmooreis.glyph.shared.either.right
-import me.ianmooreis.glyph.shared.pubsub.PubSub
-import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
-import me.ianmooreis.glyph.shared.pubsub.PubSubException
+import org.yttr.glyph.shared.either.Either
+import org.yttr.glyph.shared.either.left
+import org.yttr.glyph.shared.either.right
+import org.yttr.glyph.shared.pubsub.PubSub
+import org.yttr.glyph.shared.pubsub.PubSubChannel
+import org.yttr.glyph.shared.pubsub.PubSubException
 import java.util.concurrent.atomic.AtomicLong
 
 /**

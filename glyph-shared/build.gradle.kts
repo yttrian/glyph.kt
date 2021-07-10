@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "me.ianmooreis.glyph.shared"
+group = "org.yttr.glyph.shared"
 version = "1.0"
 
 val coroutinesVersion: String by project.extra

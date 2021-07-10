@@ -24,7 +24,7 @@ import tanvd.kosogor.proxy.shadowJar
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "me.ianmooreis.glyph.config"
+group = "org.yttr.glyph.config"
 version = "1.0"
 
 internal val logbackVersion: String by project.extra

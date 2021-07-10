@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ianmooreis.glyph.config
+package org.yttr.glyph.config
 
 import io.ktor.application.call
 import io.ktor.application.install
@@ -40,14 +40,14 @@ import io.ktor.serialization.json
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import kotlinx.serialization.json.Json
-import me.ianmooreis.glyph.config.discord.User
-import me.ianmooreis.glyph.config.session.ConfigSession
-import me.ianmooreis.glyph.shared.config.ConfigManager
-import me.ianmooreis.glyph.shared.config.server.ServerConfig
-import me.ianmooreis.glyph.shared.either.Either
-import me.ianmooreis.glyph.shared.pubsub.PubSub
-import me.ianmooreis.glyph.shared.pubsub.PubSubChannel
-import me.ianmooreis.glyph.shared.pubsub.PubSubException
+import org.yttr.glyph.config.discord.User
+import org.yttr.glyph.config.session.ConfigSession
+import org.yttr.glyph.shared.config.ConfigManager
+import org.yttr.glyph.shared.config.server.ServerConfig
+import org.yttr.glyph.shared.either.Either
+import org.yttr.glyph.shared.pubsub.PubSub
+import org.yttr.glyph.shared.pubsub.PubSubChannel
+import org.yttr.glyph.shared.pubsub.PubSubException
 
 /**
  * Endpoints for editing the config

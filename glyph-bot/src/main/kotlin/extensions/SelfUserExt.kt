@@ -27,6 +27,7 @@ package org.yttr.glyph.bot.extensions
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
+import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.messaging.WebhookDirector
 import java.awt.Color
 import java.time.Instant
@@ -40,7 +41,7 @@ import java.time.Instant
  */
 fun SelfUser.log(title: String, description: String, color: Color? = null) {
     WebhookDirector.send(
-        this, System.getenv("LOGGING_WEBHOOK"),
+        this, Glyph.conf.getString("management.logging-webhook"),
         EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
@@ -57,5 +58,5 @@ fun SelfUser.log(title: String, description: String, color: Color? = null) {
  * @param embed the embed to send
  */
 fun SelfUser.log(embed: MessageEmbed) {
-    WebhookDirector.send(this, System.getenv("LOGGING_WEBHOOK"), embed)
+    WebhookDirector.send(this, Glyph.conf.getString("management.logging-webhook"), embed)
 }

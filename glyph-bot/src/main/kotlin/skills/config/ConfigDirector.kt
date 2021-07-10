@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import org.yttr.glyph.bot.Director
+import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.shared.config.ConfigManager
 import org.yttr.glyph.shared.config.server.ServerConfig
 import org.yttr.glyph.shared.pubsub.PubSubChannel
@@ -56,7 +57,7 @@ class ConfigDirector(configure: ConfigManager.Config.() -> Unit) : Director() {
     lateinit var jda: JDA
 
     private val redis = RedisPubSub {
-        redisConnectionUri = System.getenv("REDIS_URL")
+        redisConnectionUri = Glyph.conf.getString("data.redis-url")
     }
 
     /**

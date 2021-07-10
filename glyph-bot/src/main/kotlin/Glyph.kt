@@ -24,6 +24,8 @@
 
 package org.yttr.glyph.bot
 
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -69,14 +71,19 @@ import org.yttr.glyph.shared.pubsub.redis.RedisAsync
  */
 object Glyph {
     /**
+     * HOCON config from application.conf
+     */
+    val conf: Config = ConfigFactory.load().getConfig("glyph")
+
+    /**
      * The current version of Glyph
      */
-    val version: String = System.getenv("HEROKU_RELEASE_VERSION") ?: "?"
+    val version: String = conf.getString("version")
 
-    private val aiAgent: AIAgent = Dialogflow(System.getenv("DIALOGFLOW_CREDENTIALS").byteInputStream())
+    private val aiAgent: AIAgent = Dialogflow(conf.getString("dialogflow.credentials").byteInputStream())
 
     private val redis: RedisAsync = RedisClient.create().run {
-        val redisUri = RedisURI.create(System.getenv("REDIS_URL")).apply {
+        val redisUri = RedisURI.create(conf.getString("data.redis-url")).apply {
             // We are using Heroku Redis which is version 5, but for some reason they give us a username.
             // However if we supply the username it runs the version 6 command and fails to login.
             username = null
@@ -85,7 +92,7 @@ object Glyph {
     }
 
     private val configDirector = ConfigDirector {
-        databaseConnectionUri = System.getenv("DATABASE_URL")
+        databaseConnectionUri = conf.getString("data.database-url")
     }
 
     private val skillDirector = SkillDirector().addSkill(
@@ -118,7 +125,7 @@ object Glyph {
      */
     fun run() {
         val builder = DefaultShardManagerBuilder.createLight(null).also {
-            val token = System.getenv("DISCORD_TOKEN")
+            val token = conf.getString("discord-token")
 
             it.setToken(token)
 
@@ -131,18 +138,15 @@ object Glyph {
             it.enableCache(CacheFlag.EMOTE)
 
             val serverDirector = ServerDirector { id ->
-                val discordBotList = BotList(
-                    "Discord Bot List",
-                    "https://top.gg/api/bots/$id/stats",
-                    System.getenv("DISCORDBOTLIST_TOKEN")
-                )
-                val discordBots = BotList(
-                    "Discord Bots",
-                    "https://bots.discord.pw/api/bots/$id/stats",
-                    System.getenv("DISCORDBOTS_TOKEN")
-                )
+                if (conf.hasPath("bot-list.top")) {
+                    val discordBotList = BotList(
+                        "Discord Bot List",
+                        "https://top.gg/api/bots/$id/stats",
+                        conf.getString("bot-list.top")
+                    )
 
-                botList(discordBotList, discordBots)
+                    botList(discordBotList)
+                }
             }
 
             val messagingDirector = MessagingDirector(aiAgent, redis, skillDirector)

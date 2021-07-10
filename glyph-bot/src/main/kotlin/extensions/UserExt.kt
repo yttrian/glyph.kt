@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import org.ocpsoft.prettytime.PrettyTime
+import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import java.awt.Color
 import java.time.Instant
@@ -86,7 +87,7 @@ val Member.asPlainMention: String
  * Reports if a user if the creator
  */
 val User.isCreator: Boolean
-    get() = this.idLong == System.getenv("CREATOR_ID").toLong()
+    get() = this.idLong == Glyph.conf.getLong("management.creator-id")
 
 /**
  * Send a user a PM before an action where they might not be seen again (kick/ban)

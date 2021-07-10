@@ -79,7 +79,7 @@ dependencies {
     implementation("club.minnced:discord-webhooks:0.5.7")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")
-    implementation("net.dean.jraw:JRAW:1.0.0")
+    implementation("net.dean.jraw:JRAW:1.1.0")
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")

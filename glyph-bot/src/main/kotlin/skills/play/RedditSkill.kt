@@ -53,20 +53,24 @@ import java.util.concurrent.TimeUnit
  * A skill that attempts to show users an image from a subreddit
  */
 class RedditSkill : Skill("skill.reddit") {
+    private val conf = Glyph.conf.getConfig("skills.reddit")
     private val client: RedditClient = OAuthHelper.automatic(
-        OkHttpNetworkAdapter(UserAgent("discord", this.javaClass.simpleName, Glyph.version, "IanM_56")),
+        OkHttpNetworkAdapter(
+            UserAgent(
+                "discord",
+                this.javaClass.canonicalName,
+                Glyph.version,
+                conf.getString("username")
+            )
+        ),
         Credentials.userless(
-            System.getenv("REDDIT_CLIENT_ID"),
-            System.getenv("REDDIT_CLIENT_SECRET"),
+            conf.getString("client-id"),
+            conf.getString("client-secret"),
             UUID.randomUUID()
         )
-    )
+    ).apply { logger = NoopHttpLogger() }
     private val imageCache: MutableMap<String, Queue<Submission>> =
-        ExpiringMap.builder().maxSize(10).expiration(30, TimeUnit.MINUTES).build()
-
-    init {
-        this.client.logger = NoopHttpLogger()
-    }
+        ExpiringMap.builder().maxSize(CACHE_SIZE).expiration(CACHE_TTL_MINUTES, TimeUnit.MINUTES).build()
 
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         // Send typing since this can take some time and we want to indicate we are paying attention
@@ -75,14 +79,14 @@ class RedditSkill : Skill("skill.reddit") {
         val multiredditName: String = ai.result.getStringParameter("multireddit")
             ?: return Response.Volatile("I did not understand what subreddit you were asking for!")
         // If we have a multireddit name, try getting the reference to it otherwise report the failure
-        try {
+        return try {
             val subreddit: SubredditReference = client.subreddit(multiredditName)
             val submission: Submission? = getRandomImage(subreddit)
             // If we were actually able to grab an image, send it, if allowed
             if (submission != null) {
                 val nsfwAllowed = if (event.channelType.isGuild) event.textChannel.isNSFW else false
                 if ((submission.isNsfw && nsfwAllowed) || !submission.isNsfw) {
-                    return Response.Volatile(
+                    Response.Volatile(
                         EmbedBuilder()
                             .setTitle(submission.title, "https://reddit.com${submission.permalink}")
                             .setImage(submission.url)
@@ -91,20 +95,27 @@ class RedditSkill : Skill("skill.reddit") {
                             .build()
                     )
                 } else {
-                    return Response.Volatile("I can only show NSFW submissions in a NSFW channel!")
+                    Response.Volatile("I can only show NSFW submissions in a NSFW channel!")
                 }
             } else {
-                return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Ran out of options)")
+                whine(multiredditName, "Ran out of options")
             }
         } catch (e: NetworkException) {
-            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Network error)")
+            whine(multiredditName, "Network error", e)
         } catch (e: ApiException) {
-            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (Private subreddit?)")
+            whine(multiredditName, "Private subreddit?", e)
         } catch (e: JsonDataException) {
-            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            whine(multiredditName, "No such subreddit?", e)
         } catch (e: NullPointerException) {
-            return Response.Volatile("I was unable to grab an image from `$multiredditName`! (No such subreddit?)")
+            whine(multiredditName, "No such subreddit?", e)
         }
+    }
+
+    private fun whine(multiredditName: String, likelyCause: String, throwable: Throwable? = null): Response.Volatile {
+        if (throwable !== null) {
+            log.debug(likelyCause, throwable)
+        }
+        return Response.Volatile("I was unable to grab an image from `$multiredditName`! ($likelyCause)")
     }
 
     private fun getRandomImage(multireddit: SubredditReference): Submission? {
@@ -118,5 +129,10 @@ class RedditSkill : Skill("skill.reddit") {
             imageCache[multireddit.subreddit] = imageQueue
         }
         return imageQueue.poll()
+    }
+
+    companion object {
+        private const val CACHE_SIZE: Int = 10
+        private const val CACHE_TTL_MINUTES: Long = 30
     }
 }

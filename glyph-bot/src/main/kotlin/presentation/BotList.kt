@@ -1,5 +1,5 @@
 /*
- * ServerConfigSkill.kt
+ * BotList.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,24 +22,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yttr.glyph.bot.skills.util
-
-import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+package org.yttr.glyph.bot.presentation
 
 /**
- * Tells people to use the config website to edit their config
+ * A bot list website's API for tracking statistics
  */
-class ServerConfigSkill : Skill(
-    "skill.config.server",
-    cooldownTime = 15,
-    guildOnly = true,
-    requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
-    requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
-) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
-        Response.Volatile("To edit your config, visit https://gl.yttr.org/config")
-}
+data class BotList(
+    /**
+     * The name of the bot list website
+     */
+    val name: String,
+    /**
+     * The API endpoint for the bot list website
+     */
+    val apiEndpoint: String,
+    /**
+     * The token for authenticating the request to the bot list website
+     */
+    val token: String
+)

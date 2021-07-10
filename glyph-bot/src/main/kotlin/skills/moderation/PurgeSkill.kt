@@ -30,11 +30,11 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.ocpsoft.prettytime.PrettyTime
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.AuditingDirector.audit
 import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import org.yttr.glyph.bot.extensions.toDate
 import org.yttr.glyph.bot.messaging.Response
 import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.bot.skills.moderation.AuditingDirector.audit
 import java.time.Duration
 import java.time.OffsetDateTime
 

@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.StatusDirector
 import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.bot.presentation.StatusDirector
 import org.yttr.glyph.bot.skills.Skill
 
 /**

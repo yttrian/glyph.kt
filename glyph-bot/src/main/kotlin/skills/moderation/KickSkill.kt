@@ -27,12 +27,12 @@ package org.yttr.glyph.bot.skills.moderation
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.AuditingDirector.audit
 import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import org.yttr.glyph.bot.extensions.asPlainMention
 import org.yttr.glyph.bot.extensions.sendDeathPM
 import org.yttr.glyph.bot.messaging.Response
 import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.bot.skills.moderation.AuditingDirector.audit
 
 /**
  * A skill that allows privileged members to kick other members

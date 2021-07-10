@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yttr.glyph.bot.directors.starboard
+package org.yttr.glyph.bot.skills.starboard
 
 import com.vdurmont.emoji.EmojiParser
 import kotlinx.coroutines.future.await

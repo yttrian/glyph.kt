@@ -25,6 +25,7 @@
 package org.yttr.glyph.config
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.typesafe.config.ConfigFactory
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -71,6 +72,8 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
  * The main main module to run
  */
 fun Application.module() {
+    val conf = ConfigFactory.load().getConfig("glyph")
+
     install(AutoHeadResponse)
 
     install(DefaultHeaders)
@@ -85,8 +88,8 @@ fun Application.module() {
     install(Authentication) {
         oauth("discord-oauth") {
             val discordAuth = DiscordOAuth2.getProvider(
-                clientId = System.getenv("DISCORD_CLIENT_ID"),
-                clientSecret = System.getenv("DISCORD_CLIENT_SECRET"),
+                clientId = conf.getString("discord.client-id"),
+                clientSecret = conf.getString("discord.client-secret"),
                 scopes = listOf("identify", "guilds")
             )
 
@@ -124,11 +127,11 @@ fun Application.module() {
         }
 
         val pubSub: PubSub = RedisPubSub {
-            redisConnectionUri = System.getenv("REDIS_URL")
+            redisConnectionUri = conf.getString("data.redis-url")
         }
 
         val configManager = ConfigManager {
-            databaseConnectionUri = System.getenv("DATABASE_URL")
+            databaseConnectionUri = conf.getString("data.database-url")
         }
 
         staticContent()

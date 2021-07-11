@@ -26,13 +26,15 @@ package org.yttr.glyph.bot.messaging
 
 import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
 import org.yttr.glyph.bot.extensions.contentClean
@@ -61,27 +63,107 @@ class MessagingDirector(
         var volatileTrackingExpiration: Duration = Duration.ofDays(DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS)
     )
 
-    companion object {
-        /**
-         * By default how long to track volatile messages for
-         */
-        const val DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS: Long = 14
-
-        /**
-         * Number of messages Glyph has triggered a skill for since we started tracking
-         */
-        const val MESSAGE_COUNT_KEY: String = "Glyph:Messages:Count"
-
-        private const val VOLATILE_MESSAGE_PREFIX: String = "Glyph:Message:Volatile:"
-
-        /**
-         * Grabs the mention at the start of a message, if any
-         */
-        private val leadingMentionRegex: Regex = Regex("^<@!?(\\d+)>")
-    }
-
     private val config = Config().also(configure)
     private val volatileTrackingExpirationSeconds = config.volatileTrackingExpiration.toSeconds()
+
+    /**
+     * When ready, register "quick" command
+     */
+    override fun onReady(event: ReadyEvent) {
+        event.jda.retrieveCommands().queue { commands ->
+            val quickExists = commands.any { it.name == "quick" }
+            if (!quickExists) {
+                event.jda.upsertCommand("quick", "Alternate way to invoke Glyph")
+                    .addOption(OptionType.STRING, "request", "What do you want Glyph to do?", true)
+                    .setDefaultEnabled(true)
+                    .queue()
+            }
+        }
+    }
+
+    /**
+     * On the "quick" command, process normally
+     */
+    override fun onSlashCommand(event: SlashCommandEvent) {
+        if (event.name == "quick") {
+            event.deferReply()
+            processMessage(event.asMessageReceivedEvent) { response ->
+                when (response) {
+                    is Response.MessageResponse -> event.reply(response.message)
+                    is Response.Reaction -> event.reply(response.emoji).setEphemeral(true)
+                    else -> event.reply("I don't know how to help with that.")
+                }.queue()
+            }
+        }
+    }
+
+    private val SlashCommandEvent.asMessageReceivedEvent: MessageReceivedEvent
+        get() {
+            val request = getOption("request")?.asString ?: ""
+            val message = FakeSlashedMessage(this, request)
+            return MessageReceivedEvent(jda, responseNumber, message)
+        }
+
+    /**
+     * When a new message is seen anywhere
+     */
+    override fun onMessageReceived(event: MessageReceivedEvent) {
+        if (!event.isIgnorable) {
+            val message: Message = event.message
+            processMessage(event) { response ->
+                when (response) {
+                    is Response.Ephemeral -> message.reply(response.message, ttl = response.ttl)
+                    is Response.Volatile -> message.reply(response.message, volatile = true)
+                    is Response.Permanent -> message.reply(response.message, volatile = false)
+                    is Response.Reaction -> message.addReaction(response.emoji).queue()
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    private fun processMessage(event: MessageReceivedEvent, respond: (Response) -> Unit) {
+        // Get ready to ask the DialogFlow agent
+        val ai = try {
+            aiAgent.request(event.message.contentClean, event.contextHash)
+        } catch (e: IllegalArgumentException) {
+            log.trace("${aiAgent.name} error", e)
+            respond(Response.Reaction("⁉"))
+            return
+        }
+
+        // In the rare circumstance the agent is unavailable or has an issue, warn the user
+        if (ai.isError) {
+            respond(
+                Response.Volatile(
+                    "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message."
+                )
+            )
+            return
+        }
+
+        // Assuming everything else went well, launch the appropriate skill with the event info and ai response
+        skillDirector.launch {
+            val response = skillDirector.trigger(event, ai)
+            respond(response)
+            // Increment the total message count for curiosity's sake
+            redis.incr(MESSAGE_COUNT_KEY)
+        }
+    }
+
+    /**
+     * When a message is deleted anywhere, remove the invoking message if considered volatile
+     */
+    override fun onMessageDelete(event: MessageDeleteEvent) {
+        val key = VOLATILE_MESSAGE_PREFIX + event.messageId
+        redis.get(key).thenAccept { responseId ->
+            redis.del(key)
+            event.channel.retrieveMessageById(responseId).queue({
+                it.addReaction("❌").queue()
+                it.delete().queueAfter(1, TimeUnit.SECONDS)
+            }, {})
+        }
+    }
 
     /**
      * Add a message to the ledger
@@ -100,61 +182,6 @@ class MessagingDirector(
     private fun logSendFailure(channel: TextChannel, exception: Exception) {
         val warningSuffix = if (channel.type.isGuild) " of ${channel.guild}!" else "!"
         log.warn("Failed to send message in $channel$warningSuffix", exception)
-    }
-
-    /**
-     * When a new message is seen anywhere
-     */
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.isIgnorable) return
-
-        val message: Message = event.message
-
-        // Get ready to ask the DialogFlow agent
-        val ai = try {
-            aiAgent.request(event.message.contentClean, event.contextHash)
-        } catch (e: IllegalArgumentException) {
-            log.trace("${aiAgent.name} error", e)
-            message.addReaction("⁉").queue()
-            return
-        }
-
-        // In the rare circumstance the agent is unavailable or has an issue, warn the user
-        if (ai.isError) {
-            val errorMessage = MessageBuilder()
-                .setContent(
-                    "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message."
-                ).build()
-            message.reply(errorMessage, volatile = true)
-            return
-        }
-
-        // Assuming everything else went well, launch the appropriate skill with the event info and ai response
-        skillDirector.launch {
-            when (val response = skillDirector.trigger(event, ai)) {
-                is Response.Ephemeral -> message.reply(response.message, ttl = response.ttl)
-                is Response.Volatile -> message.reply(response.message, volatile = true)
-                is Response.Permanent -> message.reply(response.message, volatile = false)
-                is Response.Reaction -> message.addReaction(response.emoji).queue()
-            }
-
-            // Increment the total message count for curiosity's sake
-            redis.incr(MESSAGE_COUNT_KEY)
-        }
-    }
-
-    /**
-     * When a message is deleted anywhere, remove the invoking message if considered volatile
-     */
-    override fun onMessageDelete(event: MessageDeleteEvent) {
-        val key = VOLATILE_MESSAGE_PREFIX + event.messageId
-        redis.get(key).thenAccept { responseId ->
-            redis.del(key)
-            event.channel.retrieveMessageById(responseId).queue({
-                it.addReaction("❌").queue()
-                it.delete().queueAfter(1, TimeUnit.SECONDS)
-            }, {})
-        }
     }
 
     private fun Message.startsWithMention(user: User) =
@@ -187,5 +214,24 @@ class MessagingDirector(
         } catch (e: InsufficientPermissionException) {
             logSendFailure(textChannel, e)
         }
+    }
+
+    companion object {
+        /**
+         * By default how long to track volatile messages for
+         */
+        const val DEFAULT_VOLATILE_TRACKING_EXPIRATION_DAYS: Long = 14
+
+        /**
+         * Number of messages Glyph has triggered a skill for since we started tracking
+         */
+        const val MESSAGE_COUNT_KEY: String = "Glyph:Messages:Count"
+
+        private const val VOLATILE_MESSAGE_PREFIX: String = "Glyph:Message:Volatile:"
+
+        /**
+         * Grabs the mention at the start of a message, if any
+         */
+        private val leadingMentionRegex: Regex = Regex("^<@!?(\\d+)>")
     }
 }

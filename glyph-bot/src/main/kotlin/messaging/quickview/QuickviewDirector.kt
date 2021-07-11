@@ -31,8 +31,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.restaction.MessageAction
 import org.yttr.glyph.bot.Director
@@ -60,43 +59,48 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
     private val generators = setOf(PicartoGenerator(), FurAffinityGenerator())
     private val generatorTimeout = Duration.ofSeconds(GENERATOR_TIMEOUT_SECONDS).toMillis()
 
-    private data class EmbedFold(val replyMessage: Message? = null, val embeds: List<MessageEmbed> = emptyList())
-
     /**
      * Check for quickviews when a message is received
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.isIgnorable) return
+        if (!event.isIgnorable) {
+            launch {
+                withTimeout(generatorTimeout) {
+                    generateEmbeds(event)
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun generateEmbeds(event: MessageReceivedEvent) {
         val config = if (event.channelType.isGuild) event.guild.config else configDirector.defaultConfig
 
-        launch {
-            withTimeout(generatorTimeout) {
-                generators.map { it.generate(event, config.quickview) }.merge().take(EMBED_LIMIT)
-                    .fold(EmbedFold()) { (message, embeds), newEmbed ->
-                        when {
-                            message == null -> {
-                                event.message.suppressEmbeds(true).reason("Quickview").queue({}) {
-                                    log.debug(
-                                        "Unable to suppress embeds for Quickviews in context ${event.contextHash}"
-                                    )
-                                }
-                                val replyMessage = event.message.replyEmbeds(newEmbed)
-                                    .mentionRepliedUser(false)
-                                    .await()
-                                messagingDirector.trackVolatile(event.messageId, replyMessage.id)
-                                EmbedFold(replyMessage, listOf(newEmbed))
-                            }
-                            !embeds.contains(newEmbed) -> {
-                                val newEmbeds = embeds.plus(newEmbed)
-                                message.editMessageEmbeds(newEmbeds).queue()
-                                EmbedFold(message, newEmbeds)
-                            }
-                            else -> {
-                                EmbedFold(message, embeds)
-                            }
-                        }
+        generators.map { it.generate(event, config.quickview) }.merge().take(EMBED_LIMIT)
+            .fold(event.message) { message, newEmbed ->
+                when {
+                    message == event.message -> {
+                        suppressEmbeds(event)
+                        val replyMessage = event.message.replyEmbeds(newEmbed)
+                            .mentionRepliedUser(false)
+                            .await()
+                        messagingDirector.trackVolatile(event.messageId, replyMessage.id)
+                        replyMessage
                     }
+                    !message.embeds.contains(newEmbed) -> {
+                        message.editMessageEmbeds(message.embeds + newEmbed).await()
+                    }
+                    else -> message
+                }
+            }
+    }
+
+    private fun suppressEmbeds(event: MessageReceivedEvent) {
+        if (event.isFromGuild && event.guild.selfMember.hasPermission(event.textChannel, Permission.MESSAGE_MANAGE)) {
+            event.message.suppressEmbeds(true).reason("Quickview").queue({}) {
+                log.debug(
+                    "Unable to suppress embeds for Quickviews in context ${event.contextHash}"
+                )
             }
         }
     }

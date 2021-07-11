@@ -98,11 +98,11 @@ class MessagingDirector(
      *
      * @param channel the channel where the message failed to send
      */
-    private fun logSendFailure(channel: TextChannel) {
+    private fun logSendFailure(channel: TextChannel, exception: Exception) {
         if (channel.type.isGuild) {
-            log.warn("Failed to send message in $channel of ${channel.guild}!")
+            log.warn("Failed to send message in $channel of ${channel.guild}!", exception)
         } else {
-            log.warn("Failed to send message in $channel!.")
+            log.warn("Failed to send message in $channel!.", exception)
         }
     }
 
@@ -118,6 +118,7 @@ class MessagingDirector(
         val ai = try {
             aiAgent.request(event.message.contentClean, event.contextHash)
         } catch (e: IllegalArgumentException) {
+            log.trace("DialogFlow error", e)
             message.addReaction("⁉").queue()
             return
         }
@@ -137,7 +138,7 @@ class MessagingDirector(
                 is Response.Ephemeral -> message.reply(response.content, response.embed, ttl = response.ttl)
                 is Response.Volatile -> message.reply(response.content, response.embed, volatile = true)
                 is Response.Permanent -> message.reply(response.content, response.embed, volatile = false)
-                is Response.Reaction -> message.addReaction(response.emoji)
+                is Response.Reaction -> message.addReaction(response.emoji).queue()
             }
 
             // Increment the total message count for curiosity's sake
@@ -177,10 +178,10 @@ class MessagingDirector(
         // require some content
         if (content == null && embed == null) return
         // build the message
-        val message = MessageBuilder().setContent(content?.trim()).setEmbed(embed).build()
+        val message = MessageBuilder().setContent(content?.trim()).setEmbeds(embed).build()
         // try to send the message
         try {
-            this.channel.sendMessage(message).queue {
+            this.reply(message).mentionRepliedUser(false).queue {
                 if (ttl != null) {
                     it.delete().queueAfter(ttl.seconds, TimeUnit.SECONDS)
                 } else if (volatile) {
@@ -188,7 +189,7 @@ class MessagingDirector(
                 }
             }
         } catch (e: InsufficientPermissionException) {
-            logSendFailure(this.textChannel)
+            logSendFailure(this.textChannel, e)
         }
     }
 }

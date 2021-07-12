@@ -38,6 +38,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
 import org.yttr.glyph.bot.extensions.contentClean
+import org.yttr.glyph.bot.messaging.slash.FakeSlashedMessage
+import org.yttr.glyph.bot.messaging.slash.SlashMessageReceivedEvent
 import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import java.time.Duration

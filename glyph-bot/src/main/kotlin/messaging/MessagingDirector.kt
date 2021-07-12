@@ -28,7 +28,6 @@ import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
@@ -125,19 +124,20 @@ class MessagingDirector(
 
         // In the rare circumstance the agent is unavailable or has an issue, warn the user
         if (ai.isError) {
-            message.reply(
-                "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message.",
-                volatile = true
-            )
+            val errorMessage = MessageBuilder()
+                .setContent(
+                    "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message."
+                ).build()
+            message.reply(errorMessage, volatile = true)
             return
         }
 
         // Assuming everything else went well, launch the appropriate skill with the event info and ai response
         skillDirector.launch {
             when (val response = skillDirector.trigger(event, ai)) {
-                is Response.Ephemeral -> message.reply(response.content, response.embed, ttl = response.ttl)
-                is Response.Volatile -> message.reply(response.content, response.embed, volatile = true)
-                is Response.Permanent -> message.reply(response.content, response.embed, volatile = false)
+                is Response.Ephemeral -> message.reply(response.message, ttl = response.ttl)
+                is Response.Volatile -> message.reply(response.message, volatile = true)
+                is Response.Permanent -> message.reply(response.message, volatile = false)
                 is Response.Reaction -> message.addReaction(response.emoji).queue()
             }
 
@@ -170,15 +170,10 @@ class MessagingDirector(
                 (isFromGuild && !message.startsWithMention(jda.selfUser)) // must start with mention of us
 
     private fun Message.reply(
-        content: String? = null,
-        embed: MessageEmbed? = null,
+        message: Message,
         ttl: Duration? = null,
         volatile: Boolean = true
     ) {
-        // require some content
-        if (content == null && embed == null) return
-        // build the message
-        val message = MessageBuilder().setContent(content?.trim()).setEmbeds(embed).build()
         // try to send the message
         try {
             if (isFromGuild) {

@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,6 +24,8 @@
 
 package org.yttr.glyph.bot.messaging
 
+import net.dv8tion.jda.api.MessageBuilder
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.time.Duration
 
@@ -31,24 +33,42 @@ import java.time.Duration
  * A way Glyph can respond to a message
  */
 sealed class Response {
+    /**
+     * A message type response
+     */
+    abstract class MessageResponse : Response() {
+        /**
+         * The message content
+         */
+        abstract val content: String?
+
+        /**
+         * The message embed
+         */
+        abstract val embed: MessageEmbed?
+
+        /**
+         * JDA message
+         */
+        val message: Message by lazy {
+            val builder = MessageBuilder()
+            content?.let { builder.setContent(it.trim()) }
+            embed?.let { builder.setEmbeds(it) }
+            builder.build()
+        }
+    }
 
     /**
      * A response that only lasts a limited about of time
      */
     data class Ephemeral(
-        /**
-         * The message content
-         */
-        val content: String? = null,
-        /**
-         * The message embed
-         */
-        val embed: MessageEmbed? = null,
+        override val content: String? = null,
+        override val embed: MessageEmbed? = null,
         /**
          * The time to live for the message before being deleted
          */
         val ttl: Duration
-    ) : Response() {
+    ) : MessageResponse() {
         constructor(content: String, ttl: Duration) : this(content, null, ttl)
         constructor(embed: MessageEmbed, ttl: Duration) : this(null, embed, ttl)
     }
@@ -57,15 +77,9 @@ sealed class Response {
      * A message that will delete itself when the triggering message is also deleted
      */
     data class Volatile(
-        /**
-         * The message content
-         */
-        val content: String? = null,
-        /**
-         * The message embed
-         */
-        val embed: MessageEmbed? = null
-    ) : Response() {
+        override val content: String? = null,
+        override val embed: MessageEmbed? = null
+    ) : MessageResponse() {
         constructor(embed: MessageEmbed) : this(null, embed)
     }
 
@@ -73,15 +87,9 @@ sealed class Response {
      * A message that will not be automatically deleted
      */
     data class Permanent(
-        /**
-         * The message content
-         */
-        val content: String? = null,
-        /**
-         * The message embed
-         */
-        val embed: MessageEmbed? = null
-    ) : Response() {
+        override val content: String? = null,
+        override val embed: MessageEmbed? = null
+    ) : MessageResponse() {
         constructor(embed: MessageEmbed) : this(null, embed)
     }
 

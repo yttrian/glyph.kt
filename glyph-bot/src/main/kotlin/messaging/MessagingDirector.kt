@@ -98,11 +98,8 @@ class MessagingDirector(
      * @param channel the channel where the message failed to send
      */
     private fun logSendFailure(channel: TextChannel, exception: Exception) {
-        if (channel.type.isGuild) {
-            log.warn("Failed to send message in $channel of ${channel.guild}!", exception)
-        } else {
-            log.warn("Failed to send message in $channel!.", exception)
-        }
+        val warningSuffix = if (channel.type.isGuild) " of ${channel.guild}!" else "!"
+        log.warn("Failed to send message in $channel$warningSuffix", exception)
     }
 
     /**
@@ -117,7 +114,7 @@ class MessagingDirector(
         val ai = try {
             aiAgent.request(event.message.contentClean, event.contextHash)
         } catch (e: IllegalArgumentException) {
-            log.trace("DialogFlow error", e)
+            log.trace("${aiAgent.name} error", e)
             message.addReaction("⁉").queue()
             return
         }

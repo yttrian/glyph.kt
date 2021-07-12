@@ -26,13 +26,15 @@ package org.yttr.glyph.bot.skills.util
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.Button
 import org.yttr.glyph.bot.ai.AIResponse
 import org.yttr.glyph.bot.messaging.Response
 import org.yttr.glyph.bot.skills.Skill
 import java.awt.Color
 
 /**
- * A skill that shows users a help messgae
+ * A skill that shows users a help message
  */
 class HelpSkill : Skill("skill.help") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
@@ -40,9 +42,19 @@ class HelpSkill : Skill("skill.help") {
         val embed = EmbedBuilder()
             .setTitle("$name Help")
             .setDescription(ai.result.fulfillment.speech)
-            .setColor(Color.getHSBColor(0.6f, 0.89f, 0.61f))
+            .setColor(embedColor)
             .build()
 
-        return Response.Volatile(embed)
+        return Response.Volatile(embed, actionRow)
+    }
+
+    companion object {
+        private val embedColor = Color.decode("#4687E5")
+        private val skillsButton = Button.link("https://gl.yttr.org/en/latest/skills.html", "Skills")
+        private val configureButton = Button.link("https://gl.yttr.org/en/latest/configuration.html", "Configure")
+        private val serverButton = Button.link("https://gl.yttr.org/server", "Official server")
+        private val inviteButton = Button.link("https://gl.yttr.org/invite", "Add to your server")
+        private val sourceButton = Button.link("https://gl.yttr.org/source", "Source code")
+        private val actionRow = ActionRow.of(skillsButton, configureButton, serverButton, inviteButton, sourceButton)
     }
 }

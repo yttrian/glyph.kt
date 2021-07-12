@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -39,7 +39,7 @@ data class QuickviewConfig(
     /**
      * Whether or not FurAffinity QuickViews should show thumbnails
      */
-    val furaffinityThumbnails: Boolean = false,
+    val furaffinityThumbnails: Boolean = true,
     /**
      * Whether or not Picarto QuickViews are enabled
      */

@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -49,7 +49,7 @@ object ServerConfigsTable : Table() {
     val starboardThreshold: Column<Int> = integer("StarboardThreshold").default(1).check { it.greaterEq(1) }
     val starboardAllowSelfStar: Column<Boolean> = bool("StarboardAllowSelfStar").default(false)
     val quickviewFuraffinityEnabled: Column<Boolean> = bool("QuickviewFuraffinityEnabled").default(true)
-    val quickviewFuraffinityThumbnail: Column<Boolean> = bool("QuickviewFuraffinityThumbnail").default(false)
+    val quickviewFuraffinityThumbnail: Column<Boolean> = bool("QuickviewFuraffinityThumbnail").default(true)
     val quickviewPicartoEnabled: Column<Boolean> = bool("QuickviewPicartoEnabled").default(true)
     val wikiMinQuality: Column<Int> = integer("WikiMinQuality").default(50).check { it.between(0, 100) }
 }

@@ -86,13 +86,14 @@ class MessagingDirector(
      */
     override fun onSlashCommand(event: SlashCommandEvent) {
         if (event.name == "quick") {
-            event.deferReply()
-            processMessage(event.asMessageReceivedEvent) { response ->
-                when (response) {
-                    is Response.MessageResponse -> event.reply(response.message)
-                    is Response.Reaction -> event.reply(response.emoji).setEphemeral(true)
-                    else -> event.reply("I don't know how to help with that.")
-                }.queue()
+            event.deferReply().queue {
+                processMessage(event.asMessageReceivedEvent) { response ->
+                    when (response) {
+                        is Response.MessageResponse -> it.editOriginal(response.message)
+                        is Response.Reaction -> it.editOriginal(response.emoji)
+                        else -> it.editOriginal("I don't know how to help with that.")
+                    }.queue()
+                }
             }
         }
     }
@@ -101,7 +102,8 @@ class MessagingDirector(
         get() {
             val request = getOption("request")?.asString ?: ""
             val message = FakeSlashedMessage(this, request)
-            return MessageReceivedEvent(jda, responseNumber, message)
+            val messageReceivedEvent = MessageReceivedEvent(jda, responseNumber, message)
+            return SlashMessageReceivedEvent(messageReceivedEvent)
         }
 
     /**

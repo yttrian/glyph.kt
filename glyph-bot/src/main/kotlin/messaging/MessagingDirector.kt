@@ -181,7 +181,11 @@ class MessagingDirector(
         val message = MessageBuilder().setContent(content?.trim()).setEmbeds(embed).build()
         // try to send the message
         try {
-            this.reply(message).mentionRepliedUser(false).queue {
+            if (isFromGuild) {
+                reply(message).mentionRepliedUser(false)
+            } else {
+                channel.sendMessage(message)
+            }.queue {
                 if (ttl != null) {
                     it.delete().queueAfter(ttl.seconds, TimeUnit.SECONDS)
                 } else if (volatile) {
@@ -189,7 +193,7 @@ class MessagingDirector(
                 }
             }
         } catch (e: InsufficientPermissionException) {
-            logSendFailure(this.textChannel, e)
+            logSendFailure(textChannel, e)
         }
     }
 }

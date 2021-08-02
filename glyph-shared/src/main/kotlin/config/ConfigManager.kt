@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -25,9 +25,7 @@
 package org.yttr.glyph.shared.config
 
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteIgnoreWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
@@ -65,7 +63,7 @@ class ConfigManager(configure: Config.() -> Unit) {
     }
 
     private val config = Config().also(configure)
-    private val db = Database.apply {
+    private val db = Database.run {
         val dbUri = URI(config.databaseConnectionUri)
         val userInfo = dbUri.userInfo.split(":")
         val username = userInfo[0]
@@ -90,23 +88,23 @@ class ConfigManager(configure: Config.() -> Unit) {
     private val swst = ServerWikiSourcesTable
     private val ssrt = ServerSelectableRolesTable
 
-    /**
-     * Creates the database tables if they don't already exist
-     */
-    private fun createTables() {
-        transaction {
-            SchemaUtils.create(
-                sct,
-                swst,
-                ssrt
-            )
-        }
-    }
+//    /**
+//     * Creates the database tables if they don't already exist
+//     */
+//    private fun createTables() {
+//        transaction(db) {
+//            SchemaUtils.createMissingTablesAndColumns(
+//                sct,
+//                swst,
+//                ssrt
+//            )
+//        }
+//    }
 
     /**
      * Load all the configurations from the database
      */
-    private fun loadConfig(guildId: Long): ServerConfig = transaction {
+    private fun loadConfig(guildId: Long): ServerConfig = transaction(db) {
         val wikiSources = swst.select {
             swst.serverId.eq(guildId)
         }.map {
@@ -160,10 +158,10 @@ class ConfigManager(configure: Config.() -> Unit) {
     /**
      * Delete a guild's configuration from the database
      *
-     * @param guildId the guild who's configuration to delete
+     * @param guildId the guild whose configuration to delete
      */
-    suspend fun deleteServerConfig(guildId: Long): Int = newSuspendedTransaction {
-        sct.deleteIgnoreWhere {
+    suspend fun deleteServerConfig(guildId: Long): Int = newSuspendedTransaction(db = db) {
+        sct.deleteWhere {
             sct.serverId.eq(guildId)
         }
     }
@@ -187,17 +185,16 @@ class ConfigManager(configure: Config.() -> Unit) {
      * @param guildId the guild who's configuration should be updates
      * @param config the new server config to try to apply
      */
-    suspend fun setServerConfig(guildId: Long, config: ServerConfig) = newSuspendedTransaction {
+    suspend fun setServerConfig(guildId: Long, config: ServerConfig): Unit = newSuspendedTransaction(db = db) {
         val sct = ServerConfigsTable
-        val serverId = guildId
 
         // Lazy man's upsert
         sct.insertIgnore {
-            it[sct.serverId] = serverId
+            it[sct.serverId] = guildId
         }
 
-        sct.update({ sct.serverId.eq(serverId) }) {
-            it[sct.serverId] = serverId
+        sct.update({ sct.serverId.eq(guildId) }) {
+            it[sct.serverId] = guildId
             it[sct.wikiMinQuality] = config.wiki.minimumQuality
             it[sct.selectableRolesLimit] = config.selectableRoles.limit
             it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled
@@ -219,22 +216,22 @@ class ConfigManager(configure: Config.() -> Unit) {
 
         // Add in all the wiki sources
         swst.deleteWhere {
-            swst.serverId.eq(serverId)
+            swst.serverId.eq(guildId)
         }
         swst.batchInsert(config.wiki.sources, true) { wiki ->
-            this[swst.serverId] = serverId
+            this[swst.serverId] = guildId
             this[swst.destination] = wiki
         }
 
         // Add in all the roles
         ssrt.deleteWhere {
-            ssrt.serverId.eq(serverId)
+            ssrt.serverId.eq(guildId)
         }
         ssrt.batchInsert(config.selectableRoles.roles, true) { role ->
-            this[ssrt.serverId] = serverId
+            this[ssrt.serverId] = guildId
             this[ssrt.roleId] = role
         }
 
-        configs[serverId] = config
+        configs[guildId] = config
     }
 }

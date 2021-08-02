@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -25,8 +25,8 @@
 group = "org.yttr.glyph.shared"
 version = "1.0"
 
-val coroutinesVersion: String by project.extra
-val exposedVersion: String by project.extra
+internal val coroutinesVersion: String by project.extra
+internal val exposedVersion: String by project.extra
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")

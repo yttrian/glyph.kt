@@ -38,7 +38,7 @@ class ServerConfigSkill : Skill(
     cooldownTime = 15,
     guildOnly = true,
     requiredPermissionsSelf = listOf(Permission.MANAGE_WEBHOOKS),
-    requiredPermissionsUser = listOf(Permission.ADMINISTRATOR)
+    requiredPermissionsUser = listOf(Permission.MANAGE_SERVER)
 ) {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response =
         Response.Volatile("To edit your config, visit https://gl.yttr.org/config")

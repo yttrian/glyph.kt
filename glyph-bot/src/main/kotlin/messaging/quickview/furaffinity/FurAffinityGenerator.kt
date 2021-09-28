@@ -101,7 +101,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
     private data class SubmissionUrlData(val submissionId: Int?, val cdnId: Int?, val username: String?)
 
     /**
-     * Attempts to find ids associated with FurAffinity submissions, if there are any
+     * Attempts to find ids associated with Fur Affinity submissions, if there are any
      */
     fun findIds(content: String): Flow<Int> =
         submissionUrlRegex.findAll(content.replace(escapedLinkRegex, "")).map {

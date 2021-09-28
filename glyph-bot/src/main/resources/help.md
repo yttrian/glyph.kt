@@ -8,7 +8,7 @@ official server or via the anonymous feedback skill.
 
 [Skills List](https://gl.yttr.org/en/latest/skills.html) -
 [Configure](https://conf.gl.yttr.org/) -
-[Help Server](https://gl.yttr.org/server) -
+[Join Help Server](https://gl.yttr.org/server) -
 [Invite to Server](https://gl.yttr.org/invite) -
 [Sponsor](https://gl.yttr.org/sponsor) -
 [Source Code](https://gl.yttr.org/source)

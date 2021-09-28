@@ -62,7 +62,7 @@ class HelpSkill : Skill("skill.help") {
             Button.of(ButtonStyle.LINK, url, label, Emoji.fromUnicode(emoji))
 
         private val skillsButton = linkButton("https://gl.yttr.org/en/latest/skills.html", "Skills", "🕺")
-        private val serverButton = linkButton("https://gl.yttr.org/server", "Help server", "✋")
+        private val serverButton = linkButton("https://gl.yttr.org/server", "Help Server", "✋")
         private val inviteButton = linkButton("https://gl.yttr.org/invite", "Invite", "📩")
         private val supportButton = linkButton("https://gl.yttr.org/sponsor", "Sponsor", "💖")
         private val actionRow = ActionRow.of(skillsButton, serverButton, inviteButton, supportButton)

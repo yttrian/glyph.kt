@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2021 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -32,7 +32,7 @@ import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
 import java.time.Instant
 
 /**
- * A FurAffinity submission
+ * A Fur Affinity submission
  */
 @Serializable
 data class Submission(
@@ -119,7 +119,7 @@ data class Submission(
             .setAuthor(name, profile, avatar)
             .setTitle(title, link)
             .setColor(rating.color)
-            .setFooter("FurAffinity")
+            .setFooter("Fur Affinity")
             .setTimestamp(Instant.parse(postedAt))
 
         val description = SimpleDescriptionBuilder()

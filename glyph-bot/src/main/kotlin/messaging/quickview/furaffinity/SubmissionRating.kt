@@ -27,7 +27,7 @@ package org.yttr.glyph.bot.messaging.quickview.furaffinity
 import java.awt.Color
 
 /**
- * The submission rating (maturity level) of a FurAffinity submission
+ * The submission rating (maturity level) of a Fur Affinity submission
  */
 enum class SubmissionRating(
     /**

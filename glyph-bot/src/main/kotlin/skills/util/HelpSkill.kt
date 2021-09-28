@@ -25,9 +25,11 @@
 package org.yttr.glyph.bot.skills.util
 
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.Button
+import net.dv8tion.jda.api.interactions.components.ButtonStyle
 import org.yttr.glyph.bot.ai.AIResponse
 import org.yttr.glyph.bot.messaging.Response
 import org.yttr.glyph.bot.skills.Skill
@@ -50,11 +52,14 @@ class HelpSkill : Skill("skill.help") {
 
     companion object {
         private val embedColor = Color.decode("#4687E5")
-        private val skillsButton = Button.link("https://gl.yttr.org/en/latest/skills.html", "Skills")
-        private val configureButton = Button.link("https://gl.yttr.org/en/latest/configuration.html", "Configure")
-        private val serverButton = Button.link("https://gl.yttr.org/server", "Official server")
-        private val inviteButton = Button.link("https://gl.yttr.org/invite", "Add to your server")
-        private val sourceButton = Button.link("https://gl.yttr.org/source", "Source code")
-        private val actionRow = ActionRow.of(skillsButton, configureButton, serverButton, inviteButton, sourceButton)
+
+        private fun linkButton(url: String, label: String, emoji: String) =
+            Button.of(ButtonStyle.LINK, url, label, Emoji.fromUnicode(emoji))
+
+        private val skillsButton = linkButton("https://gl.yttr.org/en/latest/skills.html", "Skills", "🕺")
+        private val serverButton = linkButton("https://gl.yttr.org/server", "Help server", "✋")
+        private val inviteButton = linkButton("https://gl.yttr.org/invite", "Invite", "📩")
+        private val supportButton = linkButton("https://gl.yttr.org/sponsor", "Sponsor", "💖")
+        private val actionRow = ActionRow.of(skillsButton, serverButton, inviteButton, supportButton)
     }
 }

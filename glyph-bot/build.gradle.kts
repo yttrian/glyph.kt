@@ -53,7 +53,6 @@ group = "org.yttr.glyph.bot"
 version = "1.0"
 
 internal val coroutinesVersion: String by project.extra
-internal val logbackVersion: String by project.extra
 internal val jdaVersion: String by project.extra
 internal val ktorVersion: String by project.extra
 
@@ -81,7 +80,6 @@ tasks.withType(KotlinJvmCompile::class) {
 dependencies {
     implementation(project(":glyph-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.dv8tion:JDA:$jdaVersion")
     implementation("club.minnced:discord-webhooks:0.5.7")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")

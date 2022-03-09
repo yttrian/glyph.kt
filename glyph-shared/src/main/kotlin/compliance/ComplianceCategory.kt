@@ -1,5 +1,5 @@
 /*
- * build.gradle.kts
+ * ComplianceCategory.kt
  *
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
@@ -22,17 +22,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "org.yttr.glyph.shared"
-version = "1.0"
+package org.yttr.glyph.shared.compliance
 
-internal val coroutinesVersion: String by project.extra
-internal val exposedVersion: String by project.extra
+/**
+ * Categories of data usage that require compliance tracking
+ */
+enum class ComplianceCategory(
+    /**
+     * The default assumption to make when missing data.
+     */
+    val optInDefault: Boolean
+) {
+    /**
+     * Google Cloud Dialogflow
+     */
+    Dialogflow(false),
 
-dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-    implementation("org.postgresql:postgresql:42.2.12")
+    /**
+     * Message starboard skill
+     */
+    Starboard(true),
+
+    /**
+     * Embed QuickViews skill
+     */
+    QuickView(true)
 }

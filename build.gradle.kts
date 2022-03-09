@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -51,8 +51,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 internal val kotlinVersion: String by project.extra
 
 plugins {
-    kotlin("jvm") version "1.5.10"
-    kotlin("plugin.serialization") version "1.5.10"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
     id("tanvd.kosogor") version "1.0.12"
 }
 

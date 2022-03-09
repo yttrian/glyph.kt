@@ -25,12 +25,14 @@
 package org.yttr.glyph.shared.compliance
 
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
@@ -38,6 +40,13 @@ import java.time.Instant
  * An interface for managing compliance
  */
 object ComplianceOfficer {
+    init {
+        // FIXME: Blocking table creation
+        transaction {
+            SchemaUtils.createMissingTablesAndColumns(ComplianceTable)
+        }
+    }
+
     private fun where(userId: Long, complianceCategory: ComplianceCategory): Op<Boolean> {
         return (ComplianceTable.userId eq userId) and (ComplianceTable.complianceCategory eq complianceCategory)
     }

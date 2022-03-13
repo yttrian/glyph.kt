@@ -55,6 +55,6 @@ object ComplianceTable : IntIdTable("Compliance", "ComplianceID") {
     val decided: Column<Instant> = timestamp("DecidedAt").defaultExpression(CurrentTimestamp())
 
     init {
-        uniqueIndex(id, complianceCategory)
+        uniqueIndex(userId, complianceCategory)
     }
 }

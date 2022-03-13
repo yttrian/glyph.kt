@@ -67,10 +67,16 @@ subprojects {
     apply(plugin = "kotlinx-serialization")
     apply(plugin = "tanvd.kosogor")
 
+    val jdaVersion: String by project.extra
     val logbackVersion: String by project.extra
+
+    repositories {
+        maven("https://m2.dv8tion.net/releases")
+    }
 
     dependencies {
         implementation(kotlin("stdlib-jdk8", kotlinVersion))
+        implementation("net.dv8tion:JDA:$jdaVersion")
         implementation("io.lettuce:lettuce-core:6.0.0.M1")
         implementation("ch.qos.logback:logback-classic:$logbackVersion")
         testImplementation("org.jetbrains.kotlin:kotlin-test")

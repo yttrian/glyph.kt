@@ -24,6 +24,13 @@
 
 package org.yttr.glyph.shared.compliance
 
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.MessageBuilder
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.Button
+import org.yttr.glyph.shared.readMarkdown
+
 /**
  * Categories of data usage that require compliance tracking
  */
@@ -46,5 +53,26 @@ enum class ComplianceCategory(
     /**
      * Embed QuickViews skill
      */
-    QuickView(true)
+    QuickView(true);
+
+    /**
+     * Message to show the user when requesting a compliance decision from them.
+     */
+    val complianceMessage: Message by lazy {
+        val name = this.name
+        MessageBuilder().apply {
+            val embed = EmbedBuilder()
+                .setTitle("$name Compliance")
+                .setDescription(this::class.java.classLoader.readMarkdown("compliance/$name.md"))
+                .build()
+
+            setEmbeds(embed)
+            setActionRows(
+                ActionRow.of(
+                    Button.success("Compliance:$name:In", "Opt in to $name"),
+                    Button.danger("Compliance:$name:Out", "Opt out of $name")
+                )
+            )
+        }.build()
+    }
 }

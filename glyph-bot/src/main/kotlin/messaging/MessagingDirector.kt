@@ -28,7 +28,6 @@ import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
@@ -37,8 +36,6 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.interactions.components.Button
 import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
 import org.yttr.glyph.bot.extensions.contentClean
@@ -46,7 +43,6 @@ import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.shared.compliance.ComplianceCategory
 import org.yttr.glyph.shared.compliance.ComplianceOfficer
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
-import org.yttr.glyph.shared.readMarkdown
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -113,34 +109,25 @@ class MessagingDirector(
 
     private val messageProcessingScope = CoroutineScope(SupervisorJob())
 
-    private val complianceMessage = MessageBuilder().apply {
-        val embed = EmbedBuilder()
-            .setTitle("AI Compliance")
-            .setDescription(this::class.java.classLoader.readMarkdown("ai.md")?.format(aiAgent.name))
-            .build()
-
-        setEmbeds(embed)
-        setActionRows(
-            ActionRow.of(
-                Button.success("aiOptIn", "Opt-in"),
-                Button.danger("aiOptOut", "Opt-out")
-            )
-        )
-    }.build()
-
     /**
      * Button click handling
      */
     override fun onButtonClick(event: ButtonClickEvent) {
         messageProcessingScope.launch {
-            when (event.button?.id) {
-                "aiOptIn" -> true
-                "aiOptOut" -> false
-                else -> null
-            }?.let { optedIn ->
-                event.deferReply(true).queue()
-                ComplianceOfficer.decide(event.user.idLong, ComplianceCategory.Dialogflow, optedIn)
-                event.hook.sendMessage("You have opted " + if (optedIn) "in" else "out").queue()
+            val path = event.button?.id?.split(":")
+            if (path?.firstOrNull() == "Compliance") {
+                val (_, categoryString, decision) = path
+                val category = ComplianceCategory.valueOf(categoryString)
+                when (decision) {
+                    "In" -> true
+                    "Out" -> false
+                    else -> null
+                }?.let { optedIn ->
+                    event.deferReply(true).queue()
+                    ComplianceOfficer.decide(event.user.idLong, category, optedIn)
+                    val inOut = if (optedIn) "in to" else "out of"
+                    event.hook.sendMessage("You have opted $inOut $category.").queue()
+                }
             }
         }
     }
@@ -156,7 +143,7 @@ class MessagingDirector(
         messageProcessingScope.launch {
             runCatching {
                 if (!ComplianceOfficer.check(event.author.idLong, ComplianceCategory.Dialogflow)) {
-                    message.reply(complianceMessage).queue()
+                    message.reply(ComplianceCategory.Dialogflow.complianceMessage).queue()
                     error("${event.author} has not opted in to ${ComplianceCategory.Dialogflow}")
                 }
             }.mapCatching {

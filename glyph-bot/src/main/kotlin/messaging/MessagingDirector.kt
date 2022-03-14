@@ -119,7 +119,7 @@ class MessagingDirector(
         messageProcessingScope.launch {
             runCatching {
                 if (!ComplianceOfficer.check(event.author.idLong, ComplianceCategory.Dialogflow)) {
-                    message.reply(ComplianceCategory.Dialogflow.buildComplianceMessage()).queue()
+                    message.reply(ComplianceCategory.Dialogflow.buildComplianceMessage(), volatile = true)
                     error("${event.author} has not opted in to ${ComplianceCategory.Dialogflow}")
                 }
             }.mapCatching {

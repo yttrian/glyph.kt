@@ -56,7 +56,7 @@ object ComplianceListener : ListenerAdapter() {
 
         ComplianceCategory.values().forEach {
             val name = it.name
-            option.addChoice("Compliance:$name", name)
+            option.addChoice(name, name)
         }
 
         val commandData = CommandData(COMMAND_NAME, "Present options to manage compliance opt-ins/opt-outs.")

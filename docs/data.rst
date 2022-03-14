@@ -73,3 +73,10 @@ and any copy that may be in a starboard if it was starboarded.
 
 All audit log messages sent by Glyph to a server's logging channel are done via fire-and-forget webhooks.
 The contents of these messages is never stored elsewhere.
+
+Questions?
+----------
+
+If you have any questions or concerns about the usage and storage of your data please join the `official server`_.
+
+.. _official server: https://gl.yttr.org/server

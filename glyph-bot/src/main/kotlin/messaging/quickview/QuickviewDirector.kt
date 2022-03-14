@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -24,7 +24,6 @@
 
 package org.yttr.glyph.bot.messaging.quickview
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.take
@@ -38,10 +37,12 @@ import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.messaging.MessagingDirector
 import org.yttr.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
 import org.yttr.glyph.bot.messaging.quickview.picarto.PicartoGenerator
+import org.yttr.glyph.shared.compliance.ComplianceCategory
+import org.yttr.glyph.shared.compliance.ComplianceOfficer
 import java.time.Duration
 
 /**
- * Handle triggers for quickviews
+ * Handle triggers for QuickViews
  */
 class QuickviewDirector(private val messagingDirector: MessagingDirector) : Director() {
     companion object {
@@ -60,19 +61,20 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
     private val generatorTimeout = Duration.ofSeconds(GENERATOR_TIMEOUT_SECONDS).toMillis()
 
     /**
-     * Check for quickviews when a message is received
+     * Check for QuickViews when a message is received
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (!event.isIgnorable) {
             launch {
-                withTimeout(generatorTimeout) {
-                    generateEmbeds(event)
+                if (ComplianceOfficer.check(event.author.idLong, ComplianceCategory.QuickView)) {
+                    withTimeout(generatorTimeout) {
+                        generateEmbeds(event)
+                    }
                 }
             }
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun generateEmbeds(event: MessageReceivedEvent) {
         val config = if (event.channelType.isGuild) event.guild.config else configDirector.defaultConfig
 

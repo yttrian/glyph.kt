@@ -62,7 +62,7 @@ object ComplianceListener : ListenerAdapter() {
         val commandData = CommandData(COMMAND_NAME, "Present options to manage compliance opt-ins/opt-outs.")
             .addOptions(option)
 
-        event.jda.upsertCommand(commandData)
+        event.jda.upsertCommand(commandData).queue()
     }
 
     /**

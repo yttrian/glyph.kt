@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -25,6 +25,8 @@
 package org.yttr.glyph.bot.skills.starboard
 
 import club.minnced.discord.webhook.exception.HttpException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
@@ -41,6 +43,8 @@ import org.yttr.glyph.bot.extensions.asPlainMention
 import org.yttr.glyph.bot.messaging.WebhookDirector
 import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX
 import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.emojiAlias
+import org.yttr.glyph.shared.compliance.ComplianceCategory
+import org.yttr.glyph.shared.compliance.ComplianceOfficer
 import org.yttr.glyph.shared.config.server.StarboardConfig
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import org.yttr.glyph.shared.redis.redlockLock
@@ -60,7 +64,12 @@ sealed class StarredMessage(private val messageId: Long) {
             starboardConfig: StarboardConfig,
             starboardChannel: TextChannel,
             redis: RedisAsync
-        ): Boolean {
+        ): Boolean = coroutineScope {
+            // Check the user compliance decision for starboards
+            val userAllowsStarboarding = async {
+                ComplianceOfficer.check(author.idLong, ComplianceCategory.Starboard)
+            }
+
             val starUsers = getStarUsers(starboardConfig)
 
             // Check that the number of reactions needed has been met
@@ -70,7 +79,7 @@ sealed class StarredMessage(private val messageId: Long) {
             // Check if NSFW and if so whether or not it is allowed
             val isSafe = !textChannel.isNSFW || starboardChannel.isNSFW
 
-            return if (reactionThresholdMet && isSafe) {
+            if (userAllowsStarboarding.await() && reactionThresholdMet && isSafe) {
                 sendToStarboard(redis, starUsers, starboardChannel)
             } else false
         }

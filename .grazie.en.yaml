@@ -12,6 +12,15 @@ swap:
   (the|this) bot: Glyph
 ---
 extends: substitution
+message: %s is captitalized at the Q and the V
+level: warning
+ignorecase: false
+swap:
+  quickview: QuickView
+  quickviews: QuickViews
+  quick[ -]views: QuickViews
+---
+extends: substitution
 message: Fur Affinity is two words
 level: warning
 ignorecase: true

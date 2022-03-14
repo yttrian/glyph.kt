@@ -32,7 +32,6 @@ import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
@@ -110,29 +109,6 @@ class MessagingDirector(
     private val messageProcessingScope = CoroutineScope(SupervisorJob())
 
     /**
-     * Button click handling
-     */
-    override fun onButtonClick(event: ButtonClickEvent) {
-        messageProcessingScope.launch {
-            val path = event.button?.id?.split(":")
-            if (path?.firstOrNull() == "Compliance") {
-                val (_, categoryString, decision) = path
-                val category = ComplianceCategory.valueOf(categoryString)
-                when (decision) {
-                    "In" -> true
-                    "Out" -> false
-                    else -> null
-                }?.let { optedIn ->
-                    event.deferReply(true).queue()
-                    ComplianceOfficer.decide(event.user.idLong, category, optedIn)
-                    val inOut = if (optedIn) "in to" else "out of"
-                    event.hook.sendMessage("You have opted $inOut $category.").queue()
-                }
-            }
-        }
-    }
-
-    /**
      * When a new message is seen anywhere
      */
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -143,7 +119,7 @@ class MessagingDirector(
         messageProcessingScope.launch {
             runCatching {
                 if (!ComplianceOfficer.check(event.author.idLong, ComplianceCategory.Dialogflow)) {
-                    message.reply(ComplianceCategory.Dialogflow.complianceMessage).queue()
+                    message.reply(ComplianceCategory.Dialogflow.buildComplianceMessage()).queue()
                     error("${event.author} has not opted in to ${ComplianceCategory.Dialogflow}")
                 }
             }.mapCatching {

@@ -58,19 +58,25 @@ enum class ComplianceCategory(
     /**
      * Message to show the user when requesting a compliance decision from them.
      */
-    val complianceMessage: Message by lazy {
+    fun buildComplianceMessage(optedIn: Boolean? = null): Message {
         val name = this.name
-        MessageBuilder().apply {
-            val embed = EmbedBuilder()
-                .setTitle("$name Compliance")
-                .setDescription(this::class.java.classLoader.readMarkdown("compliance/$name.md"))
-                .build()
+
+        return MessageBuilder().apply {
+            val embed = EmbedBuilder().apply {
+                setTitle("$name Compliance")
+                setDescription(this::class.java.classLoader.readMarkdown("compliance/$name.md"))
+
+                if (optedIn != null) {
+                    setFooter("You are currently " + if (optedIn) "opted in" else "opted out")
+                }
+            }.build()
 
             setEmbeds(embed)
             setActionRows(
                 ActionRow.of(
                     Button.success("Compliance:$name:In", "Opt in to $name"),
-                    Button.danger("Compliance:$name:Out", "Opt out of $name")
+                    Button.danger("Compliance:$name:Out", "Opt out of $name"),
+                    Button.link("https://gl.yttr.org/privacy", "Read Privacy Policy")
                 )
             )
         }.build()

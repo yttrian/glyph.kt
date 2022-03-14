@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -56,12 +56,10 @@ class SessionStorageRedis(redisURI: RedisURI) : SessionStorage {
         redis.del("$SESSION_PREFIX:$id")
     }
 
-    @ExperimentalStdlibApi
     override suspend fun <R> read(id: String, consumer: suspend (ByteReadChannel) -> R): R =
         redis.get("$SESSION_PREFIX:$id").await()?.let { data -> consumer(ByteReadChannel(data.encodeToByteArray())) }
             ?: throw NoSuchElementException("Session $id not found")
 
-    @ExperimentalStdlibApi
     override suspend fun write(id: String, provider: suspend (ByteWriteChannel) -> Unit) {
         coroutineScope {
             val channel = writer(Dispatchers.Unconfined, autoFlush = true) {

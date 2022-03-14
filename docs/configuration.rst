@@ -5,10 +5,11 @@ Glyph makes it easy to set a custom configuration on your server.
 
 Setting a configuration
 ------------------------
-1. Say to Glyph "edit config"
-2. Open the given link
-3. Edit the configuration and click Save
+1. Say to Glyph "edit config" or go to `configuration editor`_ directly
+2. Edit the configuration
+3. Click Save
 
   .. note::
     If the configuration has an error, Glyph will fallback to using the previous error-free configuration.
-    Additionally, if Glyph is removed from the server, the server's configuration will be deleted from the database.
+
+.. _configuration editor: https://gl.yttr.org/config

@@ -1,7 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+#  conf.py
 #
-# glyph documentation build configuration file, created by
+#  Glyph, a Discord bot that uses natural language instead of commands
+#  powered by DialogFlow and Kotlin
+#
+#  Copyright (C) 2017-2022 by Ian Moore
+#
+#  This file is part of Glyph.
+#
+#  Glyph is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as
+#  published by the Free Software Foundation, either version 3 of
+#  the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Glyph documentation build configuration file, created by
 # sphinx-quickstart on Mon Jun  5 16:24:08 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -48,8 +71,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'glyph'
-copyright = '2020, Ian Moore'
+project = 'Glyph'
+copyright = '2022, Ian Moore'
 author = 'Ian Moore'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -102,7 +125,7 @@ html_static_path = ["_static"]
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'glyphdoc'
+htmlhelp_basename = 'Glyphdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -129,7 +152,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'glyph.tex', 'glyph Documentation',
+    (master_doc, 'Glyph.tex', 'Glyph Documentation',
      'Ian Moore', 'manual'),
 ]
 
@@ -139,7 +162,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'glyph', 'glyph Documentation',
+    (master_doc, 'Glyph', 'Glyph Documentation',
      [author], 1)
 ]
 
@@ -150,8 +173,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'glyph', 'glyph Documentation',
-     author, 'glyph', 'One line description of project.',
+    (master_doc, 'Glyph', 'Glyph Documentation',
+     author, 'Glyph', 'One line description of project.',
      'Miscellaneous'),
 ]
 

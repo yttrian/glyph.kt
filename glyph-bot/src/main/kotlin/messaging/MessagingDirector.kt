@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -25,6 +25,8 @@
 package org.yttr.glyph.bot.messaging
 
 import io.lettuce.core.RedisFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
@@ -37,6 +39,8 @@ import org.yttr.glyph.bot.Director
 import org.yttr.glyph.bot.ai.AIAgent
 import org.yttr.glyph.bot.extensions.contentClean
 import org.yttr.glyph.bot.skills.SkillDirector
+import org.yttr.glyph.shared.compliance.ComplianceCategory
+import org.yttr.glyph.shared.compliance.ComplianceOfficer
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -102,6 +106,8 @@ class MessagingDirector(
         log.warn("Failed to send message in $channel$warningSuffix", exception)
     }
 
+    private val messageProcessingScope = CoroutineScope(SupervisorJob())
+
     /**
      * When a new message is seen anywhere
      */
@@ -110,36 +116,46 @@ class MessagingDirector(
 
         val message: Message = event.message
 
-        // Get ready to ask the DialogFlow agent
-        val ai = try {
-            aiAgent.request(event.message.contentClean, event.contextHash)
-        } catch (e: IllegalArgumentException) {
-            log.trace("${aiAgent.name} error", e)
-            message.addReaction("⁉").queue()
-            return
-        }
+        messageProcessingScope.launch {
+            runCatching {
+                if (!ComplianceOfficer.check(event.author.idLong, ComplianceCategory.Dialogflow)) {
+                    message.reply(ComplianceCategory.Dialogflow.buildComplianceMessage(), volatile = true)
+                    error("${event.author} has not opted in to ${ComplianceCategory.Dialogflow}")
+                }
+            }.mapCatching {
+                // Get ready to ask the DialogFlow agent
+                aiAgent.request(event.message.contentClean, event.contextHash)
+            }.onFailure {
+                log.trace("${aiAgent.name} error", it)
+                message.addReaction("⁉").queue()
+            }.mapCatching { ai ->
+                // In the rare circumstance the agent is unavailable or has an issue, warn the user
+                if (ai.isError) {
+                    val errorMessage = MessageBuilder()
+                        .setContent(
+                            "Sorry, due to an issue with ${aiAgent.name} I'm unable to interpret your message."
+                        ).build()
+                    message.reply(errorMessage, volatile = true)
+                    error("AI error")
+                }
 
-        // In the rare circumstance the agent is unavailable or has an issue, warn the user
-        if (ai.isError) {
-            val errorMessage = MessageBuilder()
-                .setContent(
-                    "Sorry, due to an issue with ${aiAgent.name} I'm currently unable to interpret your message."
-                ).build()
-            message.reply(errorMessage, volatile = true)
-            return
-        }
+                ai
+            }.mapCatching { ai ->
+                // Assuming everything else went well, launch the appropriate skill with the event info and ai response
+                skillDirector.launch {
+                    when (val response = skillDirector.trigger(event, ai)) {
+                        is Response.Ephemeral -> message.reply(response.message, ttl = response.ttl)
+                        is Response.Volatile -> message.reply(response.message, volatile = true)
+                        is Response.Permanent -> message.reply(response.message, volatile = false)
+                        is Response.Reaction -> message.addReaction(response.emoji).queue()
+                    }
 
-        // Assuming everything else went well, launch the appropriate skill with the event info and ai response
-        skillDirector.launch {
-            when (val response = skillDirector.trigger(event, ai)) {
-                is Response.Ephemeral -> message.reply(response.message, ttl = response.ttl)
-                is Response.Volatile -> message.reply(response.message, volatile = true)
-                is Response.Permanent -> message.reply(response.message, volatile = false)
-                is Response.Reaction -> message.addReaction(response.emoji).queue()
+                    // Increment the total message count for curiosity's sake
+                    redis.incr(MESSAGE_COUNT_KEY)
+                }
+            }.onFailure {
+                log.error(it.message, it)
             }
-
-            // Increment the total message count for curiosity's sake
-            redis.incr(MESSAGE_COUNT_KEY)
         }
     }
 

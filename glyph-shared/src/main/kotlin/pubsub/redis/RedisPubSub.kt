@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -81,7 +81,7 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
             fun complete(message: Either<PubSubException, String>) {
                 redisPubSubConnection.async().unsubscribe(successfulResponse, failingResponse)
                 redisPubSubConnection.removeListener(this)
-                rendezvous.offer(message)
+                rendezvous.trySend(message)
                 rendezvous.close()
             }
         }

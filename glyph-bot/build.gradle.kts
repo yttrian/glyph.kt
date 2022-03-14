@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -56,10 +56,6 @@ internal val coroutinesVersion: String by project.extra
 internal val jdaVersion: String by project.extra
 internal val ktorVersion: String by project.extra
 
-repositories {
-    maven("https://m2.dv8tion.net/releases")
-}
-
 shadowJar {
     jar {
         archiveName = "glyph-bot.jar"
@@ -80,7 +76,6 @@ tasks.withType(KotlinJvmCompile::class) {
 dependencies {
     implementation(project(":glyph-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
-    implementation("net.dv8tion:JDA:$jdaVersion")
     implementation("club.minnced:discord-webhooks:0.5.7")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")

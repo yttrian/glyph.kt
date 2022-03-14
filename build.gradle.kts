@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -51,8 +51,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 internal val kotlinVersion: String by project.extra
 
 plugins {
-    kotlin("jvm") version "1.5.10"
-    kotlin("plugin.serialization") version "1.5.10"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
     id("tanvd.kosogor") version "1.0.12"
 }
 
@@ -67,10 +67,16 @@ subprojects {
     apply(plugin = "kotlinx-serialization")
     apply(plugin = "tanvd.kosogor")
 
+    val jdaVersion: String by project.extra
     val logbackVersion: String by project.extra
+
+    repositories {
+        maven("https://m2.dv8tion.net/releases")
+    }
 
     dependencies {
         implementation(kotlin("stdlib-jdk8", kotlinVersion))
+        implementation("net.dv8tion:JDA:$jdaVersion")
         implementation("io.lettuce:lettuce-core:6.0.0.M1")
         implementation("ch.qos.logback:logback-classic:$logbackVersion")
         testImplementation("org.jetbrains.kotlin:kotlin-test")

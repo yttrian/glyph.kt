@@ -10,7 +10,7 @@ Opt-ins and Opt-outs
 Within the Discord client, Glyph provides means for managing your data usage with :code:`/compliance`.
 
 In order to use the natural language processing features of Glyph, you must explicitly opt-in to allow your message
-content to be sent to Dialogflow for processing. Read more below under _`message contents`.
+content to be sent to Dialogflow for processing. Read more below under :ref:`message contents`.
 
 Data We Collect
 ---------------
@@ -29,7 +29,7 @@ message contents
 :Where: Anonymously sent to Dialogflow for the sole purpose of understanding and responding to your request
 :Why: To understand the intent of your message and respond
 
-:What: A copy of your message contents, your _`session ids` (not username) and what skill Glyph interpreted it to be
+:What: A copy of your message contents, your :ref:`session id<session ids>` (not username) and what skill Glyph interpreted it to be
 :When: Glyph is explicitly mentioned via DM or @mention, only
 :Where: Application logs on Heroku
 :Why: To make sure Glyph is responding appropriately or see what messages caused an error

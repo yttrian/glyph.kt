@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -39,12 +39,10 @@ import org.yttr.glyph.shared.config.server.QuickviewConfig
 /**
  * Handles the creation of QuickViews for picarto.tv links
  */
-class PicartoGenerator : QuickviewGenerator() {
-    companion object {
-        private const val API_BASE: String = "https://api.picarto.tv"
-    }
+object PicartoGenerator : QuickviewGenerator() {
+    private const val API_BASE: String = "https://api.picarto.tv"
 
-    private val urlFormat = Regex("(?:picarto.tv)/(\\w*)", RegexOption.IGNORE_CASE)
+    override val urlRegex: Regex = Regex("picarto\\.tv/(\\w+)", RegexOption.IGNORE_CASE)
 
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
         if (config.picartoEnabled) findChannelNames(event.message.contentRaw).mapNotNull {
@@ -54,14 +52,15 @@ class PicartoGenerator : QuickviewGenerator() {
     /**
      * Attempt to find Picarto channel names from links in a message, if any
      */
-    fun findChannelNames(content: String): Flow<String> =
-        urlFormat.findAll(content).asFlow().mapNotNull { it.groups[1]?.value }
+    private fun findChannelNames(content: String): Flow<String> =
+        urlRegex.findAll(content).asFlow().mapNotNull { it.groups[1]?.value }
 
     private suspend fun getChannel(name: String): Channel? = try {
         client.get<Channel> {
-            url.takeFrom(API_BASE).path("v1", "channel", "name", name)
+            url.takeFrom(API_BASE).path("api", "v1", "channel", "name", name)
         }
     } catch (e: ResponseException) {
+        log.debug("Failed to get channel $name", e)
         null
     }
 }

@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -53,6 +53,11 @@ abstract class QuickviewGenerator : Closeable {
             serializer = KotlinxSerializer(Json { ignoreUnknownKeys = true })
         }
     }
+
+    /**
+     * Regex that matches valid URLs to be processed
+     */
+    abstract val urlRegex: Regex
 
     /**
      * Generate QuickView embeds for any links found in the message

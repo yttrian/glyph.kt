@@ -57,7 +57,7 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
         private const val EMBED_LIMIT: Int = 5
     }
 
-    private val generators = setOf(PicartoGenerator(), FurAffinityGenerator())
+    private val generators = setOf(PicartoGenerator, FurAffinityGenerator)
     private val generatorTimeout = Duration.ofSeconds(GENERATOR_TIMEOUT_SECONDS).toMillis()
 
     /**
@@ -110,5 +110,7 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
     private suspend fun MessageAction.await() = this.submit().await()
 
     private val MessageReceivedEvent.isIgnorable
-        get() = author.isBot || isWebhookMessage || (author == jda.selfUser)
+        get() = author.isBot || isWebhookMessage || (author == jda.selfUser) && generators.none {
+            message.contentRaw.matches(it.urlRegex)
+        }
 }

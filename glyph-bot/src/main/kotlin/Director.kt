@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -25,7 +25,6 @@
 package org.yttr.glyph.bot
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.entities.Guild
@@ -48,8 +47,7 @@ abstract class Director : ListenerAdapter(), CoroutineScope {
      */
     protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + SupervisorJob()
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 
     lateinit var configDirector: ConfigDirector
 

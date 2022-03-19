@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2021 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -43,48 +43,46 @@ import java.math.RoundingMode
 /**
  * Handles the creation of QuickViews for furaffinity.net links
  */
-class FurAffinityGenerator : QuickviewGenerator() {
-    companion object {
-        private const val API_BASE: String = "https://faexport.spangle.org.uk"
-        private const val GALLERY_LISTING_SIZE: Int = 72
+object FurAffinityGenerator : QuickviewGenerator() {
+    private const val API_BASE: String = "https://faexport.spangle.org.uk"
+    private const val GALLERY_LISTING_SIZE: Int = 72
 
-        private val submissionUrlRegex = Regex(
-            "\\b(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/([\\w-]+)/(\\d+))\\b",
-            RegexOption.IGNORE_CASE
-        )
+    override val urlRegex: Regex = Regex(
+        "\\b(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/([\\w-]+)/(\\d+))\\b",
+        RegexOption.IGNORE_CASE
+    )
 
-        private const val SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP: Int = 2
-        private const val SUBMISSION_URL_REGEX_CDN_ID_GROUP: Int = 5
-        private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
+    private const val SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP: Int = 2
+    private const val SUBMISSION_URL_REGEX_CDN_ID_GROUP: Int = 5
+    private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
 
-        private val escapedLinkRegex = Regex("<\\S+>|`.+`", RegexOption.DOT_MATCHES_ALL)
+    private val escapedLinkRegex = Regex("<\\S+>|`.+`", RegexOption.DOT_MATCHES_ALL)
 
+    /**
+     * Represents a user page in the API
+     */
+    @Serializable
+    data class UserPage(
         /**
-         * Represents a user page in the API
+         * Total number of submissions the user has
          */
-        @Serializable
-        data class UserPage(
-            /**
-             * Total number of submissions the user has
-             */
-            val submissions: Int
-        )
+        val submissions: Int
+    )
 
+    /**
+     * Represents a submission excerpt from the submission listing endpoint of the API
+     */
+    @Serializable
+    data class SubmissionExcerpt(
         /**
-         * Represents a submission excerpt from the submission listing endpoint of the API
+         * Submission id
          */
-        @Serializable
-        data class SubmissionExcerpt(
-            /**
-             * Submission id
-             */
-            val id: Int,
-            /**
-             * Submission thumbnail URL
-             */
-            val thumbnail: String
-        )
-    }
+        val id: Int,
+        /**
+         * Submission thumbnail URL
+         */
+        val thumbnail: String
+    )
 
     override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
@@ -103,8 +101,8 @@ class FurAffinityGenerator : QuickviewGenerator() {
     /**
      * Attempts to find ids associated with Fur Affinity submissions, if there are any
      */
-    fun findIds(content: String): Flow<Int> =
-        submissionUrlRegex.findAll(content.replace(escapedLinkRegex, "")).map {
+    private fun findIds(content: String): Flow<Int> =
+        urlRegex.findAll(content.replace(escapedLinkRegex, "")).map {
             val submissionId = it.groups[SUBMISSION_URL_REGEX_SUBMISSION_ID_GROUP]?.value?.toInt()
             val cdnId = it.groups[SUBMISSION_URL_REGEX_CDN_ID_GROUP]?.value?.toInt()
             val username = it.groups[SUBMISSION_URL_REGEX_USERNAME_GROUP]?.value
@@ -120,7 +118,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
     /**
      * Try to find a submission using its CDN ID by searching the poster's gallery for it
      */
-    suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
+    private suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
         val cdnIdString = cdnId.toString()
 
         val submissionCount = client.get<UserPage> {
@@ -146,7 +144,7 @@ class FurAffinityGenerator : QuickviewGenerator() {
     /**
      * Create a submission object given its ID
      */
-    suspend fun getSubmission(id: Int): Submission? = try {
+    private suspend fun getSubmission(id: Int): Submission? = try {
         client.get {
             url.takeFrom(API_BASE).path("submission", "$id.json")
         }

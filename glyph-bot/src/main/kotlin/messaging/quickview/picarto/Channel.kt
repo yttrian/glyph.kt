@@ -4,7 +4,7 @@
  * Glyph, a Discord bot that uses natural language instead of commands
  * powered by DialogFlow and Kotlin
  *
- * Copyright (C) 2017-2020 by Ian Moore
+ * Copyright (C) 2017-2022 by Ian Moore
  *
  * This file is part of Glyph.
  *
@@ -43,7 +43,7 @@ data class Channel(
     private val avatar: String,
     private val viewers: Int,
     private val followers: Int,
-    private val category: String,
+    private val category: List<String>,
     private val title: String,
     private val online: Boolean,
     private val adult: Boolean,
@@ -57,7 +57,7 @@ data class Channel(
         val url = "https://picarto.tv/$name"
         val description = SimpleDescriptionBuilder()
             .addField("Status", if (online) "Online" else "Offline")
-            .addField("Category", "$category (${if (adult) "NSFW" else "SFW"})")
+            .addField("Category", "${category.joinToString()} (${if (adult) "NSFW" else "SFW"})")
             .addField(null, "**Viewers** $viewers | **Followers** $followers")
             .build()
         return EmbedBuilder()

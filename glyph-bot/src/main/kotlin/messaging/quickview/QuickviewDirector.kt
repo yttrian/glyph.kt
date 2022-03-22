@@ -110,7 +110,7 @@ class QuickviewDirector(private val messagingDirector: MessagingDirector) : Dire
     private suspend fun MessageAction.await() = this.submit().await()
 
     private val MessageReceivedEvent.isIgnorable
-        get() = author.isBot || isWebhookMessage || (author == jda.selfUser) && generators.none {
-            message.contentRaw.matches(it.urlRegex)
+        get() = author.isBot || isWebhookMessage || (author == jda.selfUser) || generators.none {
+            message.contentRaw.contains(it.urlRegex)
         }
 }

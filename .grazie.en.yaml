@@ -12,7 +12,7 @@ swap:
   (the|this) bot: Glyph
 ---
 extends: substitution
-message: %s is captitalized at the Q and the V
+message: %s is capitalized at the Q and the V
 level: warning
 ignorecase: false
 swap:

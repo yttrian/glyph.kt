@@ -38,9 +38,9 @@ repositories {
     jcenter()
 }
 
-internal val coroutinesVersion: String by project.extra
-internal val jdaVersion: String by project.extra
-internal val ktorVersion: String by project.extra
+internal val coroutinesVersion: String by project
+internal val jdaVersion: String by project
+internal val ktorVersion: String by project
 
 dependencies {
     implementation(project(":glyph-shared"))

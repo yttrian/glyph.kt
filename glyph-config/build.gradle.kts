@@ -34,7 +34,7 @@ tasks.create("stage") {
     dependsOn("installDist")
 }
 
-internal val ktorVersion: String by project.extra
+internal val ktorVersion: String by project
 
 dependencies {
     implementation(project(":glyph-shared"))

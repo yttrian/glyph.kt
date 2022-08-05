@@ -22,9 +22,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "org.yttr.glyph.shared"
-version = "1.0"
-
 internal val coroutinesVersion: String by project.extra
 internal val exposedVersion: String by project.extra
 

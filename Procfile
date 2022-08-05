@@ -1,2 +1,2 @@
-worker: java -XX:+UseContainerSupport -jar build/shadow/glyph-bot.jar
-web: java -jar build/shadow/glyph-config.jar
+worker: ./glyph-bot/build/install/glyph-bot/bin/glyph-bot
+web: ./glyph-config/build/install/glyph-config/bin/glyph-config

@@ -22,56 +22,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
-import tanvd.kosogor.proxy.shadowJar
-
-/*
- * build.gradle.kts
- *
- * Glyph, a Discord bot that uses natural language instead of commands
- * powered by DialogFlow and Kotlin
- *
- * Copyright (C) 2017-2020 by Ian Moore
- *
- * This file is part of Glyph.
- *
- * Glyph is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-group = "org.yttr.glyph.bot"
-version = "1.0"
-
-internal val coroutinesVersion: String by project.extra
-internal val jdaVersion: String by project.extra
-internal val ktorVersion: String by project.extra
-
-shadowJar {
-    jar {
-        archiveName = "glyph-bot.jar"
-        mainClass = "org.yttr.glyph.bot.GlyphKt"
-    }
-}.task.mergeServiceFiles()
-
-tasks.named("stage") {
-    dependsOn("shadowJar")
+plugins {
+    application
 }
 
-tasks.withType(KotlinJvmCompile::class) {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
-    }
+application {
+    mainClass.set("org.yttr.glyph.bot.GlyphKt")
 }
+
+tasks.create("stage") {
+    dependsOn("installDist")
+}
+
+repositories {
+    jcenter()
+}
+
+internal val coroutinesVersion: String by project
+internal val jdaVersion: String by project
+internal val ktorVersion: String by project
 
 dependencies {
     implementation(project(":glyph-shared"))

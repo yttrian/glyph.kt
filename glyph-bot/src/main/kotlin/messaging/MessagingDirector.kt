@@ -148,6 +148,7 @@ class MessagingDirector(
                         is Response.Volatile -> message.reply(response.message, volatile = true)
                         is Response.Permanent -> message.reply(response.message, volatile = false)
                         is Response.Reaction -> message.addReaction(response.emoji).queue()
+                        else -> {}
                     }
 
                     // Increment the total message count for curiosity's sake

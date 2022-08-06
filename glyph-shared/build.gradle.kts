@@ -22,11 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-group = "org.yttr.glyph.shared"
-version = "1.0"
-
-internal val coroutinesVersion: String by project.extra
-internal val exposedVersion: String by project.extra
+internal val coroutinesVersion: String by project
+internal val exposedVersion: String by project
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")

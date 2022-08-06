@@ -27,7 +27,7 @@ plugins {
 }
 
 application {
-    mainClass.set("io.ktor.server.cio.EngineMain")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 tasks.create("stage") {

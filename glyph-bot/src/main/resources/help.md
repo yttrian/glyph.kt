@@ -7,7 +7,7 @@ To see what I can do, be sure to check out my **full skills list** and **suggest
 official server or via the anonymous feedback skill.
 
 [Skills List](https://gl.yttr.org/en/latest/skills.html) -
-[Configure](https://conf.gl.yttr.org/) -
+[Configure](https://gl.yttr.org/config) -
 [Join Help Server](https://gl.yttr.org/server) -
 [Invite to Server](https://gl.yttr.org/invite) -
 [Sponsor](https://gl.yttr.org/sponsor) -

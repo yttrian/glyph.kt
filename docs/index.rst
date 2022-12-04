@@ -16,10 +16,16 @@ Please join our `official server`_ to keep up on the latest updates and to sugge
 Glyph is licensed under the GNU Affero General Public License.
 The latest `source code`_ can be found here.
 
+If you have found Glyph useful,
+consider `buying me a Ko-fi`_
+or `sponsoring me on GitHub`_ to help with server costs.
+
 .. _official server: https://gl.yttr.org/server
 .. _DialogFlow: https://dialogflow.com/
 .. _Kotlin: https://kotlinlang.org/
 .. _source code: https://gl.yttr.org/source
+.. _buying me a Ko-fi: https://ko-fi.com/throudin
+.. _sponsoring me on GitHub: https://github.com/sponsors/yttrian
 
 .. toctree::
    :maxdepth: 2
@@ -29,6 +35,7 @@ The latest `source code`_ can be found here.
    skills
    configuration
    data
+   Buy me a Ko-fi <https://ko-fi.com/throudin>
 
 Indices and tables
 ---------------------

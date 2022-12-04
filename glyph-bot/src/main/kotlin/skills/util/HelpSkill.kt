@@ -61,10 +61,10 @@ class HelpSkill : Skill("skill.help") {
         private fun linkButton(url: String, label: String, emoji: String) =
             Button.of(ButtonStyle.LINK, url, label, Emoji.fromUnicode(emoji))
 
-        private val skillsButton = linkButton("https://gl.yttr.org/en/latest/skills.html", "Skills", "🕺")
-        private val serverButton = linkButton("https://gl.yttr.org/server", "Help Server", "✋")
-        private val inviteButton = linkButton("https://gl.yttr.org/invite", "Invite", "📩")
-        private val supportButton = linkButton("https://gl.yttr.org/sponsor", "Sponsor", "💖")
-        private val actionRow = ActionRow.of(skillsButton, serverButton, inviteButton, supportButton)
+        private val actionRow = ActionRow.of(
+            linkButton("https://gl.yttr.org/skills", "Skills", "🕺"),
+            linkButton("https://gl.yttr.org/config", "Configure", "⚙️"),
+            linkButton("https://ko-fi.com/throudin", "Buy me a Ko-fi", "☕")
+        )
     }
 }

@@ -35,7 +35,9 @@
  *
  * @type {Object.<string, string>}
  */
-var emoji = {
+const emoji = {
     "star": "⭐",
-    "heart": "❤"
+    "heart": "❤",
+    "muscle": "💪",
+    "fire": "🔥"
 };

@@ -48,7 +48,6 @@ import org.yttr.glyph.bot.skills.moderation.*
 import org.yttr.glyph.bot.skills.play.DoomsdayClockSkill
 import org.yttr.glyph.bot.skills.play.EphemeralSaySkill
 import org.yttr.glyph.bot.skills.play.RankSkill
-import org.yttr.glyph.bot.skills.play.RedditSkill
 import org.yttr.glyph.bot.skills.roles.RoleListSkill
 import org.yttr.glyph.bot.skills.roles.RoleSetSkill
 import org.yttr.glyph.bot.skills.roles.RoleUnsetSkill
@@ -101,7 +100,6 @@ object Glyph {
         BanSkill(),
         RankSkill(),
         EphemeralSaySkill(),
-        RedditSkill(),
         WikiSkill(),
         TimeSkill(),
         FeedbackSkill(),

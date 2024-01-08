@@ -27,4 +27,8 @@ In order to host your own copy of Glyph, some set up will be required.
 4. Set the needed environment variables as seen in the application.conf files
 5. Build and start the bot and config website
 
-If you modify Glyph, [you must make your source code and changes publicly available](LICENSE).
+## License
+
+Glyph was previously licensed under the GNU Affero General Public License (AGPL)
+and has now been re-licensed under the MIT License. 
+See the [LICENSE.md](LICENSE.md) file for details.

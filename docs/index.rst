@@ -13,7 +13,7 @@ Built using DialogFlow_ and Kotlin_, he is constantly learning and new features 
 
 Please join our `official server`_ to keep up on the latest updates and to suggest new features.
 
-Glyph is licensed under the GNU Affero General Public License.
+Glyph is licensed under the MIT License.
 The latest `source code`_ can be found here.
 
 If you have found Glyph useful,

@@ -45,7 +45,7 @@ internal val ktorVersion: String by project
 dependencies {
     implementation(project(":glyph-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
-    implementation("club.minnced:discord-webhooks:0.5.7")
+    implementation("club.minnced:discord-webhooks:0.8.4")
     implementation("com.google.cloud:google-cloud-storage:1.106.0")
     implementation("com.google.cloud:google-cloud-dialogflow:1.0.0")
     implementation("net.dean.jraw:JRAW:1.1.0")

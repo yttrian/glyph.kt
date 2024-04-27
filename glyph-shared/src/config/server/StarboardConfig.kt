@@ -1,6 +1,5 @@
 package org.yttr.glyph.shared.config.server
 
-import kotlinx.serialization.Serializable
 import org.yttr.glyph.shared.config.Config
 
 /**

@@ -1,5 +1,18 @@
 product: jvm/app
 
+dependencies:
+  - ../glyph-shared
+  - $libs.hocon
+  - $libs.jda
+  - $libs.ktor.client.cio
+  - $libs.ktor.client.contentNegotiation
+  - $libs.ktor.client.core
+  - $libs.lettuce
+  - $libs.logback.classic
+
+repositories:
+  - https://m2.dv8tion.net/releases
+
 settings:
   kotlin:
     serialization: json

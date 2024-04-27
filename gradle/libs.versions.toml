@@ -1,5 +1,18 @@
 [versions]
+exposed = "0.32.1"
+hocon = "1.4.1"
+jda = "4.4.0_350"
+ktor = "2.3.10"
+lettuce = "6.0.0.M1"
+logback = "1.5.6"
 
 [libraries]
+hocon = { module = "com.typesafe:config", version.ref = "hocon" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]

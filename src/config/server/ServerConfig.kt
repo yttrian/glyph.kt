@@ -1,6 +1,6 @@
-package org.yttr.glyph.shared.config.server
+package org.yttr.glyph.config.server
 
-import org.yttr.glyph.shared.config.Config
+import org.yttr.glyph.config.Config
 
 /**
  * The holder of all the sub-configurations

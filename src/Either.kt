@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared
+package org.yttr.glyph
 
 /**
  * Either type, Left or Right

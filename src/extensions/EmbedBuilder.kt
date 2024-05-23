@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.extensions
+package org.yttr.glyph.extensions
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed

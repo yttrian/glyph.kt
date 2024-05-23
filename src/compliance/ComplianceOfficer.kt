@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.compliance
+package org.yttr.glyph.compliance
 
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns

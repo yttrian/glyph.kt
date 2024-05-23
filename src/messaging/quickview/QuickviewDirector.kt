@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview
+package org.yttr.glyph.messaging.quickview
 
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.merge
@@ -9,12 +9,12 @@ import kotlinx.coroutines.withTimeout
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.restaction.MessageAction
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.messaging.MessagingDirector
-import org.yttr.glyph.bot.messaging.quickview.furaffinity.FurAffinityGenerator
-import org.yttr.glyph.bot.messaging.quickview.picarto.PicartoGenerator
-import org.yttr.glyph.shared.compliance.ComplianceCategory
-import org.yttr.glyph.shared.compliance.ComplianceOfficer
+import org.yttr.glyph.Director
+import org.yttr.glyph.compliance.ComplianceCategory
+import org.yttr.glyph.compliance.ComplianceOfficer
+import org.yttr.glyph.messaging.MessagingDirector
+import org.yttr.glyph.messaging.quickview.furaffinity.FurAffinityGenerator
+import org.yttr.glyph.messaging.quickview.picarto.PicartoGenerator
 import java.time.Duration
 
 /**

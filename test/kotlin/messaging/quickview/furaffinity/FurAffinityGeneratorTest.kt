@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.messaging.quickview.furaffinity
 
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first

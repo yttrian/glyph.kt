@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills
+package org.yttr.glyph.skills
 
 import java.time.Duration
 import java.time.Instant

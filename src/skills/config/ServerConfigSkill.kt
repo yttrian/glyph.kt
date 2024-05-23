@@ -1,10 +1,10 @@
-package org.yttr.glyph.bot.skills.config
+package org.yttr.glyph.skills.config
 
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 
 /**
  * Tells people to use the config website to edit their config

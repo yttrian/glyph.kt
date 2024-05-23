@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.presentation
+package org.yttr.glyph.presentation
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
@@ -12,9 +12,9 @@ import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import org.json.JSONObject
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import org.yttr.glyph.bot.extensions.log
+import org.yttr.glyph.Director
+import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.extensions.log
 import java.awt.Color
 import java.time.Instant
 

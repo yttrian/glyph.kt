@@ -1,16 +1,22 @@
 [versions]
 exposed = "0.32.1"
-hocon = "1.4.1"
-jda = "4.4.0_350"
 ktor = "2.3.11"
-lettuce = "6.0.0.M1"
-logback = "1.5.6"
 
 [libraries]
-hocon = { module = "com.typesafe:config", version.ref = "hocon" }
-jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+discord-webhooks = { module = "club.minnced:discord-webhooks", version = "0.5.7" }
+emojiJava = { module = "com.vdurmont:emoji-java", version = "4.0.0" }
+expiringmap = { module = "net.jodah:expiringmap", version = "0.5.9" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-javaTime = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+google-cloud-dialogflow = { module = "com.google.cloud:google-cloud-dialogflow", version = "1.0.0" }
+google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", version = "1.106.0" }
+hocon = { module = "com.typesafe:config", version = "1.4.1" }
+jda = { module = "net.dv8tion:JDA", version = "4.4.0_350" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+lettuce = { module = "io.lettuce:lettuce-core", version = "6.0.0.M1" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.6" }
+postgresql = { module = "org.postgresql:postgresql", version = "42.7.3" }
+prettytime = { module = "org.ocpsoft.prettytime:prettytime", version = "4.0.4.Final" }

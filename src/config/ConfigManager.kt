@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.config
+package org.yttr.glyph.config
 
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.batchInsert
@@ -8,15 +8,15 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.yttr.glyph.shared.config.server.AuditingConfig
-import org.yttr.glyph.shared.config.server.QuickviewConfig
-import org.yttr.glyph.shared.config.server.SelectableRolesConfig
-import org.yttr.glyph.shared.config.server.ServerConfig
-import org.yttr.glyph.shared.config.server.ServerConfigsTable
-import org.yttr.glyph.shared.config.server.ServerSelectableRolesTable
-import org.yttr.glyph.shared.config.server.ServerWikiSourcesTable
-import org.yttr.glyph.shared.config.server.StarboardConfig
-import org.yttr.glyph.shared.config.server.WikiConfig
+import org.yttr.glyph.config.server.AuditingConfig
+import org.yttr.glyph.config.server.QuickviewConfig
+import org.yttr.glyph.config.server.SelectableRolesConfig
+import org.yttr.glyph.config.server.ServerConfig
+import org.yttr.glyph.config.server.ServerConfigsTable
+import org.yttr.glyph.config.server.ServerSelectableRolesTable
+import org.yttr.glyph.config.server.ServerWikiSourcesTable
+import org.yttr.glyph.config.server.StarboardConfig
+import org.yttr.glyph.config.server.WikiConfig
 import java.net.URI
 
 /**

@@ -1,14 +1,14 @@
-package org.yttr.glyph.shared.pubsub.redis
+package org.yttr.glyph.pubsub.redis
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import kotlinx.coroutines.channels.Channel
-import org.yttr.glyph.shared.Either
-import org.yttr.glyph.shared.left
-import org.yttr.glyph.shared.pubsub.PubSub
-import org.yttr.glyph.shared.pubsub.PubSubChannel
-import org.yttr.glyph.shared.pubsub.PubSubException
-import org.yttr.glyph.shared.right
+import org.yttr.glyph.Either
+import org.yttr.glyph.left
+import org.yttr.glyph.pubsub.PubSub
+import org.yttr.glyph.pubsub.PubSubChannel
+import org.yttr.glyph.pubsub.PubSubException
+import org.yttr.glyph.right
 import java.util.concurrent.atomic.AtomicLong
 
 /**

@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.picarto
+package org.yttr.glyph.messaging.quickview.picarto
 
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
-import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.config.server.QuickviewConfig
+import org.yttr.glyph.messaging.quickview.QuickviewGenerator
 
 /**
  * Handles the creation of QuickViews for picarto.tv links

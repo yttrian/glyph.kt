@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.play
+package org.yttr.glyph.skills.play
 
 import com.squareup.moshi.JsonDataException
 import net.dean.jraw.ApiException
@@ -15,10 +15,10 @@ import net.dean.jraw.references.SubredditReference
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.jodah.expiringmap.ExpiringMap
-import org.yttr.glyph.bot.Glyph
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.Glyph
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 import java.time.Instant
 import java.util.LinkedList
 import java.util.Queue

@@ -1,11 +1,11 @@
-package org.yttr.glyph.shared.compliance
+package org.yttr.glyph.compliance
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.Button
-import org.yttr.glyph.shared.readMarkdown
+import org.yttr.glyph.readMarkdown
 
 /**
  * Categories of data usage that require compliance tracking

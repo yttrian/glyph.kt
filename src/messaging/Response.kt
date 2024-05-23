@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging
+package org.yttr.glyph.messaging
 
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message

@@ -1,9 +1,9 @@
-package org.yttr.glyph.bot.ai.dialogflow
+package org.yttr.glyph.ai.dialogflow
 
 import com.google.cloud.dialogflow.v2.QueryResult
 import com.google.gson.JsonObject
 import com.google.protobuf.Value
-import org.yttr.glyph.bot.ai.AIResult
+import org.yttr.glyph.ai.AIResult
 
 /**
  * A wrapper for the new DialogFlow API v2 results

@@ -1,10 +1,10 @@
-package org.yttr.glyph.bot.extensions
+package org.yttr.glyph.extensions
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.SelfUser
-import org.yttr.glyph.bot.Glyph
-import org.yttr.glyph.bot.messaging.WebhookDirector
+import org.yttr.glyph.Glyph
+import org.yttr.glyph.messaging.WebhookDirector
 import java.awt.Color
 import java.time.Instant
 

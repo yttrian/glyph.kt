@@ -1,11 +1,11 @@
-package org.yttr.glyph.bot.presentation
+package org.yttr.glyph.presentation
 
 import com.google.gson.JsonParser
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.ReadyEvent
-import org.yttr.glyph.bot.Director
+import org.yttr.glyph.Director
 import java.util.Timer
 import kotlin.concurrent.schedule
 

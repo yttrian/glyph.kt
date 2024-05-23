@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.picarto
+package org.yttr.glyph.messaging.quickview.picarto
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count

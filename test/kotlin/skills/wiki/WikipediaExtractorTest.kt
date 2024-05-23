@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.wiki
+package org.yttr.glyph.skills.wiki
 
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test

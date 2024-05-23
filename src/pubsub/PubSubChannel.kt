@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.pubsub
+package org.yttr.glyph.pubsub
 
 /**
  * Channel names and prefixes for PubSub

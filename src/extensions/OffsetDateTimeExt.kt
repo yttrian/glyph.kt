@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.extensions
+package org.yttr.glyph.extensions
 
 import java.time.OffsetDateTime
 import java.util.Date

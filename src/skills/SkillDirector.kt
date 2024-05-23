@@ -1,10 +1,10 @@
-package org.yttr.glyph.bot.skills
+package org.yttr.glyph.skills
 
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.Director
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.messaging.Response
 
 /**
  * Manages all the available skills

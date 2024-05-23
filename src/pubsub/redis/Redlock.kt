@@ -1,9 +1,9 @@
-package org.yttr.glyph.shared.redis
+package org.yttr.glyph.redis
 
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import kotlinx.coroutines.future.await
-import org.yttr.glyph.shared.pubsub.redis.RedisAsync
+import org.yttr.glyph.pubsub.redis.RedisAsync
 
 /**
  * Lock a Redlock locked value for a fixed duration.

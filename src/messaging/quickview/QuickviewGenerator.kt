@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview
+package org.yttr.glyph.messaging.quickview
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.config.server.QuickviewConfig
 import java.io.Closeable
 
 /**

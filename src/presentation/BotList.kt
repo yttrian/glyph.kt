@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.presentation
+package org.yttr.glyph.presentation
 
 /**
  * A bot list website's API for tracking statistics

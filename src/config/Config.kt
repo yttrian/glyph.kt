@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.config
+package org.yttr.glyph.config
 
 /**
  * The definition of a config that can be modified by users

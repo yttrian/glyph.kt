@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.extensions
+package org.yttr.glyph.extensions
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import org.ocpsoft.prettytime.PrettyTime
-import org.yttr.glyph.bot.Glyph
-import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.Glyph
+import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import java.awt.Color
 import java.time.Instant
 

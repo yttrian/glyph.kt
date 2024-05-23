@@ -3,7 +3,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.yttr.glyph.bot.GlyphKt")
+    mainClass.set("org.yttr.glyph.GlyphKt")
 }
 
 tasks.create("stage") {

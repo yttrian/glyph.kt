@@ -1,7 +1,7 @@
-package org.yttr.glyph.bot.ai.dialogflow
+package org.yttr.glyph.ai.dialogflow
 
 import com.google.cloud.dialogflow.v2.DetectIntentResponse
-import org.yttr.glyph.bot.ai.AIResponse
+import org.yttr.glyph.ai.AIResponse
 
 /**
  * A wrapper for the new DialogFlow API v2 responses

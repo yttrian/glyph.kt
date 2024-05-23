@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging
+package org.yttr.glyph.messaging
 
 import io.lettuce.core.RedisFuture
 import kotlinx.coroutines.CoroutineScope
@@ -11,13 +11,13 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.ai.AIAgent
-import org.yttr.glyph.bot.extensions.contentClean
-import org.yttr.glyph.bot.skills.SkillDirector
-import org.yttr.glyph.shared.compliance.ComplianceCategory
-import org.yttr.glyph.shared.compliance.ComplianceOfficer
-import org.yttr.glyph.shared.pubsub.redis.RedisAsync
+import org.yttr.glyph.Director
+import org.yttr.glyph.ai.AIAgent
+import org.yttr.glyph.compliance.ComplianceCategory
+import org.yttr.glyph.compliance.ComplianceOfficer
+import org.yttr.glyph.extensions.contentClean
+import org.yttr.glyph.pubsub.redis.RedisAsync
+import org.yttr.glyph.skills.SkillDirector
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -32,7 +32,7 @@ class MessagingDirector(
     configure: Config.() -> Unit = {}
 ) : Director() {
     /**
-     * HOCON-like config for the org.yttr.glyph.bot.quickview.messaging director
+     * HOCON-like config for the org.yttr.glyph.quickview.messaging director
      */
     data class Config(
         /**

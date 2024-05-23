@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.ai
+package org.yttr.glyph.ai
 
 /**
  * The response from the agent service

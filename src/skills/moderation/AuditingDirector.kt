@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.moderation
+package org.yttr.glyph.skills.moderation
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Guild
@@ -6,10 +6,10 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import org.yttr.glyph.bot.extensions.getInfoEmbed
-import org.yttr.glyph.bot.messaging.WebhookDirector
+import org.yttr.glyph.Director
+import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.extensions.getInfoEmbed
+import org.yttr.glyph.messaging.WebhookDirector
 import java.awt.Color
 import java.time.Instant
 

@@ -1,6 +1,6 @@
-package org.yttr.glyph.shared.pubsub
+package org.yttr.glyph.pubsub
 
-import org.yttr.glyph.shared.Either
+import org.yttr.glyph.Either
 
 /**
  * Generic interface for PubSub connectors

@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.skills.util
+package org.yttr.glyph.skills.util
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.utils.TimeUtil
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 import java.awt.Color
 
 /**

@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.ai
+package org.yttr.glyph.ai
 
 /**
  * Fulfillment data directly from the agent

@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot
+package org.yttr.glyph
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.requests.RestAction
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.bot.skills.config.ConfigDirector
-import org.yttr.glyph.shared.config.server.ServerConfig
+import org.yttr.glyph.config.server.ServerConfig
+import org.yttr.glyph.skills.config.ConfigDirector
 import kotlin.coroutines.CoroutineContext
 
 /**

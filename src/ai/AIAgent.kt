@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.ai
+package org.yttr.glyph.ai
 
 /**
  * An AI agent that is capable of processing messages

@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.skills.play
+package org.yttr.glyph.skills.play
 
 import com.google.gson.JsonObject
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit

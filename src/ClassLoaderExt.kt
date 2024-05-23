@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared
+package org.yttr.glyph
 
 /**
  * Read a Markdown file from the resources, treating single linebreaks as continuations

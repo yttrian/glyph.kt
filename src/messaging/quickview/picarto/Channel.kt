@@ -1,9 +1,9 @@
-package org.yttr.glyph.bot.messaging.quickview.picarto
+package org.yttr.glyph.messaging.quickview.picarto
 
 import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
-import org.yttr.glyph.bot.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import java.awt.Color
 import java.time.Instant
 

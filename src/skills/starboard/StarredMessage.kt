@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.starboard
+package org.yttr.glyph.skills.starboard
 
 import club.minnced.discord.webhook.exception.HttpException
 import kotlinx.coroutines.async
@@ -15,16 +15,16 @@ import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.bot.extensions.asPlainMention
-import org.yttr.glyph.bot.messaging.WebhookDirector
-import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX
-import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.emojiAlias
-import org.yttr.glyph.shared.compliance.ComplianceCategory
-import org.yttr.glyph.shared.compliance.ComplianceOfficer
-import org.yttr.glyph.shared.config.server.StarboardConfig
-import org.yttr.glyph.shared.pubsub.redis.RedisAsync
-import org.yttr.glyph.shared.redis.redlockLock
-import org.yttr.glyph.shared.redis.redlockUnlock
+import org.yttr.glyph.compliance.ComplianceCategory
+import org.yttr.glyph.compliance.ComplianceOfficer
+import org.yttr.glyph.config.server.StarboardConfig
+import org.yttr.glyph.extensions.asPlainMention
+import org.yttr.glyph.messaging.WebhookDirector
+import org.yttr.glyph.pubsub.redis.RedisAsync
+import org.yttr.glyph.redis.redlockLock
+import org.yttr.glyph.redis.redlockUnlock
+import org.yttr.glyph.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX
+import org.yttr.glyph.skills.starboard.StarboardDirector.Companion.emojiAlias
 import java.awt.Color
 import java.time.Instant
 

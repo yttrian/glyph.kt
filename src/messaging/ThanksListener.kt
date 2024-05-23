@@ -1,11 +1,11 @@
-package org.yttr.glyph.bot.messaging
+package org.yttr.glyph.messaging
 
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import org.yttr.glyph.bot.extensions.embedBuilder
-import org.yttr.glyph.shared.readMarkdown
+import org.yttr.glyph.extensions.embedBuilder
+import org.yttr.glyph.readMarkdown
 
 object ThanksListener : ListenerAdapter() {
     private const val COMMAND_NAME = "thanks"

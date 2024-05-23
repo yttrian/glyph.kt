@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging
+package org.yttr.glyph.messaging
 
 import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.WebhookClientBuilder
@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.WebhookType
 import net.jodah.expiringmap.ExpirationPolicy
 import net.jodah.expiringmap.ExpiringMap
-import org.yttr.glyph.bot.Director
+import org.yttr.glyph.Director
 import java.util.concurrent.TimeUnit
 
 /**

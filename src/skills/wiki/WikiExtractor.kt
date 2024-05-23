@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.wiki
+package org.yttr.glyph.skills.wiki
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature

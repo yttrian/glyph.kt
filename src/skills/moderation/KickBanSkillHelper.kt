@@ -1,11 +1,11 @@
-package org.yttr.glyph.bot.skills.moderation
+package org.yttr.glyph.skills.moderation
 
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.extensions.cleanMentionedMembers
-import org.yttr.glyph.bot.messaging.Response
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.extensions.cleanMentionedMembers
+import org.yttr.glyph.messaging.Response
 
 /**
  * Helps run all the checks before allowing a member to kick or ban

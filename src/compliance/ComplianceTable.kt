@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.compliance
+package org.yttr.glyph.compliance
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column

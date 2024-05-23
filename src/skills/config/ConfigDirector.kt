@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.config
+package org.yttr.glyph.skills.config
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
@@ -9,12 +9,12 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.bot.Glyph
-import org.yttr.glyph.shared.config.ConfigManager
-import org.yttr.glyph.shared.config.server.ServerConfig
-import org.yttr.glyph.shared.pubsub.PubSubChannel
-import org.yttr.glyph.shared.pubsub.redis.RedisPubSub
+import org.yttr.glyph.Director
+import org.yttr.glyph.Glyph
+import org.yttr.glyph.config.ConfigManager
+import org.yttr.glyph.config.server.ServerConfig
+import org.yttr.glyph.pubsub.PubSubChannel
+import org.yttr.glyph.pubsub.redis.RedisPubSub
 
 /**
  * Manages the configuration database

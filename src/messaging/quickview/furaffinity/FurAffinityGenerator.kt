@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
 import io.ktor.client.features.ClientRequestException
@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
-import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.config.server.QuickviewConfig
+import org.yttr.glyph.messaging.quickview.QuickviewGenerator
 import java.math.RoundingMode
 
 /**

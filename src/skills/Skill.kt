@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills
+package org.yttr.glyph.skills
 
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.Permission
@@ -7,11 +7,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.RestAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.extensions.contentClean
-import org.yttr.glyph.bot.extensions.isCreator
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.shared.config.server.ServerConfig
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.config.server.ServerConfig
+import org.yttr.glyph.extensions.contentClean
+import org.yttr.glyph.extensions.isCreator
+import org.yttr.glyph.messaging.Response
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 

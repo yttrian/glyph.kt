@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging
+package org.yttr.glyph.messaging
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.shared.compliance.ComplianceCategory
-import org.yttr.glyph.shared.compliance.ComplianceOfficer
+import org.yttr.glyph.compliance.ComplianceCategory
+import org.yttr.glyph.compliance.ComplianceOfficer
 
 /**
  * Compliance management listener

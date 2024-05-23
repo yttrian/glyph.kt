@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.skills.creator
+package org.yttr.glyph.skills.creator
 
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.presentation.StatusDirector
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.presentation.StatusDirector
+import org.yttr.glyph.skills.Skill
 
 /**
  * A skill that allows the creator to change the client status

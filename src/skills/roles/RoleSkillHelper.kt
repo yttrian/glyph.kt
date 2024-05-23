@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.skills.roles
+package org.yttr.glyph.skills.roles
 
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.extensions.cleanMentionedMembers
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.shared.config.server.SelectableRolesConfig
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.config.server.SelectableRolesConfig
+import org.yttr.glyph.extensions.cleanMentionedMembers
+import org.yttr.glyph.messaging.Response
 
 /**
  * Helps find a selectable role a member is asking about

@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.pubsub.redis
+package org.yttr.glyph.pubsub.redis
 
 import io.lettuce.core.pubsub.RedisPubSubListener
 

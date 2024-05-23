@@ -1,13 +1,13 @@
-package org.yttr.glyph.bot.skills.roles
+package org.yttr.glyph.skills.roles
 
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.exceptions.HierarchyException
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.extensions.asPlainMention
-import org.yttr.glyph.bot.extensions.cleanMentionedMembers
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.extensions.asPlainMention
+import org.yttr.glyph.extensions.cleanMentionedMembers
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 
 /**
  * A skill to allow members to unset a selectable role

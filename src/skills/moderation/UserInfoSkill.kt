@@ -1,12 +1,12 @@
-package org.yttr.glyph.bot.skills.moderation
+package org.yttr.glyph.skills.moderation
 
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.ai.AIResponse
-import org.yttr.glyph.bot.extensions.cleanMentionedMembers
-import org.yttr.glyph.bot.extensions.getInfoEmbed
-import org.yttr.glyph.bot.messaging.Response
-import org.yttr.glyph.bot.skills.Skill
+import org.yttr.glyph.ai.AIResponse
+import org.yttr.glyph.extensions.cleanMentionedMembers
+import org.yttr.glyph.extensions.getInfoEmbed
+import org.yttr.glyph.messaging.Response
+import org.yttr.glyph.skills.Skill
 
 /**
  * A skill that allows users to get an info embed about other or themselves

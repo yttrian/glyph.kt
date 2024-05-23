@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.starboard
+package org.yttr.glyph.skills.starboard
 
 import com.vdurmont.emoji.EmojiParser
 import kotlinx.coroutines.future.await
@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.shared.pubsub.redis.RedisAsync
+import org.yttr.glyph.Director
+import org.yttr.glyph.pubsub.redis.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured

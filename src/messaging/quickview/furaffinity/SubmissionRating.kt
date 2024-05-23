@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.messaging.quickview.furaffinity
 
 import java.awt.Color
 

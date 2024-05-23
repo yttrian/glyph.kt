@@ -20,7 +20,12 @@ import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.bot.skills.config.ConfigDirector
 import org.yttr.glyph.bot.skills.config.ServerConfigSkill
 import org.yttr.glyph.bot.skills.creator.ChangeStatusSkill
-import org.yttr.glyph.bot.skills.moderation.*
+import org.yttr.glyph.bot.skills.moderation.AuditingDirector
+import org.yttr.glyph.bot.skills.moderation.BanSkill
+import org.yttr.glyph.bot.skills.moderation.GuildInfoSkill
+import org.yttr.glyph.bot.skills.moderation.KickSkill
+import org.yttr.glyph.bot.skills.moderation.PurgeSkill
+import org.yttr.glyph.bot.skills.moderation.UserInfoSkill
 import org.yttr.glyph.bot.skills.play.DoomsdayClockSkill
 import org.yttr.glyph.bot.skills.play.EphemeralSaySkill
 import org.yttr.glyph.bot.skills.play.RankSkill
@@ -29,7 +34,13 @@ import org.yttr.glyph.bot.skills.roles.RoleListSkill
 import org.yttr.glyph.bot.skills.roles.RoleSetSkill
 import org.yttr.glyph.bot.skills.roles.RoleUnsetSkill
 import org.yttr.glyph.bot.skills.starboard.StarboardDirector
-import org.yttr.glyph.bot.skills.util.*
+import org.yttr.glyph.bot.skills.util.FallbackSkill
+import org.yttr.glyph.bot.skills.util.FeedbackSkill
+import org.yttr.glyph.bot.skills.util.HelpSkill
+import org.yttr.glyph.bot.skills.util.SnowstampSkill
+import org.yttr.glyph.bot.skills.util.SourceSkill
+import org.yttr.glyph.bot.skills.util.StatusSkill
+import org.yttr.glyph.bot.skills.util.TimeSkill
 import org.yttr.glyph.bot.skills.wiki.WikiSkill
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 

@@ -1,7 +1,6 @@
 product: jvm/app
 
 dependencies:
-  - ../glyph-shared
   - $libs.hocon
   - $libs.jda
   - $libs.ktor.client.cio

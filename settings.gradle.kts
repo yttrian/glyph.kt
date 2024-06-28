@@ -1,3 +1,5 @@
+rootProject.name = "glyph"
+
 pluginManagement {
     repositories {
         mavenCentral()

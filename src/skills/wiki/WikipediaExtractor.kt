@@ -1,6 +1,7 @@
 package org.yttr.glyph.skills.wiki
 
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
@@ -91,7 +92,7 @@ class WikipediaExtractor(
     override suspend fun getArticle(query: String): WikiArticle? = try {
         val apiBase = "https://${languageCode.encodeURLPath()}.wikipedia.org/w/api.php"
 
-        val result = client.get<Result> {
+        val result = client.get {
             url.takeFrom(apiBase)
             parameter("action", "query")
             parameter("format", "json")
@@ -103,7 +104,7 @@ class WikipediaExtractor(
             parameter("exchars", "500")
             parameter("inprop", "url")
             parameter("piprop", "thumbnail")
-        }
+        }.body<Result>()
 
         result.query.pages.entries.firstOrNull()?.let { (id, page) ->
             if (id != INVALID_PAGE_ID) WikiArticle(

@@ -2,6 +2,7 @@ package org.yttr.glyph.skills.play
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import io.ktor.utils.io.core.use
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -21,7 +22,7 @@ class DoomsdayClockSkill : Skill("skill.doomsday_clock") {
     override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
         return HttpClient().use { client ->
             try {
-                val content = client.get<String>("https://thebulletin.org/timeline")
+                val content = client.get("https://thebulletin.org/timeline").bodyAsText()
 
                 val minutesToMidnight = timeRegex.findAll(content).first().groups[1]?.value ?: "Unknown"
                 val reason = reasonRegex.find(content)?.groups?.get(2)?.value

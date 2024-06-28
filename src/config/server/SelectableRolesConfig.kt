@@ -1,5 +1,6 @@
 package org.yttr.glyph.config.server
 
+import kotlinx.serialization.Serializable
 import org.yttr.glyph.config.Config
 
 /**

@@ -1,7 +1,8 @@
 package org.yttr.glyph.messaging.quickview.furaffinity
 
 import com.google.common.math.IntMath
-import io.ktor.client.features.ClientRequestException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.path
@@ -98,17 +99,17 @@ object FurAffinityGenerator : QuickviewGenerator() {
     private suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
         val cdnIdString = cdnId.toString()
 
-        val submissionCount = client.get<UserPage> {
+        val submissionCount = client.get {
             url.takeFrom(API_BASE).path("user", "$user.json")
-        }.submissions
+        }.body<UserPage>().submissions
         val maxPages = IntMath.divide(submissionCount, GALLERY_LISTING_SIZE, RoundingMode.CEILING)
 
         for (page in 1..maxPages) {
-            val listing = client.get<List<SubmissionExcerpt>> {
+            val listing = client.get {
                 url.takeFrom(API_BASE).path("user", user, "gallery.json")
                 parameter("full", "1")
                 parameter("page", page)
-            }
+            }.body<List<SubmissionExcerpt>>()
 
             listing.find { it.thumbnail.contains(cdnIdString) }?.let {
                 return it.id
@@ -124,7 +125,7 @@ object FurAffinityGenerator : QuickviewGenerator() {
     private suspend fun getSubmission(id: Int): Submission? = try {
         client.get {
             url.takeFrom(API_BASE).path("submission", "$id.json")
-        }
+        }.body()
     } catch (e: ClientRequestException) {
         log.debug("Error getting submission data", e)
         null

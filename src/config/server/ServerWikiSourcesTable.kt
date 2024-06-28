@@ -9,8 +9,6 @@ import org.jetbrains.exposed.sql.Table
  */
 @Suppress("KDocMissingDocumentation")
 object ServerWikiSourcesTable : Table() {
-    val serverId: Column<Long> = long("ServerID")
-        .primaryKey(0)
-        .references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
-    val destination: Column<String> = varchar("Destination", 100).primaryKey(1)
+    val serverId = reference("ServerID", ServerConfigsTable.id, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val destination: Column<String> = varchar("Destination", 100)
 }

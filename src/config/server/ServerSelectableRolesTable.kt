@@ -9,8 +9,6 @@ import org.jetbrains.exposed.sql.Table
  */
 @Suppress("KDocMissingDocumentation")
 object ServerSelectableRolesTable : Table() {
-    val serverId: Column<Long> = long("ServerID")
-        .primaryKey(0)
-        .references(ServerConfigsTable.serverId, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
-    val roleId: Column<Long> = long("RoleID").primaryKey(1)
+    val serverId = reference("ServerID", ServerConfigsTable.id, ReferenceOption.CASCADE, ReferenceOption.CASCADE)
+    val roleId: Column<Long> = long("RoleID")
 }

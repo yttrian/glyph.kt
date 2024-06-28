@@ -30,7 +30,6 @@ import org.yttr.glyph.skills.moderation.UserInfoSkill
 import org.yttr.glyph.skills.play.DoomsdayClockSkill
 import org.yttr.glyph.skills.play.EphemeralSaySkill
 import org.yttr.glyph.skills.play.RankSkill
-import org.yttr.glyph.skills.play.RedditSkill
 import org.yttr.glyph.skills.roles.RoleListSkill
 import org.yttr.glyph.skills.roles.RoleSetSkill
 import org.yttr.glyph.skills.roles.RoleUnsetSkill
@@ -88,7 +87,6 @@ object Glyph {
         BanSkill(),
         RankSkill(),
         EphemeralSaySkill(),
-        RedditSkill(),
         WikiSkill(),
         TimeSkill(),
         FeedbackSkill(),

@@ -1,7 +1,9 @@
 package org.yttr.glyph.messaging.quickview.picarto
 
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
+import io.ktor.http.path
 import io.ktor.http.takeFrom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -32,9 +34,9 @@ object PicartoGenerator : QuickviewGenerator() {
         urlRegex.findAll(content).asFlow().mapNotNull { it.groups[1]?.value }
 
     private suspend fun getChannel(name: String): Channel? = try {
-        client.get<Channel> {
+        client.get {
             url.takeFrom(API_BASE).path("api", "v1", "channel", "name", name)
-        }
+        }.body()
     } catch (e: ResponseException) {
         log.debug("Failed to get channel $name", e)
         null

@@ -14,6 +14,7 @@ dependencies:
   - $libs.ktor.client.cio
   - $libs.ktor.client.contentNegotiation
   - $libs.ktor.client.core
+  - $libs.ktor.serialization.json
   - $libs.lettuce
   - $libs.logback.classic
   - $libs.postgresql

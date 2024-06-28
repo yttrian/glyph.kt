@@ -1,6 +1,7 @@
 package org.yttr.glyph.skills.wiki
 
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLPath
@@ -98,21 +99,21 @@ class FandomExtractor(
      * @param query the search query
      */
     override suspend fun getArticle(query: String): WikiArticle? = try {
-        val searchResult = client.get<SearchListing> {
+        val searchResult = client.get {
             url.takeFrom("$apiBase/Search/List")
             parameter("query", query)
             parameter("limit", "1")
             parameter("minArticleQuality", minimumQuality.toString())
             parameter("batch", "1")
             parameter("namespaces", NAMESPACES)
-        }
+        }.body<SearchListing>()
 
         searchResult.items.firstOrNull()?.let {
-            val page = client.get<DetailsListing> {
+            val page = client.get {
                 url.takeFrom("$apiBase/Articles/Details")
                 parameter("ids", it.id)
                 parameter("abstract", MAX_ABSTRACT_LENGTH)
-            }.items[it.id]
+            }.body<DetailsListing>().items[it.id]
 
             if (page != null) WikiArticle(
                 page.title,

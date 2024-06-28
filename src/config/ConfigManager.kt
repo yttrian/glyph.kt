@@ -1,6 +1,7 @@
 package org.yttr.glyph.config
 
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnore
@@ -94,7 +95,7 @@ class ConfigManager(configure: Config.() -> Unit) {
         }
 
         sct.select {
-            sct.serverId.eq(guildId)
+            sct.id.eq(guildId)
         }.firstOrNull()?.let { r ->
             val quickviewConfig = QuickviewConfig(
                 r[sct.quickviewFuraffinityEnabled],
@@ -138,7 +139,7 @@ class ConfigManager(configure: Config.() -> Unit) {
      */
     suspend fun deleteServerConfig(guildId: Long): Int = newSuspendedTransaction(db = db) {
         sct.deleteWhere {
-            sct.serverId.eq(guildId)
+            sct.id.eq(guildId)
         }
     }
 
@@ -166,11 +167,11 @@ class ConfigManager(configure: Config.() -> Unit) {
 
         // Lazy man's upsert
         sct.insertIgnore {
-            it[sct.serverId] = guildId
+            it[sct.id] = guildId
         }
 
-        sct.update({ sct.serverId.eq(guildId) }) {
-            it[sct.serverId] = guildId
+        sct.update({ sct.id.eq(guildId) }) {
+            it[sct.id] = guildId
             it[sct.wikiMinQuality] = config.wiki.minimumQuality
             it[sct.selectableRolesLimit] = config.selectableRoles.limit
             it[sct.quickviewFuraffinityEnabled] = config.quickview.furaffinityEnabled

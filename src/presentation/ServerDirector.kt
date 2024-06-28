@@ -1,9 +1,11 @@
 package org.yttr.glyph.presentation
 
 import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -87,12 +89,11 @@ class ServerDirector(private val configure: Config.(botUserId: String) -> Unit =
 
     private suspend fun sendServerCount(botList: BotList, countJSON: JSONObject) {
         try {
-            client.post<String>(botList.apiEndpoint) {
+            client.post(botList.apiEndpoint) {
                 header("Authorization", botList.token)
                 header("Content-Type", "application/json")
-
-                body = countJSON.toString()
-            }
+                setBody(countJSON.toString())
+            }.bodyAsText()
 
             log.debug("Updated ${botList.name} server count")
         } catch (e: ResponseException) {

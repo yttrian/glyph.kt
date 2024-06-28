@@ -1,8 +1,8 @@
 package org.yttr.glyph.messaging.quickview
 
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -25,8 +25,8 @@ abstract class QuickviewGenerator : Closeable {
      * HTTP client for making API requests
      */
     protected val client: HttpClient = HttpClient {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(Json { ignoreUnknownKeys = true })
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
         }
     }
 

@@ -1,15 +1,14 @@
 package org.yttr.glyph.config.server
 
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.or
 
 /**
  * Database table to store server configs
  */
 @Suppress("KDocMissingDocumentation")
-object ServerConfigsTable : Table() {
-    val serverId: Column<Long> = long("ServerID").primaryKey()
+object ServerConfigsTable : LongIdTable(columnName = "ServerID") {
     val logChannelID: Column<Long?> = long("LogChannelID").nullable()
     val logJoins: Column<Boolean> = bool("LogJoin").default(false)
     val logLeaves: Column<Boolean> = bool("LogLeave").default(false)

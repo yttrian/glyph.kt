@@ -2,8 +2,8 @@ package org.yttr.glyph.compliance
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.`java-time`.CurrentTimestamp
-import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
+import org.jetbrains.exposed.sql.javatime.timestamp
 import java.time.Instant
 
 /**
@@ -28,7 +28,7 @@ object ComplianceTable : IntIdTable("Compliance", "ComplianceID") {
     /**
      * [Instant] when the latest decision was made.
      */
-    val decided: Column<Instant> = timestamp("DecidedAt").defaultExpression(CurrentTimestamp())
+    val decided: Column<Instant> = timestamp("DecidedAt").defaultExpression(CurrentTimestamp)
 
     init {
         uniqueIndex(userId, complianceCategory)

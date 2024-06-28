@@ -1,1 +1,1 @@
-worker: ./build/install/glyph-bot/bin/glyph-bot
+worker: ./build/install/glyph/bin/glyph

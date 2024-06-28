@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,7 +23,7 @@ object ComplianceOfficer {
 
     private suspend fun Transaction.ensureTable() {
         if (initialized.compareAndSet(false, true)) {
-            suspendedTransaction {
+            withSuspendTransaction {
                 withDataBaseLock {
                     createMissingTablesAndColumns(ComplianceTable)
                 }

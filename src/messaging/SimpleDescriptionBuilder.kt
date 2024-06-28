@@ -9,7 +9,7 @@ class SimpleDescriptionBuilder(
      */
     private val noFormatting: Boolean = false
 ) {
-    private var fields: MutableList<Pair<String?, String>> = mutableListOf()
+    private val fields: MutableList<Pair<String?, String>> = mutableListOf()
 
     /**
      * Add a field to a simple description
@@ -18,8 +18,8 @@ class SimpleDescriptionBuilder(
      * @param content the field content
      */
     fun addField(name: String?, content: String): SimpleDescriptionBuilder {
-        if (name != null && name.split(" ").size != 1) {
-            throw IllegalArgumentException("The field name must be max 1 word.")
+        require(name != null && name.split(" ").size != 1) {
+            "The field name must be max 1 word."
         }
         fields.add(Pair(name, content))
         return this
@@ -60,5 +60,12 @@ class SimpleDescriptionBuilder(
                 else -> "**$name** $value"
             }
         }
+    }
+
+    companion object {
+        operator fun invoke(
+            noFormatting: Boolean = false,
+            builder: SimpleDescriptionBuilder.() -> Unit
+        ): String = SimpleDescriptionBuilder(noFormatting).apply(builder).build()
     }
 }

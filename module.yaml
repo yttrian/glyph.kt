@@ -1,16 +1,13 @@
 product: jvm/app
 
 dependencies:
+  - $libs.arrow.core
   - $libs.discord.webhooks
   - $libs.emojiJava
-  - $libs.expiringmap
   - $libs.exposed.core
   - $libs.exposed.javaTime
   - $libs.exposed.jdbc
-  - $libs.google.cloud.dialogflow
-  - $libs.google.cloud.storage
   - $libs.hocon
-  - $libs.jda
   - $libs.ktor.client.cio
   - $libs.ktor.client.contentNegotiation
   - $libs.ktor.client.core
@@ -18,7 +15,7 @@ dependencies:
   - $libs.lettuce
   - $libs.logback.classic
   - $libs.postgresql
-  - $libs.prettytime
+  - $libs.kord.core
 
 repositories:
   - https://m2.dv8tion.net/releases

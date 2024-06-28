@@ -8,13 +8,12 @@ import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
-import org.yttr.glyph.Director
-import org.yttr.glyph.pubsub.redis.RedisAsync
+import org.yttr.glyph.data.redis.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured
  */
-class StarboardDirector(private val redis: RedisAsync) : Director() {
+class StarboardDirector(private val redis: RedisAsync) {
     /**
      * When a message is reacted upon in a guild
      */
@@ -47,14 +46,14 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
     /**
      * When a message is deleted, check if there's an associated starboard message to mark as deleted
      */
-    override fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
+    fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
         launch { killMessage(event, "Original message was deleted.") }
     }
 
     /**
      * When a message is edited, check if there's an associated starboard message to mark as edited
      */
-    override fun onGuildMessageUpdate(event: GuildMessageUpdateEvent) {
+    fun onGuildMessageUpdate(event: GuildMessageUpdateEvent) {
         launch { killMessage(event, "Original message was edited.") }
     }
 

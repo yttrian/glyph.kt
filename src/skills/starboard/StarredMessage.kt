@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory
 import org.yttr.glyph.compliance.ComplianceCategory
 import org.yttr.glyph.compliance.ComplianceOfficer
 import org.yttr.glyph.config.server.StarboardConfig
+import org.yttr.glyph.data.redis.RedisAsync
 import org.yttr.glyph.extensions.asPlainMention
 import org.yttr.glyph.messaging.WebhookDirector
-import org.yttr.glyph.pubsub.redis.RedisAsync
 import org.yttr.glyph.redis.redlockLock
 import org.yttr.glyph.redis.redlockUnlock
 import org.yttr.glyph.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX

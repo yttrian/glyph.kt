@@ -7,7 +7,6 @@ import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.embed
-import org.yttr.glyph.Glyph
 import org.yttr.glyph.ai.AIResponse
 import org.yttr.glyph.readMarkdown
 
@@ -17,7 +16,7 @@ import org.yttr.glyph.readMarkdown
 class HelpSkill : Skill("skill.help") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val name = event.kord.getSelf().username
-        val creator = event.kord.getUser(Snowflake(Glyph.conf.getLong("management.creator-id")))
+        val creator = event.kord.getUser(Snowflake(conf.getLong("creator-id")))
 
         event.reply {
             embed {

@@ -9,8 +9,8 @@ import org.yttr.glyph.ai.AIResponse
  */
 class ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true) {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
-        val name = ai.result.getStringParameter("status") ?: jda.presence.activity?.name ?: "?"
-        val streamUrl = ai.result.getStringParameter("streamUrl") ?: jda.presence.activity?.url ?: "?"
+        val name = ai.result.getStringParameter("status")
+        val streamUrl = ai.result.getStringParameter("streamUrl")
         val gameType = ai.result.getStringParameter("gameType")
         val statusType = ai.result.getStringParameter("statusType")
 
@@ -22,11 +22,13 @@ class ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true
                 "invisible" -> status = PresenceStatus.Invisible
             }
 
-            when (gameType) {
-                "playing" -> playing(name)
-                "listening" -> listening(name)
-                "watching" -> watching(name)
-                "streaming" -> streaming(name, streamUrl)
+            if (name != null) {
+                when (gameType) {
+                    "playing" -> playing(name)
+                    "listening" -> listening(name)
+                    "watching" -> watching(name)
+                    "streaming" -> streamUrl?.let { streaming(name, it) }
+                }
             }
         }
 

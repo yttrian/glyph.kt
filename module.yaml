@@ -8,6 +8,8 @@ dependencies:
   - $libs.exposed.javaTime
   - $libs.exposed.jdbc
   - $libs.hocon
+  - $libs.koin.core
+  - $libs.kord.core
   - $libs.ktor.client.cio
   - $libs.ktor.client.contentNegotiation
   - $libs.ktor.client.core
@@ -15,7 +17,7 @@ dependencies:
   - $libs.lettuce
   - $libs.logback.classic
   - $libs.postgresql
-  - $libs.kord.core
+  - $libs.prettytime
 
 repositories:
   - https://m2.dv8tion.net/releases

@@ -4,7 +4,6 @@ import dev.kord.common.Color
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.embed
 import kotlinx.datetime.Clock
-import org.yttr.glyph.Glyph
 import org.yttr.glyph.ai.AIResponse
 
 /**
@@ -19,7 +18,7 @@ class SourceSkill : Skill("skill.source") {
                 title = "$name Source"
                 description = ai.result.fulfillment.speech
                 footer {
-                    text = "$name-Kotlin-${Glyph.version}"
+                    text = "$name-Kotlin-${conf.getString("version")}"
                 }
                 color = Color(rgb = 0x11499c)
                 timestamp = Clock.System.now()

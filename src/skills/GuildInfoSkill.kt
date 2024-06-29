@@ -1,14 +1,15 @@
 package org.yttr.glyph.skills
 
+import dev.kord.common.entity.ChannelType
 import dev.kord.core.entity.Guild
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.EmbedBuilder
+import kotlinx.coroutines.flow.count
 import net.dv8tion.jda.api.OnlineStatus
 import org.ocpsoft.prettytime.PrettyTime
 import org.yttr.glyph.ai.AIResponse
 import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import org.yttr.glyph.extensions.toDate
-import java.awt.Color
 import java.time.Instant
 
 /**
@@ -26,21 +27,15 @@ class GuildInfoSkill : Skill("skill.moderation.guildInfo") {
         val messageContent = when (val property = ai.result.getStringParameter("guildProperty")) {
             "name" -> "This guild is **${guild.name}**."
             "id" -> "The id for ${guild.name} is **${guild.id}**."
-            "region" -> "${guild.name} is located in **${guild.regionRaw}**."
-            "created" -> {
-                val prettyCreated = PrettyTime().format(guild.timeCreated.toDate())
-                "${guild.name} was created **$prettyCreated** (${guild.timeCreated})."
-            }
-
-            "owner" -> "**${guild.getOwner().mention}** is the owner of ${guild.name}."
-
+            "created" -> "${guild.name} was created **${guild.id.timestamp.formatPrettyTime()}** (${guild.id.timestamp})."
+            "owner" -> "**${guild.owner.mention}** is the owner of ${guild.name}."
             "members" -> "${guild.name} has **${guild.members.count()}** members."
-            "membersHumans" -> "${guild.name} has **${guild.members.count { !it.user.isBot }}** humans."
-            "membersBots" -> "${guild.name} has **${guild.members.count { it.user.isBot }}** bots."
-            "channels" -> "${guild.name} has **${guild.textChannels.size + guild.voiceChannels.size}** channels."
-            "channelsText" -> "${guild.name} has **${guild.textChannels.size}** text channels."
-            "channelsVoice" -> "${guild.name} has **${guild.voiceChannels.size}** voice channels."
-            "roles" -> "${guild.name} has **${guild.roles.size}** roles."
+            "membersHumans" -> "${guild.name} has **${guild.members.count { !it.isBot }}** humans."
+            "membersBots" -> "${guild.name} has **${guild.members.count { it.isBot }}** bots."
+            "channels" -> "${guild.name} has **${guild.textChannelCount() + guild.voiceChannelCount()}** channels."
+            "channelsText" -> "${guild.name} has **${guild.textChannelCount()}** text channels."
+            "channelsVoice" -> "${guild.name} has **${guild.voiceChannelCount()}** voice channels."
+            "roles" -> "${guild.name} has **${guild.roles.count()}** roles."
             "farm" -> "Servers are no longer checked for bot farming."
             null -> null
             else -> "I'm not sure what property `$property` is for a guild."
@@ -52,6 +47,9 @@ class GuildInfoSkill : Skill("skill.moderation.guildInfo") {
             event.reply { embeds = mutableListOf(guild.getInfoEmbed()) }
         }
     }
+
+    private suspend fun Guild.textChannelCount() = channels.count { it.type == ChannelType.GuildText }
+    private suspend fun Guild.voiceChannelCount() = channels.count { it.type == ChannelType.GuildVoice }
 
     /**
      * Get an informational embed about a server
@@ -66,9 +64,23 @@ class GuildInfoSkill : Skill("skill.moderation.guildInfo") {
     private fun Guild.getInfoEmbed(
         title: String? = "Server Info",
         footer: String? = "Moderation",
-        color: Color? = null,
-        showExactCreationDate: Boolean = true
     ): EmbedBuilder {
+        val guild = this
+
+        return EmbedBuilder().apply {
+            field("Overview") {
+                SimpleDescriptionBuilder {
+                    addField(name = "Name", content = guild.name)
+                    addField(name = "ID", content = guild.id.toString())
+                    addField(
+                        name = "Created",
+                        content = "${guild.id.timestamp.formatPrettyTime()} (${guild.id.timestamp})"
+                    )
+                    addField(name = "Owner", content = guild.owner.mention)
+                }
+            }
+        }
+
         val createdAgo = PrettyTime().format(this.timeCreated.toDate())
         val overviewDescription = SimpleDescriptionBuilder()
             .addField("Name", this.name)

@@ -1,18 +1,19 @@
 package org.yttr.glyph.skills.wiki
 
+import dev.kord.core.event.message.MessageCreateEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.ai.AIResponse
 import org.yttr.glyph.config.server.WikiConfig
+import org.yttr.glyph.directors.Skill
+import org.yttr.glyph.directors.nlp.Skill
 import org.yttr.glyph.messaging.Response
-import org.yttr.glyph.skills.Skill
 import java.time.Instant
 
 /**
  * A skill that allows users to search for stuff across multiple wikis
  */
-class WikiSkill : Skill("skill.wiki") {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
+object WikiSkill : Skill("skill.wiki") {
+    override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val query: String = ai.result.getStringParameter("search_query") ?: ""
         val config: WikiConfig = if (event.isFromGuild) event.guild.config.wiki else defaultConfig.wiki
         val requestedSource: String? = ai.result.getStringParameter("fandom_wiki")

@@ -6,13 +6,13 @@ import dev.kord.common.Color
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.embed
+import org.yttr.glyph.SimpleDescriptionBuilder
 import org.yttr.glyph.ai.AIResponse
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 
 /**
  * A skill that allows users to get a timestamp from a Discord snowflake id
  */
-class SnowstampSkill : Skill("skill.snowstamp") {
+object SnowstampSkill : Skill("skill.snowstamp") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         either {
             val snowflake = ensureNotNull(ai.result.getStringParameter("snowflake")) {

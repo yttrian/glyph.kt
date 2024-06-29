@@ -1,4 +1,4 @@
-package org.yttr.glyph.directors.messaging
+package org.yttr.glyph
 
 /**
  * A simple way to present a list of information with a one-world field name in bold and a description

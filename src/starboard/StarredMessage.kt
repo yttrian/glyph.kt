@@ -1,30 +1,11 @@
-package org.yttr.glyph.skills.starboard
+package org.yttr.glyph.starboard
 
 import club.minnced.discord.webhook.exception.HttpException
+import dev.kord.core.entity.Message
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
-import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.MessageBuilder
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.MessageReaction
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
-import net.dv8tion.jda.api.exceptions.PermissionException
-import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.compliance.ComplianceCategory
-import org.yttr.glyph.compliance.ComplianceOfficer
-import org.yttr.glyph.config.server.StarboardConfig
-import org.yttr.glyph.data.redis.RedisAsync
-import org.yttr.glyph.extensions.asPlainMention
-import org.yttr.glyph.messaging.WebhookDirector
-import org.yttr.glyph.redis.redlockLock
-import org.yttr.glyph.redis.redlockUnlock
-import org.yttr.glyph.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX
-import org.yttr.glyph.skills.starboard.StarboardDirector.Companion.emojiAlias
 import java.awt.Color
 import java.time.Instant
 

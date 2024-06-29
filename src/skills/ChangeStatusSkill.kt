@@ -7,7 +7,7 @@ import org.yttr.glyph.ai.AIResponse
 /**
  * A skill that allows the creator to change the client status
  */
-class ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true) {
+object ChangeStatusSkill : Skill("skill.creator.changeStatus", creatorOnly = true) {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val name = ai.result.getStringParameter("status")
         val streamUrl = ai.result.getStringParameter("streamUrl")

@@ -1,14 +1,15 @@
 package org.yttr.glyph.skills
 
+import dev.kord.core.event.message.MessageCreateEvent
+import org.yttr.glyph.SimpleDescriptionBuilder
 import org.yttr.glyph.ai.AIResponse
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import java.time.Instant
 
 /**
  * A skill that allows members to see bragging rights such as join order or account age
  */
-class RankSkill : Skill("skill.rank", guildOnly = true) {
-    override suspend fun onTrigger(event: MessageReceivedEvent, ai: AIResponse): Response {
+object RankSkill : Skill("skill.rank", guildOnly = true) {
+    override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         if (event.guild.memberCount > GUILD_SIZE_LIMIT) {
             return Response.Volatile(
                 "Sorry, due to time constraints " +

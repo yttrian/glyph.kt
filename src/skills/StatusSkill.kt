@@ -6,21 +6,14 @@ import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.flow.count
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.koin.core.component.KoinComponent
+import org.yttr.glyph.SimpleDescriptionBuilder
 import org.yttr.glyph.ai.AIResponse
-import org.yttr.glyph.data.Redis
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import java.lang.management.ManagementFactory
 
 /**
  * A skill that shows users the current status of the client, with extra info for the creator only
  */
-class StatusSkill(
-    /**
-     * Redis async connection
-     */
-    private val redis: Redis
-) : Skill("skill.status"), KoinComponent {
+object StatusSkill : Skill("skill.status") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val kord = event.kord
         val self = kord.getSelf()

@@ -1,98 +1,63 @@
 package org.yttr.glyph.presentation
 
-import io.ktor.client.HttpClient
-import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
-import org.json.JSONObject
+import dev.kord.common.Color
+import dev.kord.core.Kord
+import dev.kord.core.entity.Guild
+import dev.kord.core.event.guild.GuildCreateEvent
+import dev.kord.core.event.guild.GuildDeleteEvent
+import dev.kord.core.on
+import dev.kord.rest.builder.message.EmbedBuilder
+import kotlinx.datetime.Clock
+import org.slf4j.LoggerFactory
 import org.yttr.glyph.Director
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
-import org.yttr.glyph.extensions.log
-import java.awt.Color
-import java.time.Instant
+import org.yttr.glyph.SimpleDescriptionBuilder
+import org.yttr.glyph.quickviews.GREEN
+import org.yttr.glyph.quickviews.RED
 
 /**
  * Manages server related events
  */
-class ServerDirector(private val configure: Config.(botUserId: String) -> Unit = {}) : Director() {
-    /**
-     * HOCON-like config for the messaging director
-     */
-    class Config {
-        /**
-         * All bot lists to submit stats to
-         */
-        val botLists: MutableSet<BotList> = mutableSetOf()
+object ServerDirector : Director {
+    private val log = LoggerFactory.getLogger(this::class.java)
 
-        /**
-         * Add a server list to publish stats to
-         */
-        fun botList(vararg botList: BotList): Boolean = botLists.addAll(botList)
-    }
+    override fun register(kord: Kord) {
+        kord.on<GuildCreateEvent> {
+            webhookLog(guild.buildEmbed("Guild Joined", Color.GREEN))
+            log.info("Joined $guild")
+        }
 
-    private val client = HttpClient()
-
-    private lateinit var config: Config
-    private val botLists by lazy {
-        config.botLists
-    }
-
-    /**
-     * When the client becomes ready
-     */
-    override fun onReady(event: ReadyEvent) {
-        config = Config().apply { configure(event.jda.selfUser.id) }
-        updateServerCount(event.jda)
-    }
-
-    /**
-     * When the client joins a guild
-     */
-    override fun onGuildJoin(event: GuildJoinEvent) {
-        updateServerCount(event.jda)
-        event.jda.selfUser.log(event.guild.descriptionEmbed.setTitle("Guild Joined").setColor(Color.GREEN).build())
-        log.info("Joined ${event.guild}")
-    }
-
-    /**
-     * When the client leaves a guild
-     */
-    override fun onGuildLeave(event: GuildLeaveEvent) {
-        updateServerCount(event.jda)
-        event.jda.selfUser.log(event.guild.descriptionEmbed.setTitle("Guild Left").setColor(Color.RED).build())
-        log.info("Left ${event.guild}")
-    }
-
-    /**
-     * Updates the server count on the bot list websites
-     */
-    private fun updateServerCount(jda: JDA) = launch {
-        val count = jda.guilds.count()
-        val countJSON = JSONObject()
-            .put("server_count", count)
-            .put("shard_id", jda.shardInfo.shardId)
-            .put("shard_count", jda.shardInfo.shardTotal)
-
-        botLists.forEach {
-            sendServerCount(it, countJSON)
+        kord.on<GuildDeleteEvent> {
+            guild?.buildEmbed("Guild Left", Color.RED)?.let { webhookLog(it) }
+            log.info("Left $guild")
         }
     }
 
-    private val Guild.descriptionEmbed: EmbedBuilder
-        get() {
-            val description = SimpleDescriptionBuilder()
-                .addField("Name", this.name)
-                .addField("ID", this.id)
-                .addField("Members", this.memberCount)
-                .build()
-            return EmbedBuilder()
-                .setDescription(description)
-                .setThumbnail(this.iconUrl)
-                .setFooter("Logging", null)
-                .setTimestamp(Instant.now())
+    private fun webhookLog(embedBuilder: EmbedBuilder) {
+        TODO()
+    }
+
+    private fun Guild.buildEmbed(title: String, color: Color) = EmbedBuilder().apply {
+        this.title = title
+        this.color = color
+
+        description = SimpleDescriptionBuilder {
+            addField(name = "Name", content = name)
+            addField(name ="ID", content = id.toString())
+            addField(name = "Members", content = memberCount?.toString() ?: "?")
         }
+
+        val iconUrl = icon?.cdnUrl?.toUrl()
+
+        if (iconUrl != null) {
+            thumbnail {
+                url = iconUrl
+            }
+        }
+
+        footer {
+            text = "Loggings"
+        }
+
+        timestamp = Clock.System.now()
+    }
 }

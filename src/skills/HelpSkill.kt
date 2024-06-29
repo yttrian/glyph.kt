@@ -8,12 +8,11 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.embed
 import org.yttr.glyph.ai.AIResponse
-import org.yttr.glyph.readMarkdown
 
 /**
  * A skill that shows users a help message
  */
-class HelpSkill : Skill("skill.help") {
+object HelpSkill : Skill("skill.help") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val name = event.kord.getSelf().username
         val creator = event.kord.getUser(Snowflake(conf.getLong("creator-id")))
@@ -42,8 +41,6 @@ class HelpSkill : Skill("skill.help") {
         }
     }
 
-    companion object {
-        private val helpTemplate = this::class.java.classLoader.readMarkdown("help.md") ?: "There is no help."
-        private val embedColor = Color(rgb = 0x4687E5)
-    }
+    private val helpTemplate = this::class.java.classLoader.readMarkdown("help.md") ?: "There is no help."
+    private val embedColor = Color(rgb = 0x4687E5)
 }

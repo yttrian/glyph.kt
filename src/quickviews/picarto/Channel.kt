@@ -4,7 +4,7 @@ import dev.kord.common.Color
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.SimpleDescriptionBuilder
 import org.yttr.glyph.quickviews.GREEN
 import org.yttr.glyph.quickviews.RED
 

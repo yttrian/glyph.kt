@@ -9,7 +9,7 @@ import org.yttr.glyph.ai.AIResponse
 /**
  * A skill that allows users to see the license and link to the source code
  */
-class SourceSkill : Skill("skill.source") {
+object SourceSkill : Skill("skill.source") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val name = event.kord.getSelf().username
 

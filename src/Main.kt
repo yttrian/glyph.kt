@@ -3,17 +3,17 @@ package org.yttr.glyph
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import dev.kord.core.Kord
-import dev.kord.core.event.gateway.ReadyEvent
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
 import dev.kord.gateway.Intent
 import dev.kord.gateway.PrivilegedIntent
 import io.lettuce.core.RedisClient
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.yttr.glyph.data.Redis
-import org.yttr.glyph.quickviews.QuickViews
-import org.yttr.glyph.skills.Skills
+import org.yttr.glyph.data.RedisAsync
+import org.yttr.glyph.presentation.ServerDirector
+import org.yttr.glyph.presentation.StatusDirector
+import org.yttr.glyph.quickviews.QuickViewDirector
+import org.yttr.glyph.skills.SkillDirector
+import org.yttr.glyph.starboard.StarboardDirector
 
 /**
  * Where everything begins.
@@ -26,9 +26,11 @@ suspend fun main() {
 
     val kord = Kord(koin.get<Config>().getString("discord.token"))
 
-    kord.on<ReadyEvent>(consumer = Skills::consume)
-    kord.on<MessageCreateEvent>(consumer = Skills::consume)
-    kord.on<MessageCreateEvent>(consumer = QuickViews::consume)
+    kord.director(QuickViewDirector)
+    kord.director(ServerDirector)
+    kord.director(SkillDirector)
+    kord.director(StarboardDirector)
+    kord.director(StatusDirector)
 
     kord.login {
         intents += Intent.MessageContent
@@ -39,7 +41,7 @@ suspend fun main() {
 private val glyphModule = module {
     single<Config> { ConfigFactory.load() }
 
-    single<Redis> {
+    single<RedisAsync> {
         RedisClient.create(get<Config>().getString("data.redis-url")).connect().async()
     }
 }

@@ -7,15 +7,16 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.flow.count
 import net.dv8tion.jda.api.OnlineStatus
 import org.ocpsoft.prettytime.PrettyTime
+import org.yttr.glyph.SimpleDescriptionBuilder
 import org.yttr.glyph.ai.AIResponse
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
 import org.yttr.glyph.extensions.toDate
+import org.yttr.glyph.formatPrettyTime
 import java.time.Instant
 
 /**
  * A skill that allows users to ask for different info about a guild
  */
-class GuildInfoSkill : Skill("skill.moderation.guildInfo") {
+object GuildInfoSkill : Skill("skill.moderation.guildInfo") {
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {
         val guild = event.getGuildOrNull()
 

@@ -1,23 +1,35 @@
-package org.yttr.glyph.skills.starboard
+package org.yttr.glyph.starboard
 
 import com.vdurmont.emoji.EmojiParser
+import dev.kord.core.Kord
+import dev.kord.core.event.message.MessageDeleteEvent
+import dev.kord.core.event.message.MessageUpdateEvent
+import dev.kord.core.event.message.ReactionAddEvent
+import dev.kord.core.on
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
-import org.yttr.glyph.data.redis.RedisAsync
+import org.koin.core.component.inject
+import org.yttr.glyph.Director
+import org.yttr.glyph.data.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured
  */
-class StarboardDirector(private val redis: RedisAsync) {
+object StarboardDirector : Director {
+    private val redis by inject<RedisAsync>()
+
+    override fun register(kord: Kord) {
+        kord.on<ReactionAddEvent>(consumer = ::consumeReaction)
+        kord.on<MessageDeleteEvent>(consumer = ::consumeMessageDelete)
+        kord.on<MessageUpdateEvent>(consumer = ::consumeMessageUpdate)
+    }
+
     /**
      * When a message is reacted upon in a guild
      */
-    override fun onGenericGuildMessageReaction(event: GenericGuildMessageReactionEvent) {
+    private fun consumeReaction(event: ReactionAddEvent) {
         val starboardConfig = event.guild.config.starboard
 
         if (!starboardConfig.enabled || event.user?.isBot == true) return
@@ -46,15 +58,15 @@ class StarboardDirector(private val redis: RedisAsync) {
     /**
      * When a message is deleted, check if there's an associated starboard message to mark as deleted
      */
-    fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
-        launch { killMessage(event, "Original message was deleted.") }
+    private fun consumeMessageDelete(event: MessageDeleteEvent) {
+        killMessage(event, "Original message was deleted.")
     }
 
     /**
      * When a message is edited, check if there's an associated starboard message to mark as edited
      */
-    fun onGuildMessageUpdate(event: GuildMessageUpdateEvent) {
-        launch { killMessage(event, "Original message was edited.") }
+    private fun consumeMessageUpdate(event: MessageUpdateEvent) {
+        killMessage(event, "Original message was edited.")
     }
 
     private suspend fun killMessage(event: GenericGuildMessageEvent, reason: String) {
@@ -67,17 +79,15 @@ class StarboardDirector(private val redis: RedisAsync) {
 
     private fun Guild.getStarboardChannel() = config.starboard.channel?.let { getTextChannelById(it) }
 
-    companion object {
-        /**
-         * Redis key prefix for starboard tracking
-         */
-        const val TRACKING_PREFIX: String = "Glyph:Starboard:"
+    /**
+     * Redis key prefix for starboard tracking
+     */
+    private const val TRACKING_PREFIX: String = "Glyph:Starboard:"
 
-        /**
-         * Parse an emoji to its name
-         */
-        fun emojiAlias(emoji: String): String {
-            return EmojiParser.parseToAliases(emoji).removeSurrounding(":")
-        }
+    /**
+     * Parse an emoji to its name
+     */
+    private fun emojiAlias(emoji: String): String {
+        return EmojiParser.parseToAliases(emoji).removeSurrounding(":")
     }
 }

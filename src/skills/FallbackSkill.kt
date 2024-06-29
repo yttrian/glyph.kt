@@ -9,7 +9,7 @@ import org.yttr.glyph.ai.AIResponse
 /**
  * A skill that handles when a skill can't be found and there's no response from DialogFlow
  */
-class FallbackSkill : Skill("fallback.primary") {
+object FallbackSkill : Skill("fallback.primary") {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override suspend fun perform(event: MessageCreateEvent, ai: AIResponse) {

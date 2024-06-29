@@ -3,7 +3,7 @@ package org.yttr.glyph.quickviews.furaffinity
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.yttr.glyph.directors.messaging.SimpleDescriptionBuilder
+import org.yttr.glyph.SimpleDescriptionBuilder
 
 /**
  * A Fur Affinity submission

@@ -26,7 +26,13 @@ class RedisPubSub(configure: Config.() -> Unit) : PubSub {
     }
 
     private val config = Config().also(configure)
-    private val redis = RedisClient.create(RedisURI.create(config.redisConnectionUri).apply { username = null })
+    private val redis = let {
+        // https://devcenter.heroku.com/articles/connecting-heroku-redis#lettuce
+        val uri = RedisURI.create(config.redisConnectionUri)
+        uri.isVerifyPeer = false
+
+        RedisClient.create(uri)
+    }
     private val redisCommandsAsync = redis.connect().async()
     private val redisPubSubConnection: StatefulRedisPubSub = redis.connectPubSub()
 

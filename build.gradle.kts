@@ -22,7 +22,7 @@ subprojects {
 
     dependencies {
         implementation("net.dv8tion:JDA:$jdaVersion")
-        implementation("io.lettuce:lettuce-core:6.0.0.M1")
+        implementation("io.lettuce:lettuce-core:6.4.0.RELEASE")
         implementation("ch.qos.logback:logback-classic:$logbackVersion")
         testImplementation(kotlin("test"))
     }

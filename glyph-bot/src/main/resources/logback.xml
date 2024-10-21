@@ -12,5 +12,4 @@
     <logger name="io.lettuce.core.protocol.ConnectionWatchdog" level="WARN"/>
     <logger name="io.lettuce.core.protocol.ReconnectionHandler" level="WARN"/>
     <logger name="club.minnced.discord.webhook.WebhookClient" level="OFF"/>
-    <logger name="RedditSkill" level="DEBUG"/>
 </configuration>

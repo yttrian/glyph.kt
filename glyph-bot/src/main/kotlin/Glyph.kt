@@ -20,18 +20,29 @@ import org.yttr.glyph.bot.skills.SkillDirector
 import org.yttr.glyph.bot.skills.config.ConfigDirector
 import org.yttr.glyph.bot.skills.config.ServerConfigSkill
 import org.yttr.glyph.bot.skills.creator.ChangeStatusSkill
-import org.yttr.glyph.bot.skills.moderation.*
+import org.yttr.glyph.bot.skills.moderation.AuditingDirector
+import org.yttr.glyph.bot.skills.moderation.BanSkill
+import org.yttr.glyph.bot.skills.moderation.GuildInfoSkill
+import org.yttr.glyph.bot.skills.moderation.KickSkill
+import org.yttr.glyph.bot.skills.moderation.PurgeSkill
+import org.yttr.glyph.bot.skills.moderation.UserInfoSkill
 import org.yttr.glyph.bot.skills.play.DoomsdayClockSkill
 import org.yttr.glyph.bot.skills.play.EphemeralSaySkill
 import org.yttr.glyph.bot.skills.play.RankSkill
-import org.yttr.glyph.bot.skills.play.RedditSkill
 import org.yttr.glyph.bot.skills.roles.RoleListSkill
 import org.yttr.glyph.bot.skills.roles.RoleSetSkill
 import org.yttr.glyph.bot.skills.roles.RoleUnsetSkill
 import org.yttr.glyph.bot.skills.starboard.StarboardDirector
-import org.yttr.glyph.bot.skills.util.*
+import org.yttr.glyph.bot.skills.util.FallbackSkill
+import org.yttr.glyph.bot.skills.util.FeedbackSkill
+import org.yttr.glyph.bot.skills.util.HelpSkill
+import org.yttr.glyph.bot.skills.util.SnowstampSkill
+import org.yttr.glyph.bot.skills.util.SourceSkill
+import org.yttr.glyph.bot.skills.util.StatusSkill
+import org.yttr.glyph.bot.skills.util.TimeSkill
 import org.yttr.glyph.bot.skills.wiki.WikiSkill
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
+
 
 /**
  * The Glyph object to use when building the client
@@ -49,13 +60,14 @@ object Glyph {
 
     private val aiAgent: AIAgent = Dialogflow(conf.getString("dialogflow.credentials").byteInputStream())
 
-    private val redis: RedisAsync = RedisClient.create().run {
-        val redisUri = RedisURI.create(conf.getString("data.redis-url")).apply {
-            // We are using Heroku Redis which is version 5, but for some reason they give us a username.
-            // However if we supply the username it runs the version 6 command and fails to login.
-            username = null
-        }
-        connect(redisUri).async()
+    private val redis: RedisAsync = let {
+        // https://devcenter.heroku.com/articles/connecting-heroku-redis#lettuce
+        val uri = RedisURI.create(conf.getString("data.redis-url"))
+        uri.isVerifyPeer = false
+
+        val client = RedisClient.create(uri)
+        val connection = client.connect()
+        connection.async()
     }
 
     private val configDirector = ConfigDirector {
@@ -77,7 +89,6 @@ object Glyph {
         BanSkill(),
         RankSkill(),
         EphemeralSaySkill(),
-        RedditSkill(),
         WikiSkill(),
         TimeSkill(),
         FeedbackSkill(),

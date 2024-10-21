@@ -22,10 +22,9 @@ In order to host your own copy of Glyph, some set up will be required.
    - All references entities must be understood too
    - A free ("Trial") plan is sufficient
    - You should disable "Log interaction to Dialogflow"
-2. Create a Reddit application for the Reddit skill
-3. Create a PostgreSQL database and Redis data store
-4. Set the needed environment variables as seen in the application.conf files
-5. Build and start the bot and config website
+2. Create a PostgreSQL database and Redis data store
+3. Set the needed environment variables as seen in the application.conf files
+4. Build and start the bot and config website
 
 ## License
 

@@ -127,18 +127,6 @@ Example phrases:
 - roles list
 - list roles
 
-Images
-------
-Glyph can pull images from Reddit_ when asked. As of right now, these can either be memes, cats, snakes, birds, dogs and lizards.
-
-.. _Reddit: https://reddit.com/
-
-Example phrases:
-
-- image from **coaxedintoasnafu**
-- image from **youdontsurf**
-- **meme**
-
 QuickView
 ---------
 Glyph can post helpful embeds that include additional information for links from `Fur Affinity`_ and Picarto_. This feature can be controlled in the :doc:`/configuration`.

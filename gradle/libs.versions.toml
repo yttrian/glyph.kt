@@ -1,0 +1,50 @@
+[versions]
+coroutines = "1.10.2"
+discord-webhooks = "0.8.4"
+emoji-java = "5.1.1"
+expiringmap = "0.5.11"
+exposed = "0.61.0"
+google-cloud-dialogflow = "4.66.0"
+google-cloud-storage = "2.50.0"
+jda = "4.4.1_353"
+jsoup = "1.19.1"
+ktor = "3.1.2"
+lettuce = "6.5.5.RELEASE"
+logback = "1.5.18"
+mariadb = "3.5.3"
+prettytime = "5.0.9.Final"
+typesafe-config = "1.4.3"
+
+[libraries]
+discord-webhooks = { module = "club.minnced:discord-webhooks", version.ref = "discord-webhooks" }
+emoji-java = { module = "com.vdurmont:emoji-java", version.ref = "emoji-java" }
+expiringmap = { module = "net.jodah:expiringmap", version.ref = "expiringmap" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+google-cloud-dialogflow = { module = "com.google.cloud:google-cloud-dialogflow", version.ref = "google-cloud-dialogflow" }
+google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", version.ref = "google-cloud-storage" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutines" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-auto-head-response = { module = "io.ktor:ktor-server-auto-head-response", version.ref = "ktor" }
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
+ktor-server-forwarded-header = { module = "io.ktor:ktor-server-forwarded-header", version.ref = "ktor" }
+ktor-server-mustache = { module = "io.ktor:ktor-server-mustache", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor" }
+ktor-server-webjars = { module = "io.ktor:ktor-server-webjars", version.ref = "ktor" }
+lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
+prettytime = { module = "org.ocpsoft.prettytime:prettytime", version.ref = "prettytime" }
+typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-config" }
+webjars-bootstrap = "org.webjars.npm:bootstrap:5.3.5"

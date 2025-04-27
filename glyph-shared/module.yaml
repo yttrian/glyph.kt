@@ -1,0 +1,20 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+dependencies:
+  - $libs.exposed.core
+  - $libs.exposed.java.time
+  - $libs.exposed.jdbc
+  - $libs.jda: compile-only
+  - $libs.kotlinx.coroutines.jdk8
+  - $libs.lettuce.core: exported
+  - $libs.mariadb
+
+repositories:
+  - https://m2.dv8tion.net/releases
+
+settings:
+  kotlin:
+    serialization: json

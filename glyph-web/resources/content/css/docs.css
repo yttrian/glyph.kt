@@ -1,0 +1,31 @@
+.skills .card {
+    height: 100%;
+}
+
+.skills .card .card-title {
+    margin-bottom: 0;
+    font-size: 1.2rem;
+}
+
+.skills .card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.skills .card .card-text {
+    flex: 1;
+}
+
+samp {
+    background-color: black;
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+    padding: .4rem;
+    margin-top: .2rem;
+}
+
+samp::before {
+    content: "@Glyph ";
+    color: dodgerblue;
+}

@@ -1,2 +1,2 @@
-worker: ./glyph-bot/build/install/glyph-bot/bin/glyph-bot
-web: ./glyph-config/build/install/glyph-config/bin/glyph-config
+bot: ./glyph-bot/build/install/glyph-bot-jvm/bin/glyph-bot
+web: ./glyph-web/build/install/glyph-web-jvm/bin/glyph-web

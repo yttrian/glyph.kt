@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glyph</title>
+  <meta property="og:title" content="Glyph, Info VI"/>
+  <meta property="og:description"
+        content="Glyph is a Discord bot with a powerful starboard system, link embed generation, and various other fun features."/>
+  <meta name="theme-color" content="#5485e9">
+  <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="/webjars/bootstrap/bootstrap.css">
+  <link rel="stylesheet" href="/css/docs.css">
+  <script src="/webjars/bootstrap/bootstrap.js"></script>
+</head>
+<body data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="/img/glyph.png" width="48" height="30" alt="Glyph">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/config">Config Editor</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<main class="container py-4">
+  <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+    <div class="container-fluid py-4">
+      <h1 class="display-5 fw-bold">Glyph, Info VI</h1>
+      <p class="col-md-8 fs-3">
+        Glyph is a Discord bot with a powerful starboard system, link embed generation,
+        and various other fun features.
+      </p>
+      <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-primary btn-lg" href="/config">Config Editor</a>
+        <a class="btn btn-primary btn-lg" href="/invite">Invite Link</a>
+        <a class="btn btn-secondary btn-lg" href="/server">Support Server</a>
+        <a class="btn btn-secondary btn-lg" href="/source">Source Code</a>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="d-none">Skills</h2>
+
+  <div class="row row-gap-4 skills" id="skills">
+    <div class="col-lg-6 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⭐ Starboard</h3>
+        </div>
+        <div class="card-body">
+          <div class="row row-gap-2">
+            <div class="col-md">
+              <p class="card-text">
+                When configured, Glyph will send messages to a starboard channel when they reach a certain
+                threshold of reactions.
+                Think of it like democratic pins without limits.
+              </p>
+            </div>
+            <div class="col-md text-center">
+              <img src="/img/starboard.png" class="img-fluid">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">👀 QuickViews</h3>
+        </div>
+        <div class="card-body">
+          <div class="row row-gap-2">
+            <div class="col-md">
+              <p class="card-text">
+                Glyph will automatically create improved embeds for links to Fur Affinity and Picarto.
+                Post links without needing to remember to add "fx" to them.
+                He can even find the Fur Affinity submission if only the image link is given.
+              </p>
+            </div>
+            <div class="col-md text-center">
+              <img src="/img/fa-quickview.png" class="img-fluid">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🗨️ Chat</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            Glyph uses DialogFlow to respond to questions you ask.
+            He's not a transformer, so don't expect much, but there are some fun surprises.
+          </p>
+          <samp>How are you?</samp>
+          <samp>8 ball</samp>
+          <samp>Is 8 NumberWang?</samp>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🔍 Wikis</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            Glyph can search Wikipedia and any configured Fandom wikis to quickly research topics.
+          </p>
+          <samp>Who is Garrus Vakarian according to masseffect wiki?</samp>
+          <samp>What are trilobites?</samp>
+          <samp>Who is Bill Nye?</samp>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">💥 Moderation</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            Glyph can help with moderation tasks, including kicking, banning, and purging chat messages.
+          </p>
+          <samp>user info for @someone</samp>
+          <samp>kick @someone for being rude</samp>
+          <samp>ban @someone</samp>
+          <samp>purge 3h for spam</samp>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">👥 Roles</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            Glyph can assign custom roles to users when configured.
+          </p>
+          <samp>roles list</samp>
+          <samp>make me a Turian</samp>
+          <samp>remove me from Geth</samp>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">❓ Server Questions</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            Glyph can answer some general questions about your server.
+          </p>
+          <samp>who is the server owner?</samp>
+          <samp>how old is this server?</samp>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="container text-center small py-4">
+  <p>Glyph is a project by <a href="https://yttr.org">yttr.org</a></p>
+  <p><a href="/privacy">Privacy Policy</a> - <a href="/source">Source Code</a></p>
+</footer>
+</body>
+</html>

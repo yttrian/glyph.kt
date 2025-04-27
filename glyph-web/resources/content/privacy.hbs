@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glyph</title>
+  <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="/webjars/bootstrap/bootstrap.css">
+</head>
+<body data-bs-theme="dark">
+<div class="container py-5">
+  <h1 class="display-4 mb-4">Privacy Policy</h1>
+
+  <p class="lead">We understand that when you use a bot, there's a certain level of privacy you expect.
+    That is why we provide this information below, to clear up any concerns.</p>
+
+  <section class="mt-5">
+    <h2 class="h2 mb-4">Opt-ins and opt-outs</h2>
+    <p>Within the Discord client, Glyph provides tools to manage your data usage with the <code>/compliance</code>
+      command.</p>
+    <p>In order to use the natural language processing features of Glyph, you must explicitly opt-in to allow your
+      message content to be sent to Dialogflow for processing. Read more below under "Message Contents".</p>
+  </section>
+
+  <section class="mt-5">
+    <h2 class="h2 mb-4">Data we collect</h2>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Session IDs</h3>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">An <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> hash of your user id and the
+            channel id
+          </dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">Glyph is explicitly mentioned via DM or @mention</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">DialogFlow requests and message logs</dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">Used with DialogFlow to ensure any follow up intents are personalized to you
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Message Contents</h3>
+      </div>
+      <div class="card-body">
+        <h4 class="h6">Dialogflow</h4>
+        <dl class="row mb-4">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">A copy of your message contents only</dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">Glyph is explicitly mentioned via DM or @mention, only</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">Anonymously sent to Dialogflow for the sole purpose of understanding and
+            responding to your request
+          </dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">To understand the intent of your message and respond</dd>
+        </dl>
+
+        <h4 class="h6">Our Infrastructure</h4>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">A copy of your message contents, your session ids (not username) and what
+            skill Glyph interpreted it to be
+          </dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">Glyph is explicitly mentioned via DM or @mention, only</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">Application logs on our servers</dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">To make sure Glyph is responding appropriately or see what messages caused an error</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Compliance</h3>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">Your user id and opt-in/opt-out decision in a compliance category along with the time
+          </dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">You click on "Opt in" or "Opt out"</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">A MariaDB database managed by us</dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">To respect message content data privacy decisions</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Configurations</h3>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">The server id and the configuration settings</dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">A custom configuration is set by a server admin</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">A MariaDB database managed by us</dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">To access and store a server's unique configuration</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Server Info</h3>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">The server name, id, member count (humans and bots)</dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">Glyph is added or removed from a server</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">A private Discord channel (sent via webhooks) managed by Glyph's owner</dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">To see what servers Glyph has been added and removed from and see which
+            servers are considered bot farms
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="h5 mb-0">Username History</h3>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-2">What:</dt>
+          <dd class="col-sm-10">The old and new usernames of users</dd>
+
+          <dt class="col-sm-2">When:</dt>
+          <dd class="col-sm-10">A user changes their username</dd>
+
+          <dt class="col-sm-2">Where:</dt>
+          <dd class="col-sm-10">The auditing channel of any server that has Glyph configured to track username
+            changes
+          </dd>
+
+          <dt class="col-sm-2">Why:</dt>
+          <dd class="col-sm-10">So server admins can remember who people are even if they change their name
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-5">
+    <h2 class="h2 mb-4">Data we don't collect</h2>
+    <p>Glyph intentionally does not provide options to "audit log" deleted and edited messages.</p>
+    <p>When you deleted a message, if Glyph interacted with it, we attempt to delete any responses it generated to
+      it and any copy that may be in a starboard if it was starboarded.</p>
+    <p>All audit log messages sent by Glyph to a server's logging channel are done via fire-and-forget webhooks.
+      The contents of these messages is never stored elsewhere.</p>
+  </section>
+
+  <section class="mt-5">
+    <h2 class="h2 mb-4">Questions?</h2>
+    <p>If you have any questions or concerns about the usage and storage of your data please join the
+      <a href="/server">official server</a>.</p>
+  </section>
+</div>
+</body>
+</html>

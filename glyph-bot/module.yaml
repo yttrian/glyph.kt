@@ -1,0 +1,28 @@
+product: jvm/app
+
+dependencies:
+  - ../glyph-shared
+  - $libs.discord.webhooks
+  - $libs.emoji.java
+  - $libs.expiringmap
+  - $libs.google.cloud.dialogflow
+  - $libs.google.cloud.storage
+  - $libs.jda
+  - $libs.jsoup
+  - $libs.kotlinx.coroutines.jdk8
+  - $libs.ktor.client.content.negotiation
+  - $libs.ktor.client.java
+  - $libs.ktor.serialization.kotlinx.json
+  - $libs.ktor.server.core
+  - $libs.logback.classic
+  - $libs.prettytime
+  - $libs.typesafe.config
+
+repositories:
+  - https://m2.dv8tion.net/releases
+
+settings:
+  jvm:
+    mainClass: org.yttr.glyph.bot.GlyphKt
+  kotlin:
+    serialization: json

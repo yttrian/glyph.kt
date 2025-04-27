@@ -1,0 +1,26 @@
+# A subset of "vale" linter syntax is supported:
+# "existence", "substitution", "sequence", "capitalization", "occurrence", "conditional" rule types.
+# See https://docs.errata.ai/vale/styles#extension-points for more details.
+
+extends: substitution
+message: Consider using %s
+level: warning
+ignorecase: true
+swap:
+  (the|this) bot: Glyph
+---
+extends: substitution
+message: %s is capitalized at the Q and the V
+level: warning
+ignorecase: false
+swap:
+  quickview: QuickView
+  quickviews: QuickViews
+  quick[ -]views: QuickViews
+---
+extends: substitution
+message: Fur Affinity is two words
+level: warning
+ignorecase: true
+swap:
+  furaffinity: Fur Affinity

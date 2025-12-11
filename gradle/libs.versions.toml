@@ -7,13 +7,19 @@ exposed = "0.61.0"
 google-cloud-dialogflow = "4.66.0"
 google-cloud-storage = "2.50.0"
 jda = "4.4.1_353"
-jsoup = "1.19.1"
-ktor = "3.1.2"
-lettuce = "6.5.5.RELEASE"
-logback = "1.5.18"
-mariadb = "3.5.3"
+jsoup = "1.21.2"
+kotlin = "2.2.21"
+kotlinx-serialization = "1.9.0"
+ktor = "3.3.3"
+lettuce = "7.1.0.RELEASE"
+logback = "1.5.21"
+mariadb = "3.5.6"
 prettytime = "5.0.9.Final"
-typesafe-config = "1.4.3"
+typesafe-config = "1.4.5"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
 discord-webhooks = { module = "club.minnced:discord-webhooks", version.ref = "discord-webhooks" }
@@ -27,6 +33,7 @@ google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", versi
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutines" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
@@ -47,4 +54,4 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 prettytime = { module = "org.ocpsoft.prettytime:prettytime", version.ref = "prettytime" }
 typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-config" }
-webjars-bootstrap = "org.webjars.npm:bootstrap:5.3.5"
+webjars-bootstrap = "org.webjars.npm:bootstrap:5.3.8"

@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.bot.quickview.furaffinity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview.furaffinity
+package org.yttr.glyph.bot.quickview.furaffinity
 
 import com.google.common.math.IntMath
 import io.ktor.client.call.body
@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
-import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.bot.quickview.QuickviewGenerator
+import org.yttr.glyph.shared.config.ServerConfig
 import java.math.RoundingMode
 
 /**
@@ -62,7 +62,7 @@ object FurAffinityGenerator : QuickviewGenerator() {
         val thumbnail: String
     )
 
-    override suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed> =
+    override suspend fun generate(event: MessageReceivedEvent, config: ServerConfig.QuickView): Flow<MessageEmbed> =
         if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
             getSubmission(it)?.run {
                 // allow NSFW quickviews only in NSFW channels, never SFW channels or DMs

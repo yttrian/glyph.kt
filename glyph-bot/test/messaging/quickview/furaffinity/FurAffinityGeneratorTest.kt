@@ -3,6 +3,8 @@ package org.yttr.glyph.bot.messaging.quickview.furaffinity
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.yttr.glyph.bot.quickview.furaffinity.FurAffinityGenerator
+import org.yttr.glyph.bot.quickview.furaffinity.SubmissionRating
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

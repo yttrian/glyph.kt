@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.messaging.quickview
+package org.yttr.glyph.bot.quickview
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.shared.config.server.QuickviewConfig
+import org.yttr.glyph.shared.config.ServerConfig
 import java.io.Closeable
 
 /**
@@ -38,7 +38,7 @@ abstract class QuickviewGenerator : Closeable {
     /**
      * Generate QuickView embeds for any links found in the message
      */
-    abstract suspend fun generate(event: MessageReceivedEvent, config: QuickviewConfig): Flow<MessageEmbed>
+    abstract suspend fun generate(event: MessageReceivedEvent, config: ServerConfig.QuickView): Flow<MessageEmbed>
 
     /**
      * Closes the client used by the generator

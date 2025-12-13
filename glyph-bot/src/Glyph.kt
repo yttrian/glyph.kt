@@ -11,6 +11,7 @@ import io.lettuce.core.api.coroutines
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.yttr.glyph.bot.Glyph.conf
 import org.yttr.glyph.bot.modules.HelpModule
+import org.yttr.glyph.bot.modules.QuickViewModule
 import org.yttr.glyph.bot.modules.SnowstampModule
 import org.yttr.glyph.bot.modules.StarboardModule
 import org.yttr.glyph.shared.config.DatabaseConfigStore
@@ -49,7 +50,8 @@ fun main() {
     val modules = listOf(
         HelpModule(),
         SnowstampModule(),
-        StarboardModule(redis, configStore)
+        StarboardModule(redis, configStore),
+        QuickViewModule(configStore)
     )
 
     for (module in modules) {

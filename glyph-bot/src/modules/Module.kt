@@ -1,11 +1,21 @@
 package org.yttr.glyph.bot.modules
 
-import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
 
-interface Module {
-    /**
-     * Use [commands] not [jda] to register commands!
-     */
-    fun register(jda: JDA, commands: CommandListUpdateAction)
+abstract class Module : ListenerAdapter() {
+    private val commandListeners = mutableMapOf<String, (GenericCommandInteractionEvent) -> Unit>()
+
+    abstract fun register()
+
+    fun onCommand(name: String, function: (GenericCommandInteractionEvent) -> Unit) {
+        commandListeners[name] = function
+    }
+
+    override fun onGenericCommandInteraction(event: GenericCommandInteractionEvent) {
+        commandListeners[event.name]?.invoke(event)
+    }
+
+    open fun commands(): List<CommandData> = emptyList()
 }

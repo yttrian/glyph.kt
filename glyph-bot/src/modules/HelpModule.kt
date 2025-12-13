@@ -1,33 +1,48 @@
 package org.yttr.glyph.bot.modules
 
-import dev.minn.jda.ktx.events.onCommand
-import dev.minn.jda.ktx.interactions.commands.slash
-import dev.minn.jda.ktx.messages.Embed
-import dev.minn.jda.ktx.messages.reply_
-import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.components.buttons.ButtonStyle
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
+import net.dv8tion.jda.api.interactions.commands.build.Commands
+import org.yttr.glyph.bot.Resources
+import org.yttr.glyph.bot.jda.buildReply
 
-class HelpModule : Module {
-    override fun register(jda: JDA, commands: CommandListUpdateAction) {
-        commands.slash(name = "help", description = "Get help using Glyph")
-
-        jda.onCommand(name = "help") { event ->
-            help(event)
-        }
+class HelpModule : Module() {
+    override fun register() {
+        onCommand("help") { event -> help(event) }
     }
+
+    override fun commands() = listOf(
+        Commands.slash("help", "Get help using Glyph")
+    )
 
     fun help(event: GenericCommandInteractionEvent) {
         val name = event.jda.selfUser.name
-        val embed = Embed {
-            title = "Help"
-            color = EMBED_COLOR
-        }
 
-        event.reply_(embeds = listOf(embed), ephemeral = true).queue()
+        event.buildReply {
+            ephemeral = true
+
+            embeds += EmbedBuilder()
+                .setTitle("$name Help")
+                .setColor(EMBED_COLOR)
+                .setDescription(Resources.readText("help.md").format(name))
+                .build()
+
+            components += ActionRow.of(
+                linkButton("https://glyph.yttr.org/skills", "Skills", "🕺"),
+                linkButton("https://glyph.yttr.org/config", "Configure", "⚙️"),
+                linkButton("https://ko-fi.com/throudin", "Buy me a Ko-fi", "☕")
+            )
+        }.queue()
     }
 
     companion object {
         private const val EMBED_COLOR = 0x4687E5
+
+        private fun linkButton(url: String, label: String, emoji: String) =
+            Button.of(ButtonStyle.LINK, url, label, Emoji.fromUnicode(emoji))
     }
 }

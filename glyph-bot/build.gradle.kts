@@ -18,9 +18,7 @@ dependencies {
     implementation(libs.google.cloud.dialogflow)
     implementation(libs.google.cloud.storage)
     implementation(libs.jda)
-    implementation(libs.jda.ktx)
     implementation(libs.jsoup)
-    implementation(libs.kotlinx.coroutines.jdk8)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.java)
     implementation(libs.ktor.serialization.kotlinx.json)
@@ -28,6 +26,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.prettytime)
     implementation(libs.typesafe.config)
+
 
     testImplementation(kotlin("test"))
 }

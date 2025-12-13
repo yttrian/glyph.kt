@@ -2,12 +2,11 @@ package org.yttr.glyph.bot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import dev.minn.jda.ktx.interactions.commands.updateCommands
-import dev.minn.jda.ktx.jdabuilder.default
-import dev.minn.jda.ktx.jdabuilder.intents
 import io.lettuce.core.RedisClient
+import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.yttr.glyph.bot.modules.HelpModule
+import org.yttr.glyph.bot.modules.SnowstampModule
 import org.yttr.glyph.bot.skills.config.ConfigDirector
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 
@@ -33,21 +32,28 @@ object Glyph {
         redisUrl = conf.getString("data.redis-url")
     )
 
-    val modules = listOf(HelpModule())
+    val modules = listOf(
+        HelpModule(),
+        SnowstampModule()
+    )
 
     /**
      * Build the bot and run
      */
     fun run() {
-        val jda = default(token = conf.getString("discord-token")) {
-            intents += GatewayIntent.GUILD_MESSAGES
+        val jda = JDABuilder.createDefault(conf.getString("discord-token"))
+            .enableIntents(GatewayIntent.GUILD_MEMBERS)
+            .build()
+
+        val commands = jda.updateCommands()
+
+        for (module in modules) {
+            jda.addEventListener(module)
+            module.register()
+            commands.addCommands(module.commands())
         }
 
-        jda.updateCommands {
-            for (module in modules) {
-                module.register(jda, this)
-            }
-        }
+        commands.queue()
     }
 }
 

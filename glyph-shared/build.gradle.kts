@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.exposed.jdbc)
 
     compileOnly(libs.jda)
-    implementation(libs.kotlinx.coroutines.jdk8)
     implementation(libs.kotlinx.serialization.core)
 
     api(libs.lettuce.core)

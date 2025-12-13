@@ -66,7 +66,7 @@ data class Submission(
     /**
      * Creates an embed with the submission's info and a thumbnail if desired
      */
-    fun getEmbed(nsfwAllowed: Boolean, thumbnailAllowed: Boolean): MessageEmbed {
+    fun getEmbed(nsfwAllowed: Boolean): MessageEmbed {
         val embed = EmbedBuilder()
             .setAuthor(name, profile, avatar)
             .setTitle(title, link)
@@ -77,9 +77,7 @@ data class Submission(
         if (rating.nsfw && !nsfwAllowed) {
             embed.setDescription("Cannot preview $rating submissions in a non-NSFW channel")
         } else {
-            if (thumbnailAllowed) {
-                embed.setImage(full)
-            }
+            embed.setImage(full)
 
             embed.setDescription(buildString {
                 val soup = Jsoup.parse(description)

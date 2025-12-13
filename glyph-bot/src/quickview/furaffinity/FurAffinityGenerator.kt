@@ -1,6 +1,5 @@
 package org.yttr.glyph.bot.quickview.furaffinity
 
-import com.google.common.math.IntMath
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
@@ -13,17 +12,16 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.quickview.QuickviewGenerator
 import org.yttr.glyph.shared.config.ServerConfig
-import java.math.RoundingMode
 
 /**
  * Handles the creation of QuickViews for furaffinity.net links
  */
 object FurAffinityGenerator : QuickviewGenerator() {
     private const val API_BASE: String = "https://faexport.spangle.org.uk"
-    private const val GALLERY_LISTING_SIZE: Int = 72
 
     override val urlRegex: Regex = Regex(
         "\\b(furaffinity.net/(?:full|view)/(\\d+))|(d\\.(?:facdn|furaffinity).net/art/([\\w-]+)/(\\d+))\\b",
@@ -35,17 +33,6 @@ object FurAffinityGenerator : QuickviewGenerator() {
     private const val SUBMISSION_URL_REGEX_USERNAME_GROUP: Int = 4
 
     private val escapedLinkRegex = Regex("<\\S+>|`.+`", RegexOption.DOT_MATCHES_ALL)
-
-    /**
-     * Represents a user page in the API
-     */
-    @Serializable
-    data class UserPage(
-        /**
-         * Total number of submissions the user has
-         */
-        val submissions: Int
-    )
 
     /**
      * Represents a submission excerpt from the submission listing endpoint of the API
@@ -62,17 +49,19 @@ object FurAffinityGenerator : QuickviewGenerator() {
         val thumbnail: String
     )
 
-    override suspend fun generate(event: MessageReceivedEvent, config: ServerConfig.QuickView): Flow<MessageEmbed> =
-        if (config.furaffinityEnabled) findIds(event.message.contentRaw).mapNotNull {
-            getSubmission(it)?.run {
-                // allow NSFW quickviews only in NSFW channels, never SFW channels or DMs
-                val nsfwAllowed = event.isFromGuild && event.textChannel.isNSFW
-                // allow thumbnails unless disabled (default on in servers and DMs)
-                val thumbnailAllowed = config.furaffinityThumbnails
+    override suspend fun generate(event: MessageReceivedEvent, config: ServerConfig.QuickView): Flow<MessageEmbed> {
+        if (!config.furAffinityEnabled) {
+            return emptyFlow()
+        }
 
-                getEmbed(nsfwAllowed, thumbnailAllowed)
-            }
-        } else emptyFlow()
+        // allow NSFW quickviews only in NSFW channels, never SFW channels or DMs
+        val channel = event.channel
+        val nsfwAllowed = channel is IAgeRestrictedChannel && channel.isNSFW
+
+        return findIds(content = event.message.contentRaw).mapNotNull { id ->
+            getSubmission(id)?.getEmbed(nsfwAllowed)
+        }
+    }
 
     private data class SubmissionUrlData(val submissionId: Int?, val cdnId: Int?, val username: String?)
 
@@ -98,13 +87,9 @@ object FurAffinityGenerator : QuickviewGenerator() {
      */
     suspend fun findSubmissionId(cdnId: Int, user: String): Int? {
         val cdnIdString = cdnId.toString()
+        var page = 1
 
-        val submissionCount = client.get {
-            url.takeFrom(API_BASE).path("user", "$user.json")
-        }.body<UserPage>().submissions
-        val maxPages = IntMath.divide(submissionCount, GALLERY_LISTING_SIZE, RoundingMode.CEILING)
-
-        for (page in 1..maxPages) {
+        do {
             val listing = client.get {
                 url.takeFrom(API_BASE).path("user", user, "gallery.json")
                 parameter("full", "1")
@@ -114,7 +99,9 @@ object FurAffinityGenerator : QuickviewGenerator() {
             listing.find { it.thumbnail.contains(cdnIdString) }?.let {
                 return it.id
             }
-        }
+
+            page += 1
+        } while (listing.isNotEmpty())
 
         return null
     }

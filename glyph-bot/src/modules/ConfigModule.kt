@@ -1,57 +1,36 @@
-package org.yttr.glyph.bot.skills.config
+package org.yttr.glyph.bot.modules
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import com.google.gson.LongSerializationPolicy
-import kotlinx.coroutines.launch
+import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.interactions.commands.slash
+import dev.minn.jda.ktx.util.SLF4J
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
-import org.yttr.glyph.bot.Director
-import org.yttr.glyph.shared.config.ConfigManager
-import org.yttr.glyph.shared.config.server.ServerConfig
+import net.dv8tion.jda.api.interactions.InteractionContextType
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 import org.yttr.glyph.shared.pubsub.PubSubChannel
 import org.yttr.glyph.shared.pubsub.redis.RedisPubSub
 
-/**
- * Manages the configuration database
- */
-class ConfigDirector(jdbcDatabaseUrl: String, redisUrl: String) : Director() {
-    private val configManager = ConfigManager(jdbcDatabaseUrl)
+class ConfigModule(private val redisPubSub: RedisPubSub) : Module {
+    private val log by SLF4J
 
-    /**
-     * The default server config
-     */
-    val defaultConfig: ServerConfig = configManager.defaultConfig
+    override fun boot(jda: JDA) {
+        jda.onCommand("config") { event ->
+            event.reply("Visit https://glyph.yttr.dev/config to configure Glyph.").setEphemeral(true).queue()
+        }
 
-    /**
-     * JDA instance for grabbing Guild data
-     */
-    lateinit var jda: JDA
-
-    private val redis = RedisPubSub(redisUrl)
-
-    /**
-     * Sets the JDA instance
-     */
-    override fun onReady(event: ReadyEvent) {
-        jda = event.jda
-    }
-
-    init {
-        redis.addResponder(PubSubChannel.CONFIG_PREFIX) { guildId ->
+        redisPubSub.addResponder(askChannelPrefix = PubSubChannel.CONFIG_PREFIX) { guildId ->
             val guild = jda.getGuildById(guildId)
             log.info("Responded to data request for guild $guildId")
             guild?.getServerConfigJson()
         }
+    }
 
-        redis.addListener(PubSubChannel.CONFIG_REFRESH) { guildId ->
-            guildId.toLongOrNull()?.let {
-                configManager.reloadServerConfig(it)
-                log.info("Reloaded config for guild $guildId")
-            }
+    override fun updateCommands(commands: CommandListUpdateAction) {
+        commands.slash("config", "Configure Glyph") {
+            defaultPermissions = DefaultMemberPermissions.enabledFor(Permission.MANAGE_SERVER)
+            setContexts(InteractionContextType.GUILD)
         }
     }
 
@@ -107,24 +86,5 @@ class ConfigDirector(jdbcDatabaseUrl: String, redisUrl: String) : Director() {
         // Package it all up and send it out
         config.add("_data", serverData)
         return config.toString()
-    }
-
-    /**
-     * Retrieves the server's config
-     */
-    fun getServerConfig(guild: Guild): ServerConfig = configManager.getServerConfig(guild.idLong)
-
-    /**
-     * Deletes a server's config
-     */
-    private fun deleteServerConfig(guild: Guild) {
-        launch { configManager.deleteServerConfig(guild.idLong) }
-    }
-
-    /**
-     * Delete a guild's config when the server if left
-     */
-    override fun onGuildLeave(event: GuildLeaveEvent) {
-        launch { deleteServerConfig(event.guild) }
     }
 }

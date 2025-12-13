@@ -1,36 +1,39 @@
 package org.yttr.glyph.bot.modules
 
+import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.interactions.commands.option
+import dev.minn.jda.ktx.interactions.commands.slash
+import dev.minn.jda.ktx.messages.MessageCreate
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
-import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import net.dv8tion.jda.api.interactions.commands.build.Commands
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 import net.dv8tion.jda.api.utils.TimeFormat
 import net.dv8tion.jda.api.utils.TimeUtil
-import org.yttr.glyph.bot.jda.buildReply
 import java.awt.Color
 
-class SnowstampModule : Module() {
-    override fun register() {
-        onCommand("snowstamp") { event -> snowstamp(event) }
+class SnowstampModule : Module {
+    override fun boot(jda: JDA) {
+        jda.onCommand("snowstamp") { event -> snowstamp(event) }
     }
 
-    override fun commands(): List<CommandData> = listOf(
-        Commands.slash("snowstamp", "Get a timestamp from a snowflake ID")
-            .addOption(OptionType.INTEGER, "snowflake", "The snowflake ID to get a timestamp for", true)
-    )
+    override fun updateCommands(commands: CommandListUpdateAction) {
+        commands.slash("snowstamp", "Get a timestamp from a snowflake ID") {
+            option<Long>("snowflake", "The snowflake ID to get a timestamp for", true)
+        }
+    }
 
     fun snowstamp(event: GenericCommandInteractionEvent) {
         val snowflake = event.getOption("snowflake")?.asLong
 
         if (snowflake == null) {
-            event.buildReply("Please provide a valid snowflake ID!") { ephemeral = true }.queue()
+            event.reply("Please provide a valid snowflake ID!").setEphemeral(true).queue()
             return
         }
 
-        val snowflakeTime = TimeUtil.getTimeCreated(snowflake)
+        val message = MessageCreate {
+            val snowflakeTime = TimeUtil.getTimeCreated(snowflake)
 
-        event.buildReply {
             embeds += EmbedBuilder()
                 .setTitle(snowflake.toString())
                 .setDescription(TimeFormat.DATE_TIME_LONG.format(snowflakeTime))
@@ -38,6 +41,8 @@ class SnowstampModule : Module() {
                 .setFooter("Snowstamp")
                 .setTimestamp(snowflakeTime)
                 .build()
-        }.queue()
+        }
+
+        event.reply(message).queue()
     }
 }

@@ -5,7 +5,8 @@ expiringmap = "0.5.11"
 exposed = "0.61.0"
 google-cloud-dialogflow = "4.66.0"
 google-cloud-storage = "2.50.0"
-jda = "6.1.3"
+jda = "5.6.1"
+jda-ktx = "0.13.0"
 jsoup = "1.21.2"
 kotlin = "2.2.21"
 kotlinx-serialization = "1.9.0"
@@ -30,6 +31,7 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 google-cloud-dialogflow = { module = "com.google.cloud:google-cloud-dialogflow", version.ref = "google-cloud-dialogflow" }
 google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", version.ref = "google-cloud-storage" }
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+jda-ktx = { module = "club.minnced:jda-ktx", version.ref = "jda-ktx" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }

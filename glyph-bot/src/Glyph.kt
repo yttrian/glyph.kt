@@ -2,8 +2,10 @@ package org.yttr.glyph.bot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import dev.minn.jda.ktx.interactions.commands.updateCommands
+import dev.minn.jda.ktx.jdabuilder.default
+import dev.minn.jda.ktx.jdabuilder.intents
 import io.lettuce.core.RedisClient
-import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.yttr.glyph.bot.modules.HelpModule
 import org.yttr.glyph.bot.modules.SnowstampModule
@@ -41,19 +43,19 @@ object Glyph {
      * Build the bot and run
      */
     fun run() {
-        val jda = JDABuilder.createDefault(conf.getString("discord-token"))
-            .enableIntents(GatewayIntent.GUILD_MEMBERS)
-            .build()
-
-        val commands = jda.updateCommands()
-
-        for (module in modules) {
-            jda.addEventListener(module)
-            module.register()
-            commands.addCommands(module.commands())
+        val jda = default(conf.getString("discord-token")) {
+            intents += GatewayIntent.GUILD_MESSAGES
         }
 
-        commands.queue()
+        for (module in modules) {
+            module.boot(jda)
+        }
+
+        jda.updateCommands {
+            for (module in modules) {
+                module.updateCommands(commands = this)
+            }
+        }
     }
 }
 

@@ -1,25 +1,48 @@
-package org.yttr.glyph.bot.skills.starboard
+package org.yttr.glyph.bot.modules
 
 import com.vdurmont.emoji.EmojiParser
+import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.events.listener
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
-import org.yttr.glyph.bot.Director
+import net.dv8tion.jda.api.events.message.GenericMessageEvent
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
+import org.yttr.glyph.bot.skills.starboard.StarredMessage
+import org.yttr.glyph.shared.config.ConfigStore
 import org.yttr.glyph.shared.pubsub.redis.RedisAsync
 
 /**
  * Manages starboards in guilds with them configured
  */
-class StarboardDirector(private val redis: RedisAsync) : Director() {
+class StarboardModule(private val redis: RedisAsync, private val configStore: ConfigStore) : Module {
+    override fun boot(jda: JDA) {
+        jda.listener<MessageReactionAddEvent> { event ->
+            if (event.isFromGuild) {
+                onMessageReactionAdd(event)
+            }
+        }
+        jda.listener<MessageDeleteEvent> { event ->
+            if (event.isFromGuild) {
+                killMessage(event, "The original message was deleted.")
+            }
+        }
+        jda.listener<MessageUpdateEvent> { event ->
+            if (event.isFromGuild) {
+                killMessage(event, "The original message was edited.")
+            }
+        }
+    }
+
+    private suspend fun Guild.getStarboardConfig() = configStore.getConfig(this).starboard
+
     /**
      * When a message is reacted upon in a guild
      */
-    override fun onGenericGuildMessageReaction(event: GenericGuildMessageReactionEvent) {
-        val starboardConfig = event.guild.config.starboard
+    suspend fun onMessageReactionAdd(event: MessageReactionAddEvent) {
+        val starboardConfig = event.guild.getStarboardConfig()
 
         if (!starboardConfig.enabled || event.user?.isBot == true) return
 
@@ -29,7 +52,6 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
         val channelIsNotStarboard = event.channel != starboardChannel
 
         if (correctEmoteName && emoteBelongsToGuild && channelIsNotStarboard) {
-            launch {
                 val message = event.channel.retrieveMessageById(event.messageId).await()
                 val successful = StarredMessage.Alive(message).checkAndSend(starboardConfig, starboardChannel, redis)
 
@@ -40,33 +62,17 @@ class StarboardDirector(private val redis: RedisAsync) : Director() {
                         message.addReaction(event.reactionEmote.emoji)
                     }.queue()
                 }
-            }
         }
     }
 
-    /**
-     * When a message is deleted, check if there's an associated starboard message to mark as deleted
-     */
-    override fun onGuildMessageDelete(event: GuildMessageDeleteEvent) {
-        launch { killMessage(event, "Original message was deleted.") }
-    }
-
-    /**
-     * When a message is edited, check if there's an associated starboard message to mark as edited
-     */
-    override fun onGuildMessageUpdate(event: GuildMessageUpdateEvent) {
-        launch { killMessage(event, "Original message was edited.") }
-    }
-
-    private suspend fun killMessage(event: GenericGuildMessageEvent, reason: String) {
+    private suspend fun killMessage(event: GenericMessageEvent, reason: String) {
         val trackingKey = TRACKING_PREFIX + event.messageId
         if (redis.exists(trackingKey).await() == 0L) return
-        val starboardChannel = event.guild.getStarboardChannel() ?: return
-        StarredMessage.Dead(event, reason).checkAndSend(event.guild.config.starboard, starboardChannel, redis)
+        val config = event.guild.getStarboardConfig()
+        val starboardChannel = config.channel?.let { event.guild.getTextChannelById(it) } ?: return
+        StarredMessage.Dead(event, reason).checkAndSend(config, starboardChannel, redis)
         redis.del(trackingKey)
     }
-
-    private fun Guild.getStarboardChannel() = config.starboard.channel?.let { getTextChannelById(it) }
 
     companion object {
         /**

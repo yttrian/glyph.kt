@@ -16,8 +16,9 @@ import net.dv8tion.jda.api.exceptions.PermissionException
 import org.slf4j.LoggerFactory
 import org.yttr.glyph.bot.extensions.asPlainMention
 import org.yttr.glyph.bot.messaging.WebhookDirector
-import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.TRACKING_PREFIX
-import org.yttr.glyph.bot.skills.starboard.StarboardDirector.Companion.emojiAlias
+import org.yttr.glyph.bot.modules.StarboardDirector
+import org.yttr.glyph.bot.modules.StarboardDirector.Companion.TRACKING_PREFIX
+import org.yttr.glyph.bot.modules.StarboardDirector.Companion.emojiAlias
 import org.yttr.glyph.shared.compliance.ComplianceCategory
 import org.yttr.glyph.shared.compliance.ComplianceOfficer
 import org.yttr.glyph.shared.config.server.StarboardConfig

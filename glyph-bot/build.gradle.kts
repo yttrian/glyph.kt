@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.google.cloud.dialogflow)
     implementation(libs.google.cloud.storage)
     implementation(libs.jda)
+    implementation(libs.jda.ktx)
     implementation(libs.jsoup)
     implementation(libs.kotlinx.coroutines.jdk8)
     implementation(libs.ktor.client.content.negotiation)

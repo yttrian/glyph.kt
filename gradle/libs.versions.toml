@@ -1,10 +1,5 @@
 [versions]
-discord-webhooks = "0.8.4"
-emoji-java = "5.1.1"
-expiringmap = "0.5.11"
 exposed = "0.61.0"
-google-cloud-dialogflow = "4.66.0"
-google-cloud-storage = "2.50.0"
 jda = "5.6.1"
 jda-ktx = "0.13.0"
 jsoup = "1.21.2"
@@ -14,7 +9,6 @@ ktor = "3.3.3"
 lettuce = "7.1.0.RELEASE"
 logback = "1.5.21"
 mariadb = "3.5.6"
-prettytime = "5.0.9.Final"
 typesafe-config = "1.4.5"
 
 [plugins]
@@ -22,14 +16,9 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
-discord-webhooks = { module = "club.minnced:discord-webhooks", version.ref = "discord-webhooks" }
-emoji-java = { module = "com.vdurmont:emoji-java", version.ref = "emoji-java" }
-expiringmap = { module = "net.jodah:expiringmap", version.ref = "expiringmap" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
-google-cloud-dialogflow = { module = "com.google.cloud:google-cloud-dialogflow", version.ref = "google-cloud-dialogflow" }
-google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", version.ref = "google-cloud-storage" }
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 jda-ktx = { module = "club.minnced:jda-ktx", version.ref = "jda-ktx" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
@@ -52,6 +41,5 @@ ktor-server-webjars = { module = "io.ktor:ktor-server-webjars", version.ref = "k
 lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
-prettytime = { module = "org.ocpsoft.prettytime:prettytime", version.ref = "prettytime" }
 typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-config" }
 webjars-bootstrap = "org.webjars.npm:bootstrap:5.3.8"

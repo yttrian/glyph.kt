@@ -13,7 +13,7 @@ dependencies {
 
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.java)
+    implementation(libs.ktor.client.java) // TODO: Not use Java engine?
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.ktor.server.auth)

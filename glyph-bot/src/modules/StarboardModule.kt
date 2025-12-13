@@ -3,6 +3,7 @@ package org.yttr.glyph.bot.modules
 import com.vdurmont.emoji.EmojiParser
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
+import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
@@ -12,12 +13,13 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import org.yttr.glyph.bot.skills.starboard.StarredMessage
 import org.yttr.glyph.shared.config.ConfigStore
-import org.yttr.glyph.shared.pubsub.redis.RedisAsync
+import org.yttr.glyph.shared.pubsub.redis.RedisCoroutines
 
 /**
  * Manages starboards in guilds with them configured
  */
-class StarboardModule(private val redis: RedisAsync, private val configStore: ConfigStore) : Module {
+@OptIn(ExperimentalLettuceCoroutinesApi::class)
+class StarboardModule(private val redis: RedisCoroutines, private val configStore: ConfigStore) : Module {
     override fun boot(jda: JDA) {
         jda.listener<MessageReactionAddEvent> { event ->
             if (event.isFromGuild) {
@@ -36,7 +38,7 @@ class StarboardModule(private val redis: RedisAsync, private val configStore: Co
         }
     }
 
-    private suspend fun Guild.getStarboardConfig() = configStore.getConfig(this).starboard
+    private suspend fun Guild.getStarboardConfig() = configStore.getConfig(this).getStarboardConfig()
 
     /**
      * When a message is reacted upon in a guild

@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yttr.glyph.shared.config.ServerConfig
+import org.yttr.glyph.bot.config.ServerConfig
 import java.io.Closeable
 
 /**

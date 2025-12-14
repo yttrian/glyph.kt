@@ -1,4 +1,4 @@
-package org.yttr.glyph.config
+package org.yttr.glyph.bot.config
 
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.routing.Route

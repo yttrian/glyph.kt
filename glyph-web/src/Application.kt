@@ -1,4 +1,4 @@
-package org.yttr.glyph.config
+package org.yttr.glyph.bot.config
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.typesafe.config.ConfigFactory

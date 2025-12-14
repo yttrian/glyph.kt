@@ -1,4 +1,4 @@
-package org.yttr.glyph.config
+package org.yttr.glyph.bot.config
 
 import io.ktor.server.mustache.MustacheContent
 import io.ktor.server.response.respond

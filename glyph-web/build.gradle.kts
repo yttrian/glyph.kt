@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
     application
 }
 
@@ -9,8 +8,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":glyph-shared"))
-
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auto.head.response)
     implementation(libs.ktor.server.call.logging)

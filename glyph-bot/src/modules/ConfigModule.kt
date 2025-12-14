@@ -29,7 +29,7 @@ class ConfigModule : Module {
 
     private fun modalConfig(event: GenericCommandInteractionEvent) {
         event.replyModal("config", "Configure Glyph") {
-
+            TODO("Implement the modal")
         }
     }
 }

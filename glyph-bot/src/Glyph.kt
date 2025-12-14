@@ -9,28 +9,13 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.coroutines
 import net.dv8tion.jda.api.requests.GatewayIntent
-import org.yttr.glyph.bot.Glyph.conf
+import org.yttr.glyph.bot.config.DatabaseConfigStore
+import org.yttr.glyph.bot.modules.ConfigModule
 import org.yttr.glyph.bot.modules.HelpModule
+import org.yttr.glyph.bot.modules.ObservatoryModule
 import org.yttr.glyph.bot.modules.QuickViewModule
 import org.yttr.glyph.bot.modules.SnowstampModule
 import org.yttr.glyph.bot.modules.StarboardModule
-import org.yttr.glyph.shared.config.DatabaseConfigStore
-
-
-/**
- * The Glyph object to use when building the client
- */
-object Glyph {
-    /**
-     * HOCON config from application.conf
-     */
-
-
-    /**
-     * The current version of Glyph
-     */
-    val version: String = conf.getString("version").take(n = 7)
-}
 
 /**
  * Where everything begins
@@ -48,10 +33,12 @@ fun main() {
     val redis = RedisClient.create(conf.getString("data.redis-url")).connect().coroutines()
 
     val modules = listOf(
+        ConfigModule(),
         HelpModule(),
         SnowstampModule(),
         StarboardModule(redis, configStore),
-        QuickViewModule(configStore)
+        QuickViewModule(configStore),
+        ObservatoryModule(webhookId = conf.getLong("management.logging-webhook"))
     )
 
     for (module in modules) {
@@ -62,5 +49,5 @@ fun main() {
         for (module in modules) {
             module.updateCommands(commands = this)
         }
-    }
+    }.queue()
 }

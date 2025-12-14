@@ -6,19 +6,23 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://m2.dv8tion.net/releases")
 }
 
 dependencies {
-    implementation(project(":glyph-shared"))
-
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.java.time)
+    implementation(libs.exposed.jdbc)
     implementation(libs.jda)
     implementation(libs.jda.ktx)
     implementation(libs.jsoup)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.java)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.lettuce.core)
     implementation(libs.logback.classic)
+    implementation(libs.mariadb)
     implementation(libs.typesafe.config)
 
     testImplementation(kotlin("test"))

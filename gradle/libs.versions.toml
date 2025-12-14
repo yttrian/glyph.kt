@@ -10,6 +10,7 @@ lettuce = "7.2.0.RELEASE"
 logback = "1.5.21"
 mariadb = "3.5.6"
 typesafe-config = "1.4.5"
+kotlinx-coroutines = "1.10.2"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -22,6 +23,8 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 jda-ktx = { module = "club.minnced:jda-ktx", version.ref = "jda-ktx" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

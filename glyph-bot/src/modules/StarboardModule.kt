@@ -1,19 +1,21 @@
 package org.yttr.glyph.bot.modules
 
-import com.vdurmont.emoji.EmojiParser
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.events.message.GenericMessageEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
-import org.yttr.glyph.bot.skills.starboard.StarredMessage
-import org.yttr.glyph.shared.config.ConfigStore
-import org.yttr.glyph.shared.pubsub.redis.RedisCoroutines
+import org.yttr.glyph.bot.RedisCoroutines
+import org.yttr.glyph.bot.config.ConfigStore
+import org.yttr.glyph.bot.starboard.Starboard
 
 /**
  * Manages starboards in guilds with them configured
@@ -22,8 +24,8 @@ import org.yttr.glyph.shared.pubsub.redis.RedisCoroutines
 class StarboardModule(private val redis: RedisCoroutines, private val configStore: ConfigStore) : Module {
     override fun boot(jda: JDA) {
         jda.listener<MessageReactionAddEvent> { event ->
-            if (event.isFromGuild) {
-                onMessageReactionAdd(event)
+            if (event.isFromGuild && event.user?.isBot == false) {
+                checkReactionForStarboarding(event)
             }
         }
         jda.listener<MessageDeleteEvent> { event ->
@@ -43,50 +45,56 @@ class StarboardModule(private val redis: RedisCoroutines, private val configStor
     /**
      * When a message is reacted upon in a guild
      */
-    suspend fun onMessageReactionAdd(event: MessageReactionAddEvent) {
+    suspend fun checkReactionForStarboarding(event: MessageReactionAddEvent) {
         val starboardConfig = event.guild.getStarboardConfig()
+        val starboardEnabled = starboardConfig.enabled && starboardConfig.channel != null
 
-        if (!starboardConfig.enabled || event.user?.isBot == true) return
+        if (!starboardEnabled || starboardConfig.channel == event.channel.idLong) {
+            return
+        }
 
-        val starboardChannel = event.guild.getStarboardChannel() ?: return
-        val correctEmoteName = emojiAlias(event.reactionEmote.name) == starboardConfig.emoji
-        val emoteBelongsToGuild = event.reactionEmote.isEmoji || event.reactionEmote.emote.guild == event.guild
-        val channelIsNotStarboard = event.channel != starboardChannel
+        val starboardChannel = event.guild.getTextChannelById(starboardConfig.channel)
+        val isCorrectEmoji = when (val emoji = event.reaction.emoji) {
+            is UnicodeEmoji -> emoji.asCodepoints == starboardConfig.emoji
+            is CustomEmoji -> emoji.id == starboardConfig.emoji
+            else -> false
+        }
 
-        if (correctEmoteName && emoteBelongsToGuild && channelIsNotStarboard) {
-                val message = event.channel.retrieveMessageById(event.messageId).await()
-                val successful = StarredMessage.Alive(message).checkAndSend(starboardConfig, starboardChannel, redis)
+        if (starboardChannel == null || !isCorrectEmoji) {
+            return
+        }
 
-                if (successful) {
-                    if (event.reactionEmote.isEmote) {
-                        message.addReaction(event.reactionEmote.emote)
-                    } else {
-                        message.addReaction(event.reactionEmote.emoji)
-                    }.queue()
-                }
+        val messageChannel = event.channel
+        val isNsfw = messageChannel is IAgeRestrictedChannel && messageChannel.isNSFW
+
+        if (isNsfw && !starboardChannel.isNSFW) {
+            return
+        }
+
+        val message = event.retrieveMessage().await()
+        val reactions = message.retrieveReactionUsers(event.reaction.emoji).await()
+        val reactionCount = reactions.count { user ->
+            // User is not a bot or themselves (unless allowed)
+            !user.isBot && (starboardConfig.canSelfStar || user.idLong != message.author.idLong)
+        }
+
+        if (reactionCount >= starboardConfig.threshold) {
+            val starboard = Starboard(starboardChannel, redis)
+            val alreadyReacted = reactions.any { user -> user.idLong == event.jda.selfUser.idLong }
+
+            if (!alreadyReacted) {
+                message.addReaction(event.reaction.emoji).queue()
+                starboard.send(message, reactionCount)
+            } else {
+                starboard.update(message, reactionCount)
+            }
         }
     }
 
     private suspend fun killMessage(event: GenericMessageEvent, reason: String) {
-        val trackingKey = TRACKING_PREFIX + event.messageId
-        if (redis.exists(trackingKey).await() == 0L) return
-        val config = event.guild.getStarboardConfig()
-        val starboardChannel = config.channel?.let { event.guild.getTextChannelById(it) } ?: return
-        StarredMessage.Dead(event, reason).checkAndSend(config, starboardChannel, redis)
-        redis.del(trackingKey)
-    }
+        val channel = event.channel
+        if (channel !is TextChannel) return
 
-    companion object {
-        /**
-         * Redis key prefix for starboard tracking
-         */
-        const val TRACKING_PREFIX: String = "Glyph:Starboard:"
-
-        /**
-         * Parse an emoji to its name
-         */
-        fun emojiAlias(emoji: String): String {
-            return EmojiParser.parseToAliases(emoji).removeSurrounding(":")
-        }
+        Starboard(channel, redis).kill(event.messageIdLong)
     }
 }

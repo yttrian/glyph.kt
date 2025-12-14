@@ -64,7 +64,7 @@ data class Submission(
 ) {
 
     /**
-     * Creates an embed with the submission's info and a thumbnail if desired
+     * Creates an embed with the submission's info
      */
     fun getEmbed(nsfwAllowed: Boolean): MessageEmbed {
         val embed = EmbedBuilder()

@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.config
+package org.yttr.glyph.bot.config
 
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column

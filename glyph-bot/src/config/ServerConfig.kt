@@ -1,4 +1,4 @@
-package org.yttr.glyph.shared.config
+package org.yttr.glyph.bot.config
 
 abstract class ServerConfig {
     data class Starboard(

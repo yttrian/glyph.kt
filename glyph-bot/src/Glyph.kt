@@ -26,7 +26,7 @@ fun main() {
     val conf: Config = ConfigFactory.load().getConfig("glyph")
 
     val jda = default(conf.getString("discord-token")) {
-        intents += GatewayIntent.GUILD_MESSAGES
+        intents += GatewayIntent.MESSAGE_CONTENT
     }
 
     val configStore = DatabaseConfigStore.create(jdbcDatabaseUrl = conf.getString("data.database-url"))

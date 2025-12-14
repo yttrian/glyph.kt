@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.yttr.glyph.bot.config.ConfigStore
+import org.yttr.glyph.bot.config.ServerConfig
 import org.yttr.glyph.bot.quickview.furaffinity.FurAffinityGenerator
 
 class QuickViewModule(private val configStore: ConfigStore) : Module {
@@ -46,7 +47,10 @@ class QuickViewModule(private val configStore: ConfigStore) : Module {
     }
 
     private fun generateQuickViews(event: MessageReceivedEvent) = flow {
-        val config = configStore.getConfig(event.guild).getQuickViewConfig()
+        val config = when {
+            event.isFromGuild -> configStore.getConfig(event.guild).getQuickViewConfig()
+            else -> ServerConfig.QuickView()
+        }
 
         for (generator in generators) {
             emitAll(generator.generate(event, config))

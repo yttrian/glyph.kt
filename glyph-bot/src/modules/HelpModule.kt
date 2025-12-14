@@ -26,9 +26,12 @@ class HelpModule : Module {
 
         val message = MessageCreate {
             embeds += Embed {
-                title = "$name Help"
+                title = "Help"
                 color = EMBED_COLOR
-                description = Resources.readText("help.md").format(name)
+                description = Resources.readText("help.md")
+                    .lines().joinToString(" ") { line ->
+                        if (line.isEmpty()) "\n\n" else line.trim()
+                    }.format(name)
             }
 
             components += ActionRow.of(

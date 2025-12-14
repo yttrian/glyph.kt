@@ -18,6 +18,10 @@ fun Route.documentation(clientId: String) {
         call.respond(MustacheContent(template = "privacy.hbs", model = null))
     }
 
+    get("/config") {
+        call.respondRedirect("/#config")
+    }
+
     get("/skills") {
         call.respondRedirect("/#skills")
     }

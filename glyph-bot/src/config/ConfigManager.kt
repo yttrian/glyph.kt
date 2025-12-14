@@ -12,7 +12,6 @@ import org.jetbrains.exposed.sql.update
 import org.yttr.glyph.shared.config.server.AuditingConfig
 import org.yttr.glyph.shared.config.server.QuickviewConfig
 import org.yttr.glyph.shared.config.server.SelectableRolesConfig
-import org.yttr.glyph.shared.config.server.ServerConfig
 import org.yttr.glyph.shared.config.server.ServerConfigsTable
 import org.yttr.glyph.shared.config.server.ServerSelectableRolesTable
 import org.yttr.glyph.shared.config.server.ServerWikiSourcesTable

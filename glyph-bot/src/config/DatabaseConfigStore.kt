@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.yttr.glyph.shared.config.DatabaseConfigStore.Companion.create
 
 class DatabaseConfigStore private constructor(private val database: Database) : ConfigStore {
     override suspend fun getConfig(guild: Guild): ServerConfig = DatabaseServerConfig(guild.idLong, database)

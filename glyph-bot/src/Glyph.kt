@@ -39,7 +39,7 @@ fun main() {
         HelpModule(),
         SnowstampModule(),
         StarboardModule(redis, configStore),
-        QuickViewModule(configStore),
+        QuickViewModule(redis, configStore),
         ObservatoryModule(webhookId = conf.getLong("management.logging-webhook"))
     )
 

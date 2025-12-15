@@ -5,8 +5,10 @@ import dev.minn.jda.ktx.events.listener
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.events.message.GenericMessageEvent
@@ -15,6 +17,7 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import org.yttr.glyph.bot.data.ConfigStore
 import org.yttr.glyph.bot.data.RedisCoroutines
+import org.yttr.glyph.bot.data.ServerConfig
 import org.yttr.glyph.bot.starboard.Starboard
 
 /**
@@ -47,41 +50,36 @@ class StarboardModule(private val redis: RedisCoroutines, private val configStor
      */
     suspend fun checkReactionForStarboarding(event: MessageReactionAddEvent) {
         val starboardConfig = event.guild.getStarboardConfig()
-        val starboardEnabled = starboardConfig.enabled && starboardConfig.channel != null
 
-        if (!starboardEnabled || starboardConfig.channel == event.channel.idLong) {
+        // Check that the starboard is enabled and the emoji is correct
+        if (!starboardConfig.enabled || !isCorrectEmoji(event.reaction, starboardConfig)) {
             return
         }
 
-        val starboardChannel = event.guild.getTextChannelById(starboardConfig.channel)
-        val isCorrectEmoji = when (val emoji = event.reaction.emoji) {
-            is UnicodeEmoji -> emoji.asCodepoints == starboardConfig.emoji
-            is CustomEmoji -> emoji.id == starboardConfig.emoji
-            else -> false
+        // Get the channel as long as it's defined and not already the starboard
+        val starboardChannel = starboardConfig.channel.takeUnless { it == event.channel.idLong }?.let {
+            event.guild.getTextChannelById(it)
         }
 
-        if (starboardChannel == null || !isCorrectEmoji) {
+        // Check that the starboard channel was found and that it is age appropriate to send to it
+        if (starboardChannel == null || !isAgeAppropriate(event.channel, starboardChannel)) {
             return
         }
 
-        val messageChannel = event.channel
-        val isNsfw = messageChannel is IAgeRestrictedChannel && messageChannel.isNSFW
-
-        if (isNsfw && !starboardChannel.isNSFW) {
-            return
-        }
-
+        // Get the message and count the human reactions
         val message = event.retrieveMessage().await()
-        val reactions = message.retrieveReactionUsers(event.reaction.emoji).await()
+        val reactions = event.reaction.retrieveUsers().await()
         val reactionCount = reactions.count { user ->
             // User is not a bot or themselves (unless allowed)
             !user.isBot && (starboardConfig.canSelfStar || user.idLong != message.author.idLong)
         }
 
+        // If enough humans have reacted
         if (reactionCount >= starboardConfig.threshold) {
             val starboard = Starboard(starboardChannel, redis)
             val alreadyReacted = reactions.any { user -> user.idLong == event.jda.selfUser.idLong }
 
+            // Using our own reaction as a flag, either create or update the starboard message
             if (!alreadyReacted) {
                 message.addReaction(event.reaction.emoji).queue()
                 starboard.send(message, reactionCount)
@@ -91,10 +89,28 @@ class StarboardModule(private val redis: RedisCoroutines, private val configStor
         }
     }
 
+    private fun isAgeAppropriate(
+        messageChannel: MessageChannelUnion,
+        starboardChannel: TextChannel
+    ): Boolean {
+        val isNsfw = messageChannel is IAgeRestrictedChannel && messageChannel.isNSFW
+
+        return !isNsfw || starboardChannel.isNSFW
+    }
+
+    private fun isCorrectEmoji(
+        reaction: MessageReaction,
+        starboardConfig: ServerConfig.Starboard
+    ): Boolean = when (val emoji = reaction.emoji) {
+        is UnicodeEmoji -> emoji.asCodepoints == starboardConfig.emoji
+        is CustomEmoji -> emoji.id == starboardConfig.emoji
+        else -> false
+    }
+
     private suspend fun killMessage(event: GenericMessageEvent, reason: String) {
         val channel = event.channel
         if (channel !is TextChannel) return
 
-        Starboard(channel, redis).kill(event.messageIdLong)
+        Starboard(channel, redis).kill(event.messageIdLong, reason)
     }
 }

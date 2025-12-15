@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.config
+package org.yttr.glyph.bot.data
 
 import net.dv8tion.jda.api.entities.Guild
 import org.jetbrains.exposed.sql.Database

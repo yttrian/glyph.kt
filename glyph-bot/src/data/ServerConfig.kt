@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.config
+package org.yttr.glyph.bot.data
 
 abstract class ServerConfig {
     data class Starboard(
@@ -13,7 +13,7 @@ abstract class ServerConfig {
         /**
          * The emoji to check for when starboarding
          */
-        val emoji: String = "star",
+        val emoji: String = "⭐",
         /**
          * The minimum number of reactions of the check emoji needed before the message is sent to the starboard
          */

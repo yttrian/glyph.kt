@@ -8,7 +8,6 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auto.head.response)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.core)

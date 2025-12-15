@@ -8,7 +8,7 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.Webhook
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import org.yttr.glyph.bot.RedisCoroutines
+import org.yttr.glyph.bot.data.RedisCoroutines
 import java.awt.Color
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -32,7 +32,7 @@ class Starboard(private val channel: TextChannel, private val redis: RedisCorout
 
     suspend fun kill(messageId: Long) {
         val webhook = ensureWebhook()
-        val starredMessage = MessageEdit { content = "TODO: Goodbye"}
+        val starredMessage = MessageEdit { content = "TODO: Goodbye" }
         val webhookMessageId = redis.get("Glyph:Starboard:$messageId") ?: return
         webhook.editMessageById(webhookMessageId, starredMessage).await()
         redis.del("Glyph:Starboard:$messageId")

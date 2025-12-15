@@ -1,5 +1,6 @@
 package org.yttr.glyph.bot.quickview
 
+import dev.minn.jda.ktx.util.SLF4J
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
@@ -7,19 +8,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.yttr.glyph.bot.config.ServerConfig
+import org.yttr.glyph.bot.data.ServerConfig
 import java.io.Closeable
 
 /**
  * Handle extract data from websites to build relevant QuickViews
  */
-abstract class QuickviewGenerator : Closeable {
+abstract class QuickViewGenerator : Closeable {
     /**
      * Logger
      */
-    protected val log: Logger = LoggerFactory.getLogger(this.javaClass.simpleName)
+    protected val log by SLF4J
 
     /**
      * HTTP client for making API requests

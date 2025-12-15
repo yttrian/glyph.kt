@@ -11,7 +11,7 @@ enum class SubmissionRating(
      */
     val color: Color,
     /**
-     * Whether or not the rating is considered a NSFW rating
+     * Whether the rating is considered a NSFW rating
      */
     val nsfw: Boolean
 ) {

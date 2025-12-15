@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.config
+package org.yttr.glyph.bot.data
 
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
@@ -26,7 +26,7 @@ class DatabaseServerConfig(private val guildId: Long, private val database: Data
     }
 
     override suspend fun getQuickViewConfig(): QuickView {
-        val row = newSuspendedTransaction {
+        val row = newSuspendedTransaction(db = database) {
             QuickViewTable.selectAll().where {
                 QuickViewTable.guildId eq guildId
             }.firstOrNull()

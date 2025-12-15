@@ -9,5 +9,8 @@ interface Module {
      */
     fun boot(jda: JDA)
 
+    /**
+     * Command definitions for replacement.
+     */
     fun updateCommands(commands: CommandListUpdateAction) = Unit
 }

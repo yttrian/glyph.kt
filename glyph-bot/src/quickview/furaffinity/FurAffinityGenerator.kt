@@ -14,13 +14,13 @@ import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.config.ServerConfig
-import org.yttr.glyph.bot.quickview.QuickviewGenerator
+import org.yttr.glyph.bot.data.ServerConfig
+import org.yttr.glyph.bot.quickview.QuickViewGenerator
 
 /**
  * Handles the creation of QuickViews for furaffinity.net links
  */
-object FurAffinityGenerator : QuickviewGenerator() {
+object FurAffinityGenerator : QuickViewGenerator() {
     private const val API_BASE: String = "https://faexport.spangle.org.uk"
 
     override val urlRegex: Regex = Regex(

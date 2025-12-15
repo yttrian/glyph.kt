@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.events.message.GenericMessageEvent
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
-import org.yttr.glyph.bot.RedisCoroutines
-import org.yttr.glyph.bot.config.ConfigStore
+import org.yttr.glyph.bot.data.ConfigStore
+import org.yttr.glyph.bot.data.RedisCoroutines
 import org.yttr.glyph.bot.starboard.Starboard
 
 /**

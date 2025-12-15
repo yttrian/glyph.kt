@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.take
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.yttr.glyph.bot.config.ConfigStore
-import org.yttr.glyph.bot.config.ServerConfig
+import org.yttr.glyph.bot.data.ConfigStore
+import org.yttr.glyph.bot.data.ServerConfig
 import org.yttr.glyph.bot.quickview.furaffinity.FurAffinityGenerator
 
 class QuickViewModule(private val configStore: ConfigStore) : Module {

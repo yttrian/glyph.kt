@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.starboard
+package org.yttr.glyph.bot.wrappers
 
 ///**
 // * Represents a message with stars that can be sent to the starboard

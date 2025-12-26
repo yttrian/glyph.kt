@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.skills.util
+package org.yttr.glyph.bot.wrappers
 
 ///**
 // * A skill that shows users the current status of the client, with extra info for the creator only

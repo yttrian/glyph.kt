@@ -15,6 +15,7 @@ import org.yttr.glyph.bot.modules.ObservatoryModule
 import org.yttr.glyph.bot.modules.QuickViewModule
 import org.yttr.glyph.bot.modules.SnowstampModule
 import org.yttr.glyph.bot.modules.StarboardModule
+import org.yttr.glyph.bot.modules.WikipediaModule
 
 /**
  * Where everything begins
@@ -40,7 +41,8 @@ fun main() {
         SnowstampModule(),
         StarboardModule(redis, configStore),
         QuickViewModule(redis, configStore),
-        ObservatoryModule(webhookId = conf.getLong("management.logging-webhook"))
+        ObservatoryModule(webhookId = conf.getLong("management.logging-webhook")),
+        WikipediaModule()
     )
 
     // Boot all modules

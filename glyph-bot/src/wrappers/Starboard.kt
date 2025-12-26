@@ -1,4 +1,4 @@
-package org.yttr.glyph.bot.starboard
+package org.yttr.glyph.bot.wrappers
 
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.Embed

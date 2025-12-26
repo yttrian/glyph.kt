@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import org.yttr.glyph.bot.data.ConfigStore
 import org.yttr.glyph.bot.data.RedisCoroutines
 import org.yttr.glyph.bot.data.ServerConfig
-import org.yttr.glyph.bot.starboard.Starboard
+import org.yttr.glyph.bot.wrappers.Starboard
 
 /**
  * Manages starboards in guilds with them configured

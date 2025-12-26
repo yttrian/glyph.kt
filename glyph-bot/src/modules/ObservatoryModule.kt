@@ -10,6 +10,7 @@ import dev.minn.jda.ktx.util.SLF4J
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.Webhook
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 import java.awt.Color
 import java.time.Instant
 
-class ObservatoryModule(private val webhookId: Long) : Module {
+class ObservatoryModule(private val webhookId: Long?) : Module {
     private val log by SLF4J
 
     override fun boot(jda: JDA) {
@@ -51,8 +52,20 @@ class ObservatoryModule(private val webhookId: Long) : Module {
     }
 
     private suspend fun log(event: GenericGuildEvent) {
-        val webhook = event.jda.retrieveWebhookById(webhookId).await()
+        // Log to console
+        when (event) {
+            is GuildJoinEvent -> log.info("Joined guild ${event.guild.name} (${event.guild.id})")
+            is GuildLeaveEvent -> log.info("Left guild ${event.guild.name} (${event.guild.id})")
+        }
 
+        // Log to webhook if provided
+        if (webhookId != null) {
+            val webhook = event.jda.retrieveWebhookById(webhookId).await()
+            sendWebhookMessage(event, webhook)
+        }
+    }
+
+    private fun sendWebhookMessage(event: GenericGuildEvent, webhook: Webhook) {
         val message = MessageCreate {
             embeds += Embed {
                 when (event) {

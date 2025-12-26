@@ -34,7 +34,7 @@ class Starboard(channel: TextChannel, private val redis: RedisCoroutines) {
 
     suspend fun kill(messageId: Long, reason: String) {
         val webhook = ensureWebhook()
-        val starredMessage = MessageEdit { content = "TODO: Goodbye" }
+        val starredMessage = MessageEdit { content = reason }
         val webhookMessageId = redis.getdel("Glyph:Starboard:$messageId") ?: return
         webhook.editMessageById(webhookMessageId, starredMessage).await()
         redis.del("Glyph:Starboard:$messageId")

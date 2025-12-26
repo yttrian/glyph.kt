@@ -28,15 +28,11 @@ class HelpModule : Module {
             embeds += Embed {
                 title = "Help"
                 color = EMBED_COLOR
-                description = Resources.readText("help.md")
-                    .lines().joinToString(" ") { line ->
-                        if (line.isEmpty()) "\n\n" else line.trim()
-                    }.format(name)
+                description = Resources.readMarkdown("help.md").format(name)
             }
 
             components += ActionRow.of(
                 link("https://glyph.yttr.org/skills", "Skills", Emoji.fromUnicode("🕺")),
-                link("https://glyph.yttr.org/config", "Configure", Emoji.fromUnicode("⚙️")),
                 link("https://ko-fi.com/throudin", "Buy me a Ko-fi", Emoji.fromUnicode("☕"))
             )
         }

@@ -10,8 +10,10 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.CommandAutoCompleteInteraction
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
+import net.dv8tion.jda.api.utils.MarkdownUtil
 import org.jsoup.Jsoup
 import org.yttr.glyph.bot.wrappers.Wikipedia
+import java.time.Instant
 
 class WikipediaModule(private val wikipedia: Wikipedia = Wikipedia()) : Module {
     override fun boot(jda: JDA) {
@@ -43,6 +45,8 @@ class WikipediaModule(private val wikipedia: Wikipedia = Wikipedia()) : Module {
     }
 
     private suspend fun summarizeArticle(event: GenericCommandInteractionEvent) {
+//        event.deferReply().queue()
+
         val result = event.getOption("article")?.asLong?.let { wikipedia.extract(it) }
 
         if (result == null) {
@@ -52,10 +56,11 @@ class WikipediaModule(private val wikipedia: Wikipedia = Wikipedia()) : Module {
 
         val embed = Embed {
             title = result.title
-            description = Jsoup.parse(result.extract).text().let { extract ->
-                extract.take(MAX_LENGTH) + if (extract.length > MAX_LENGTH) "..." else ""
+            description = formatDescription(result.extract).let { extract ->
+                extract.take(MAX_LENGTH).substringBeforeLast(" ", "") + if (extract.length > MAX_LENGTH) "..." else ""
             }
             url = "https://en.wikipedia.org/wiki/${result.title.replace(" ", "_")}"
+            timestamp = Instant.now()
 
             footer {
                 name = "Wikipedia"
@@ -63,6 +68,28 @@ class WikipediaModule(private val wikipedia: Wikipedia = Wikipedia()) : Module {
         }
 
         event.replyEmbeds(embed).queue()
+    }
+
+    private fun formatDescription(extract: String): String {
+        val soup = Jsoup.parse(extract)
+
+        for (link in soup.select("a")) {
+            link.text(MarkdownUtil.maskedLink(link.text(), link.attr("href")))
+        }
+
+        for (bold in soup.select("b")) {
+            bold.text(MarkdownUtil.bold(bold.text()))
+        }
+
+        for (italic in soup.select("i")) {
+            italic.text(MarkdownUtil.italics(italic.text()))
+        }
+
+        for (sup in soup.select("sup")) {
+            sup.prependText("^")
+        }
+
+        return soup.text()
     }
 
     companion object {

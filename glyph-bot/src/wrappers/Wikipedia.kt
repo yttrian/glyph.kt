@@ -59,7 +59,7 @@ class Wikipedia {
         parameter("format", "json")
         parameter("prop", "extracts")
         parameter("exintro", true)
-        parameter("explaintext", true)
+//        parameter("explaintext", true)
         parameter("pageids", pageId)
     }.body<SearchResponse>().query.pages[pageId]
 }

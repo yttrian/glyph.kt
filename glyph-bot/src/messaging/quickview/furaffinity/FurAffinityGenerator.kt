@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.Serializable
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import org.yttr.glyph.bot.Glyph
 import org.yttr.glyph.bot.messaging.quickview.QuickviewGenerator
 import org.yttr.glyph.shared.config.server.QuickviewConfig
 import java.math.RoundingMode
@@ -22,7 +23,7 @@ import java.math.RoundingMode
  * Handles the creation of QuickViews for furaffinity.net links
  */
 object FurAffinityGenerator : QuickviewGenerator() {
-    private const val API_BASE: String = "https://faexport.spangle.org.uk"
+    private val API_BASE: String = Glyph.conf.getString("faexport")
     private const val GALLERY_LISTING_SIZE: Int = 72
 
     override val urlRegex: Regex = Regex(
